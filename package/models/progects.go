@@ -25,7 +25,7 @@ type ProjectDB struct {
 
 	Name   string `gorm:"not null;size:256"`
 	Author string `gorm:"not null;size:256"`
-	Date   string `gorm:"not null;size:256"`
+	Date   time.Time
 	Json   string `gorm:"not null;size:65535"`
 }
 
