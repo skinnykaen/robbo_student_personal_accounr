@@ -4,7 +4,7 @@ import "github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 
 type Delegate interface {
 	CreateProjectPage()
-	DeleteProjectPage(projectPage *models.ProjectPageCore) (err error)
-	GetProjectPageByID()
+	DeleteProjectPage(projectID string) (err error)
+	GetProjectPageByID(projectID string) (projectPage *models.ProjectPageHTTP, err error)
 	UpdateProjectPage(projectPage *models.ProjectPageHTTP) (err error)
 }

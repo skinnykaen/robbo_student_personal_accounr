@@ -27,15 +27,17 @@ func (p *ProjectPageDelegateImpl) CreateProjectPage() {
 
 }
 
-func (p *ProjectPageDelegateImpl) DeleteProjectPage(projectPage *models.ProjectPageCore) (err error) {
-	return p.UseCase.UpdateProjectPage(projectPage)
+func (p *ProjectPageDelegateImpl) DeleteProjectPage(projectID string) (err error) {
+	return p.UseCase.DeleteProjectPage(projectID)
 }
 
 func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectPageHTTP) (err error) {
 	projectPageCore := projectPage.ToCore()
-	return p.UseCase.UpdateProjectPage(&projectPageCore)
+	return p.UseCase.UpdateProjectPage(projectPageCore)
 }
 
-func (p *ProjectPageDelegateImpl) GetProjectPageByID() {
-
+func (p *ProjectPageDelegateImpl) GetProjectPageByID(projectID string) (projectPage *models.ProjectPageHTTP, err error) {
+	projectPageCore, err := p.UseCase.GetProjectPageByID(projectID)
+	projectPage.FromCore(projectPageCore)
+	return
 }

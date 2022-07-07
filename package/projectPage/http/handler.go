@@ -50,7 +50,25 @@ func (h *Handler) CreateProjectPage(c *gin.Context) {
 }
 
 func (h *Handler) GetProjectPageByID(c *gin.Context) {
+	fmt.Println("Get Project Page By ID")
+	projectID := c.Param("projectId")
+	projectPageByID, err := h.projectPageDelegate.GetProjectPageByID(projectID)
+	if err == nil {
 
+		return
+	} else {
+		switch err {
+		case projectPage.ErrPageNotFound:
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		case projectPage.ErrInternalServerLevel:
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		case projectPage.ErrBadRequest:
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+	}
 }
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
@@ -60,14 +78,45 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-}
+	err := h.projectPageDelegate.UpdateProjectPage(inp.ProjectPage)
+	if err == nil {
+		c.AbortWithStatus(http.StatusOK)
+		return
+	} else {
+		switch err {
+		case projectPage.ErrPageNotFound:
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		case projectPage.ErrInternalServerLevel:
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		case projectPage.ErrBadRequest:
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+	}
 
+}
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
 	fmt.Println("Delete Project Page")
 
-	projectId := c.Param("projectId")
-
-	projectHTTP := models.ProjectHTTP{}
-	projectHTTP.ID = projectId
+	projectID := c.Param("projectId")
+	err := h.projectPageDelegate.DeleteProjectPage(projectID)
+	if err == nil {
+		c.AbortWithStatus(http.StatusOK)
+		return
+	} else {
+		switch err {
+		case projectPage.ErrPageNotFound:
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		case projectPage.ErrInternalServerLevel:
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		case projectPage.ErrBadRequest:
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+	}
 
 }

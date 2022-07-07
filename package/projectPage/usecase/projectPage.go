@@ -31,10 +31,10 @@ func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPa
 	return p.Gateway.UpdateProjectPage(projectPage)
 }
 
-func (p *ProjectPageUseCaseImpl) DeleteProjectPage(projectPage *models.ProjectPageCore) (err error) {
-	return p.Gateway.UpdateProjectPage(projectPage)
+func (p *ProjectPageUseCaseImpl) DeleteProjectPage(projectID string) (err error) {
+	return p.Gateway.DeleteProjectPage(projectID)
 }
 
-func (p *ProjectPageUseCaseImpl) GetProjectPageByID() {
-
+func (p *ProjectPageUseCaseImpl) GetProjectPageByID(projectID string) (projectPage *models.ProjectPageCore, err error) {
+	return p.Gateway.GetProjectPageByID(projectID)
 }
