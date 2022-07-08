@@ -7,4 +7,5 @@ type Delegate interface {
 	DeleteProjectPage(projectID string) (err error)
 	GetProjectPageByID(projectID string) (projectPage *models.ProjectPageHTTP, err error)
 	UpdateProjectPage(projectPage *models.ProjectPageHTTP) (err error)
+	GetAllProjectPage(authorID string) (projectPage []string, err error)
 }
