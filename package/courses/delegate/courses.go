@@ -2,7 +2,6 @@ package delegate
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edxApi"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -33,51 +32,51 @@ func (p *CourseDelegateImpl) CreateCourse(course *models.CourseHTTP, courseId st
 	if err != nil {
 		return "", err
 	}
-	err = json.Unmarshal(body, course)
-	fmt.Println(course)
+
+	err = json.Unmarshal([]byte(body), course)
 	if err != nil {
 		return "", err
 	}
 	courseCore := course.ToCore()
-	return p.UseCase.CreateCourse(courseCore)
+	return p.UseCase.CreateCourse(courseCore, courseId)
 }
 
-func (p *CourseDelegateImpl) DeleteCourse(courseId string) (err error) {
-	return p.UseCase.DeleteCourse(courseId)
+func (p *CourseDelegateImpl) DeleteCourse(course *models.CourseHTTP) (err error) {
+	courseCore := course.ToCore()
+	return p.UseCase.DeleteCourse(courseCore)
 }
 
 func (p *CourseDelegateImpl) UpdateCourse(course *models.CourseHTTP) (err error) {
-	courseCore := course.ToCore()
-	return p.UseCase.UpdateCourse(courseCore)
+	//TODO implement me
+	panic("implement me")
 }
-
-func (p *CourseDelegateImpl) GetCourseContent(courseId string) (respBody []byte, err error) {
+func (p *CourseDelegateImpl) GetCourseContent(courseId string) (respBody string, err error) {
 	body, err := p.EdxApiUseCase.GetCourseContent(courseId)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	return body, nil
 }
-func (p *CourseDelegateImpl) GetCoursesByUser() (respBody []byte, err error) {
+func (p *CourseDelegateImpl) GetCoursesByUser() (respBody string, err error) {
 	body, err := p.EdxApiUseCase.GetCoursesByUser()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	return body, nil
 }
 
-func (p *CourseDelegateImpl) GetEnrollments(username string) (respBody []byte, err error) {
+func (p *CourseDelegateImpl) GetEnrollments(username string) (respBody string, err error) {
 	body, err := p.EdxApiUseCase.GetEnrollments(username)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	return body, nil
 }
 
-func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody []byte, err error) {
+func (p *CourseDelegateImpl) GetAllPublicCourses(pageNumber int) (respBody string, err error) {
 	body, err := p.EdxApiUseCase.GetAllPublicCourses(pageNumber)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	return body, nil
 }
