@@ -80,7 +80,7 @@ func (p *ProjectPageUseCaseImpl) UpdateProjectPage(projectPage *models.ProjectPa
 func (p *ProjectPageUseCaseImpl) DeleteProjectPage(projectId string) (err error) {
 	err = p.projectGateway.DeleteProject(projectId)
 	if err != nil {
-		return
+		return projectPage.ErrPageNotFound
 	}
 	return p.projectPageGateway.DeleteProjectPage(projectId)
 }
@@ -91,15 +91,18 @@ func (p *ProjectPageUseCaseImpl) GetAllProjectPage(authorId string) (projectPage
 		return
 	}
 	for _, project := range projects {
-		projectPage, errGetProjectPageById := p.projectPageGateway.GetProjectPageById(project.ID)
-		if errGetProjectPageById != nil {
-			return []*models.ProjectPageCore{}, errGetProjectPageById
+		projectPageModule, err := p.projectPageGateway.GetProjectPageById(project.ID)
+		if err != nil {
+			return []*models.ProjectPageCore{}, projectPage.ErrPageNotFound
 		}
-		projectPages = append(projectPages, projectPage)
+		projectPages = append(projectPages, projectPageModule)
 	}
 	return
 }
 
-func (p *ProjectPageUseCaseImpl) GetProjectPageById(projectId string) (projectPage *models.ProjectPageCore, err error) {
+func (p *ProjectPageUseCaseImpl) GetProjectPageById(projectId string) (projectPageModule *models.ProjectPageCore, err error) {
+	if err != nil {
+		return projectPageModule, projectPage.ErrPageNotFound
+	}
 	return p.projectPageGateway.GetProjectPageById(projectId)
 }

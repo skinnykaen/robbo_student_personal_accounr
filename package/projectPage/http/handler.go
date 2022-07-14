@@ -42,7 +42,7 @@ type createProjectPageResponse struct {
 func (h *Handler) CreateProjectPage(c *gin.Context) {
 	fmt.Println("CreateProjectPage")
 
-	userId, _, userIdentityErr := h.userIdentity(c)
+	userId, userIdentityErr := h.userIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -50,7 +50,7 @@ func (h *Handler) CreateProjectPage(c *gin.Context) {
 	projectId, err := h.projectPageDelegate.CreateProjectPage(userId)
 
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, projectPage.ErrInternalServerLevel)
 		return
 	}
 
@@ -69,13 +69,10 @@ func (h *Handler) GetProjectPageById(c *gin.Context) {
 	project_page, err := h.projectPageDelegate.GetProjectPageById(projectId)
 	switch err {
 	case projectPage.ErrPageNotFound:
-		c.AbortWithStatus(http.StatusNotFound)
+		c.AbortWithStatusJSON(http.StatusNotFound, projectPage.ErrPageNotFound)
 		return
-	case projectPage.ErrInternalServerLevel:
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	case projectPage.ErrBadRequest:
-		c.AbortWithStatus(http.StatusBadRequest)
+	default:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, projectPage.ErrInternalServerLevel)
 		return
 	}
 
@@ -91,7 +88,7 @@ type getAllProjectPageResponse struct {
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 	fmt.Println("GetAllProjectPageByUserId")
 
-	userId, _, userIdentityErr := h.userIdentity(c)
+	userId, userIdentityErr := h.userIdentity(c)
 	if userIdentityErr != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -99,7 +96,7 @@ func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 
 	projectPages, err := h.projectPageDelegate.GetAllProjectPages(userId)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, projectPage.ErrInternalServerLevel)
 	}
 	c.JSON(http.StatusOK, getAllProjectPageResponse{
 		ProjectPages: projectPages,
@@ -114,12 +111,12 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 	fmt.Println("Update Project Page")
 	inp := new(updateProjectPageInput)
 	if err := c.BindJSON(&inp); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatusJSON(http.StatusBadRequest, projectPage.ErrBadRequest)
 		return
 	}
 	err := h.projectPageDelegate.UpdateProjectPage(inp.ProjectPage)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, projectPage.ErrInternalServerLevel)
 	}
 	c.Status(http.StatusOK)
 }
@@ -131,7 +128,7 @@ func (h *Handler) DeleteProjectPage(c *gin.Context) {
 
 	err := h.projectPageDelegate.DeleteProjectPage(projectId)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, projectPage.ErrInternalServerLevel)
 	}
 	c.Status(http.StatusOK)
 }
