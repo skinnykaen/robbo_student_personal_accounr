@@ -35,18 +35,6 @@ type UserDB struct {
 	Lastname   string `gorm:"not null;size:256"`
 }
 
-//type UserHttp struct {
-//	Id         string `json:"id"`
-//	Email      string `json:"email"`
-//	Password   string `json:"password"`
-//	Role       uint   `json:"role"`
-//	Nickname   string `json:"nickname"`
-//	Firstname  string `json:"firstname"`
-//	Middlename string `json:"middlename"`
-//	Lastname   string `json:"lastname"`
-//	CreatedAt  string `json:"createdAt"`
-//}
-
 type UserCore struct {
 	Id         string
 	Email      string

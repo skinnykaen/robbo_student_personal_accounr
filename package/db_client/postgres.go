@@ -48,18 +48,8 @@ func (c *PostgresClient) Migrate() (err error) {
 		&models.ImageDB{},
 		&models.CourseApiMediaCollectionDB{},
 		&models.MediaDB{},
-		&models.TeacherDB{},
 		&models.StudentDB{},
-		&models.ParentDB{},
-		&models.SuperAdminDB{},
-		&models.UnitAdminDB{},
-		&models.FreeListenerDB{},
-		&models.ChildrenOfParentDB{},
-		&models.RobboUnitDB{},
 		&models.CoursePacketDB{},
-		&models.RobboGroupDB{},
-		&models.UnitAdminsRobboUnitsDB{},
-		&models.TeachersRobboGroupsDB{},
 	)
 	return
 }

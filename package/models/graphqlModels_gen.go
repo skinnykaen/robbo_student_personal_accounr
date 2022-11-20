@@ -70,15 +70,6 @@ type MediaHTTP struct {
 	URI string `json:"URI"`
 }
 
-type NewParent struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
-}
-
 type NewStudent struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`
@@ -89,34 +80,11 @@ type NewStudent struct {
 	ParentID   string `json:"parentId"`
 }
 
-type NewTeacher struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
-}
-
-type NewUnitAdmin struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
-}
-
 type Pagination struct {
 	Next     string `json:"Next"`
 	Previous string `json:"Previous"`
 	Count    int    `json:"Count"`
 	NumPages int    `json:"Num_Pages"`
-}
-
-type ParentHTTP struct {
-	UserHTTP *UserHTTP      `json:"userHttp"`
-	Children []*StudentHTTP `json:"children"`
 }
 
 type ProjectPageHTTP struct {
@@ -131,45 +99,10 @@ type ProjectPageHTTP struct {
 	IsShared      bool   `json:"isShared"`
 }
 
-type RobboGroupHTTP struct {
-	ID           string         `json:"id"`
-	LastModified string         `json:"lastModified"`
-	Name         string         `json:"name"`
-	RobboUnitID  string         `json:"robboUnitId"`
-	Students     []*StudentHTTP `json:"students"`
-}
-
-type RobboUnitHTTP struct {
-	ID           string `json:"id"`
-	LastModified string `json:"lastModified"`
-	Name         string `json:"name"`
-	City         string `json:"city"`
-}
-
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`
 	RobboGroupID string    `json:"robboGroupId"`
 	RobboUnitID  string    `json:"robboUnitId"`
-}
-
-type SuperAdminHTTP struct {
-	UserHTTP *UserHTTP `json:"userHttp"`
-}
-
-type TeacherHTTP struct {
-	UserHTTP *UserHTTP `json:"userHttp"`
-}
-
-type UnitAdminHTTP struct {
-	UserHTTP *UserHTTP `json:"userHttp"`
-}
-
-type UpdateParentHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateParentInput struct {
-	ParentHTTP *UpdateParentHTTP `json:"parentHttp"`
 }
 
 type UpdateProjectPage struct {
@@ -188,30 +121,6 @@ type UpdateStudentHTTP struct {
 
 type UpdateStudentInput struct {
 	StudentHTTP *UpdateStudentHTTP `json:"studentHttp"`
-}
-
-type UpdateSuperAdminHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateSuperAdminInput struct {
-	SuperAdminHTTP *UpdateSuperAdminHTTP `json:"superAdminHttp"`
-}
-
-type UpdateTeacherHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateTeacherInput struct {
-	TeacherHTTP *UpdateTeacherHTTP `json:"teacherHttp"`
-}
-
-type UpdateUnitAdminHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateUnitAdminInput struct {
-	UnitAdminHTTP *UpdateUnitAdminHTTP `json:"unitAdminHttp"`
 }
 
 type UpdateUserHTTP struct {

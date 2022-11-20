@@ -7,8 +7,6 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboUnits"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 )
 
@@ -19,8 +17,6 @@ import (
 type Resolver struct {
 	authDelegate        auth.Delegate
 	usersDelegate       users.Delegate
-	robboGroupDelegate  robboGroup.Delegate
-	robboUnitsDelegate  robboUnits.Delegate
 	coursesDelegate     courses.Delegate
 	projectPageDelegate projectPage.Delegate
 }
@@ -46,16 +42,12 @@ func GinContextFromContext(ctx context.Context) (*gin.Context, error) {
 func NewResolver(
 	authDelegate auth.Delegate,
 	usersDelegate users.Delegate,
-	robboGroupDelegate robboGroup.Delegate,
-	robboUnitsDelegate robboUnits.Delegate,
 	coursesDelegate courses.Delegate,
 	projectPageDelegate projectPage.Delegate,
 ) Resolver {
 	return Resolver{
 		authDelegate:        authDelegate,
 		usersDelegate:       usersDelegate,
-		robboGroupDelegate:  robboGroupDelegate,
-		robboUnitsDelegate:  robboUnitsDelegate,
 		coursesDelegate:     coursesDelegate,
 		projectPageDelegate: projectPageDelegate,
 	}

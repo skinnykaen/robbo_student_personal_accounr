@@ -61,40 +61,15 @@ func (a *AuthUseCaseImpl) SignIn(email, password string, role uint) (accessToken
 		user.Id = student.Id
 		user.Role = models.Student
 	case models.Teacher:
-		teacher, getTeacherErr := a.Gateway.GetTeacher(email, passwordHash)
-		if getTeacherErr != nil {
-			return "", "", getTeacherErr
-		}
-		user.Id = teacher.Id
-		user.Role = models.Teacher
+
 	case models.Parent:
-		parent, getParentErr := a.Gateway.GetParent(email, passwordHash)
-		if getParentErr != nil {
-			return "", "", getParentErr
-		}
-		user.Id = parent.Id
-		user.Role = models.Parent
+
 	case models.FreeListener:
-		freeListener, getFreeListenerErr := a.Gateway.GetFreeListener(email, passwordHash)
-		if getFreeListenerErr != nil {
-			return "", "", getFreeListenerErr
-		}
-		user.Id = freeListener.Id
-		user.Role = models.FreeListener
+
 	case models.UnitAdmin:
-		unitAdmin, getUnitAdminErr := a.Gateway.GetUnitAdmin(email, passwordHash)
-		if getUnitAdminErr != nil {
-			return "", "", getUnitAdminErr
-		}
-		user.Id = unitAdmin.Id
-		user.Role = models.UnitAdmin
+
 	case models.SuperAdmin:
-		superAdmin, getSuperAdminErr := a.Gateway.GetSuperAdmin(email, passwordHash)
-		if getSuperAdminErr != nil {
-			return "", "", getSuperAdminErr
-		}
-		user.Id = superAdmin.Id
-		user.Role = models.SuperAdmin
+
 	default:
 		err = auth.ErrUserNotFound
 	}
@@ -132,32 +107,11 @@ func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refres
 		}
 		userCore.Id = id
 	case models.Teacher:
-		teacher := &models.TeacherCore{
-			UserCore: *userCore,
-		}
-		id, createTeacherErr := a.Gateway.CreateTeacher(teacher)
-		if createTeacherErr != nil {
-			return "", "", createTeacherErr
-		}
-		userCore.Id = id
+
 	case models.Parent:
-		parent := &models.ParentCore{
-			UserCore: *userCore,
-		}
-		id, createParentErr := a.Gateway.CreateParent(parent)
-		if createParentErr != nil {
-			return "", "", createParentErr
-		}
-		userCore.Id = id
+
 	case models.FreeListener:
-		freeListener := &models.FreeListenerCore{
-			UserCore: *userCore,
-		}
-		id, createFreeListenerErr := a.Gateway.CreateFreeListener(freeListener)
-		if createFreeListenerErr != nil {
-			return "", "", createFreeListenerErr
-		}
-		userCore.Id = id
+
 	default:
 		err = auth.ErrUserNotFound
 	}

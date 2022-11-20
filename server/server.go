@@ -69,11 +69,7 @@ func SetupGinRouter(handlers modules.HandlerModule) *gin.Engine {
 	handlers.ProjectsHandler.InitProjectRoutes(router)
 	handlers.ProjectPageHandler.InitProjectRoutes(router)
 	handlers.CoursesHandler.InitCourseRoutes(router)
-	handlers.CohortsHandler.InitCohortRoutes(router)
 	handlers.UsersHandler.InitUsersRoutes(router)
-	handlers.RobboUnitsHandler.InitRobboUnitsRoutes(router)
-	handlers.RobboGroupHandler.InitRobboGroupRoutes(router)
-	handlers.CoursePacketHandler.InitCoursePacketRoutes(router)
 	return router
 }
 
