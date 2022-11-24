@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
@@ -67,14 +68,29 @@ func (h *Handler) CreateProject(c *gin.Context) {
 }
 
 func (h *Handler) GetProject(c *gin.Context) {
+	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
+
+	if userIdentityErr != nil {
+		err := errors.New("status unauthorized")
+		c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
+	allowedRoles := []models.Role{models.Student}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
+
 	projectId := c.Param("projectId")
 	if projectId == "" {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	project, err := h.projectsDelegate.GetProjectById(projectId)
+	project, err := h.projectsDelegate.GetProjectById(projectId, userId)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 

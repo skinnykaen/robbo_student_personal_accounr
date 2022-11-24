@@ -6,6 +6,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
+	"log"
 	"strings"
 )
 
@@ -59,6 +60,7 @@ func (s *AuthDelegateImpl) UserIdentity(c *gin.Context) (id string, role models.
 
 	claims, err := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
 	if err != nil {
+		log.Println(err)
 		return "", models.Anonymous, auth.ErrInvalidAccessToken
 	}
 	return claims.Id, claims.Role, nil
