@@ -11,29 +11,29 @@ import (
 )
 
 // CreateProjectPage is the resolver for the CreateProjectPage field.
-func (r *mutationResolver) CreateProjectPage(ctx context.Context) (string, error) {
+func (r *mutationResolver) CreateProjectPage(ctx context.Context) (*models.ProjectPageHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return nil, err
 	}
 	userID, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return nil, err
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return nil, err
 	}
-	projectId, createProjectPageErr := r.projectPageDelegate.CreateProjectPage(userID)
+	newProjectPage, createProjectPageErr := r.projectPageDelegate.CreateProjectPage(userID)
 	if createProjectPageErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return nil, err
 	}
-	return projectId, nil
+	return &newProjectPage, nil
 }
 
 // UpdateProjectPage is the resolver for the UpdateProjectPage field.
@@ -55,47 +55,46 @@ func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.U
 		return nil, err
 	}
 	updateProjectPageInput := &models.ProjectPageHTTP{
-		ProjectID:   input.ProjectID,
-		Instruction: input.Instruction,
-		Notes:       input.Notes,
-		Preview:     input.Preview,
-		LinkScratch: input.LinkScratch,
-		Title:       input.Title,
-		IsShared:    input.IsShared,
+		ProjectID:     input.ProjectID,
+		ProjectPageID: input.ProjectPageID,
+		Instruction:   input.Instruction,
+		Notes:         input.Notes,
+		Title:         input.Title,
+		IsShared:      input.IsShared,
 	}
 
-	updateProjectPageErr := r.projectPageDelegate.UpdateProjectPage(updateProjectPageInput)
+	projectPageUpdated, updateProjectPageErr := r.projectPageDelegate.UpdateProjectPage(updateProjectPageInput)
 	if updateProjectPageErr != nil {
 		err := errors.New("baq request")
 		return nil, err
 	}
-	return updateProjectPageInput, nil
+	return &projectPageUpdated, nil
 }
 
 // DeleteProjectPage is the resolver for the DeleteProjectPage field.
-func (r *mutationResolver) DeleteProjectPage(ctx context.Context, projectID string) (string, error) {
+func (r *mutationResolver) DeleteProjectPage(ctx context.Context, projectID string) (*models.DeletedProjectPage, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return "", err
+		return &models.DeletedProjectPage{ProjectPageID: ""}, err
 	}
 	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
-		return "", err
+		return &models.DeletedProjectPage{ProjectPageID: ""}, err
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return "", err
+		return &models.DeletedProjectPage{ProjectPageID: ""}, err
 	}
 	deleteProjectPageErr := r.projectPageDelegate.DeleteProjectPage(projectID)
 	if deleteProjectPageErr != nil {
 		err := errors.New("baq request")
-		return "", err
+		return &models.DeletedProjectPage{ProjectPageID: ""}, err
 	}
-	return projectID, nil
+	return &models.DeletedProjectPage{ProjectPageID: projectID}, nil
 }
 
 // GetProjectPageByID is the resolver for the GetProjectPageById field.

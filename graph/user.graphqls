@@ -44,12 +44,13 @@ input UpdateStudentInput {
 }
 
 type Mutation {
-    createStudent(input: NewStudent!): StudentHttp!
-    updateStudent(input: UpdateStudentInput!): StudentHttp!
-    deleteStudent(studentId: String!): String!
+    CreateStudent(input: NewStudent!): StudentHttp!
+    UpdateStudent(input: UpdateStudentInput!): StudentHttp!
+    DeleteStudent(studentId: String!): String!
 }
 
 type Query {
+    GetStudentByAccessToken: StudentHttp!
     GetStudentById(studentId: String!): StudentHttp!
 }
 

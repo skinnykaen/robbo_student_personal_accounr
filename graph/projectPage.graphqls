@@ -10,20 +10,23 @@ type ProjectPageHttp {
     isShared: Boolean!
 }
 
+type DeletedProjectPage {
+    projectPageId: String!
+}
+
 input UpdateProjectPage {
-    ProjectID: String!
-    Instruction: String!
-    Notes: String!
-    Preview: String!
-    LinkScratch: String!
-    Title: String!
-    IsShared: Boolean!
+    projectId: String!
+    projectPageId: String!
+    instruction: String!
+    notes: String!
+    title: String!
+    isShared: Boolean!
 }
 
 extend type Mutation {
-    CreateProjectPage: String!
+    CreateProjectPage: ProjectPageHttp!
     UpdateProjectPage(input: UpdateProjectPage!): ProjectPageHttp!
-    DeleteProjectPage(projectID: String!): String!
+    DeleteProjectPage(projectID: String!): DeletedProjectPage!
 }
 
 extend type Query {

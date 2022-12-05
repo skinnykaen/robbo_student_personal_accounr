@@ -52,7 +52,7 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.Updat
 		err := errors.New("status unauthorized")
 		return nil, err
 	}
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin, models.Student}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
@@ -101,6 +101,22 @@ func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) 
 		return "", err
 	}
 	return studentID, nil
+}
+
+// GetStudentByAccessToken is the resolver for the GetStudentByAccessToken field.
+func (r *queryResolver) GetStudentByAccessToken(ctx context.Context) (*models.StudentHTTP, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return nil, err
+	}
+	userId, _, identityErr := r.authDelegate.UserIdentity(ginContext)
+	if identityErr != nil {
+		err := errors.New("status unauthorized")
+		return nil, err
+	}
+	student, err := r.usersDelegate.GetStudentById(userId)
+	return student, err
 }
 
 // GetStudentByID is the resolver for the GetStudentById field.

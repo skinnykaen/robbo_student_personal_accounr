@@ -44,6 +44,10 @@ type CoursesListHTTP struct {
 	Pagination *Pagination   `json:"Pagination"`
 }
 
+type DeletedProjectPage struct {
+	ProjectPageID string `json:"projectPageId"`
+}
+
 type EnrollmentHTTP struct {
 	Created  string `json:"Created"`
 	Mode     string `json:"Mode"`
@@ -106,13 +110,12 @@ type StudentHTTP struct {
 }
 
 type UpdateProjectPage struct {
-	ProjectID   string `json:"ProjectID"`
-	Instruction string `json:"Instruction"`
-	Notes       string `json:"Notes"`
-	Preview     string `json:"Preview"`
-	LinkScratch string `json:"LinkScratch"`
-	Title       string `json:"Title"`
-	IsShared    bool   `json:"IsShared"`
+	ProjectID     string `json:"projectId"`
+	ProjectPageID string `json:"projectPageId"`
+	Instruction   string `json:"instruction"`
+	Notes         string `json:"notes"`
+	Title         string `json:"title"`
+	IsShared      bool   `json:"isShared"`
 }
 
 type UpdateStudentHTTP struct {
