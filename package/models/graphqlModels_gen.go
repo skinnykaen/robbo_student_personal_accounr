@@ -2,6 +2,10 @@
 
 package models
 
+type ProjectPageResult interface {
+	IsProjectPageResult()
+}
+
 type AbsoluteMediaHTTP struct {
 	ID          string `json:"ID"`
 	URI         string `json:"URI"`
@@ -62,6 +66,13 @@ type EnrollmentsListHTTP struct {
 	Results  []*EnrollmentHTTP `json:"Results"`
 }
 
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (Error) IsProjectPageResult() {}
+
 type ImageHTTP struct {
 	ID    string `json:"ID"`
 	Raw   string `json:"Raw"`
@@ -102,6 +113,14 @@ type ProjectPageHTTP struct {
 	Title         string `json:"title"`
 	IsShared      bool   `json:"isShared"`
 }
+
+func (ProjectPageHTTP) IsProjectPageResult() {}
+
+type ProjectPageHTTPList struct {
+	ProjectPages []*ProjectPageHTTP `json:"projectPages"`
+}
+
+func (ProjectPageHTTPList) IsProjectPageResult() {}
 
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`

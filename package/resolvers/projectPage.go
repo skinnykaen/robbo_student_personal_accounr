@@ -11,48 +11,48 @@ import (
 )
 
 // CreateProjectPage is the resolver for the CreateProjectPage field.
-func (r *mutationResolver) CreateProjectPage(ctx context.Context) (*models.ProjectPageHTTP, error) {
+func (r *mutationResolver) CreateProjectPage(ctx context.Context) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	userID, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
-		return nil, err
+		return &models.Error{Message: "status unauthorized"}, err
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return nil, err
+		return &models.Error{Message: "no access"}, err
 	}
 	newProjectPage, createProjectPageErr := r.projectPageDelegate.CreateProjectPage(userID)
 	if createProjectPageErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := createProjectPageErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	return &newProjectPage, nil
 }
 
 // UpdateProjectPage is the resolver for the UpdateProjectPage field.
-func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (*models.ProjectPageHTTP, error) {
+func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
-		return nil, err
+		return &models.Error{Message: "status unauthorized"}, err
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	updateProjectPageInput := &models.ProjectPageHTTP{
 		ProjectID:     input.ProjectID,
@@ -63,12 +63,12 @@ func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.U
 		IsShared:      input.IsShared,
 	}
 
-	projectPageUpdated, updateProjectPageErr := r.projectPageDelegate.UpdateProjectPage(updateProjectPageInput)
+	updatedProjectPage, updateProjectPageErr := r.projectPageDelegate.UpdateProjectPage(updateProjectPageInput)
 	if updateProjectPageErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := updateProjectPageErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return &projectPageUpdated, nil
+	return updatedProjectPage, nil
 }
 
 // DeleteProjectPage is the resolver for the DeleteProjectPage field.
@@ -98,73 +98,76 @@ func (r *mutationResolver) DeleteProjectPage(ctx context.Context, projectID stri
 }
 
 // GetProjectPageByID is the resolver for the GetProjectPageById field.
-func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID string) (*models.ProjectPageHTTP, error) {
+func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID string) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		err := accessErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	projectPageHttp, getProjectPageByIDErr := r.projectPageDelegate.GetProjectPageById(projectPageID)
 	if getProjectPageByIDErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := getProjectPageByIDErr
+		return &models.Error{Message: err.Error()}, err
 	}
 	return &projectPageHttp, nil
 }
 
 // GetAllProjectPagesByUserID is the resolver for the GetAllProjectPagesByUserID field.
-func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID string) ([]*models.ProjectPageHTTP, error) {
+func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	userID, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := errors.New("status unauthorized")
-		return nil, err
+		return &models.Error{Message: "status unauthorized"}, err
 	}
 	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
 	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
 	if accessErr != nil {
 		err := errors.New("no access")
-		return nil, err
+		return &models.Error{Message: "no access"}, err
 	}
-	projectPageListHttp, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userID)
+	projectPages, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userID)
 	if getAllProjectPagesErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := getAllProjectPagesErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return projectPageListHttp, nil
+
+	return &models.ProjectPageHTTPList{
+		ProjectPages: projectPages,
+	}, nil
 }
 
 // GetAllProjectPagesByAccessToken is the resolver for the GetAllProjectPagesByAccessToken field.
-func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context) ([]*models.ProjectPageHTTP, error) {
+func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
-		return nil, err
+		return &models.Error{Message: "internal server error"}, err
 	}
 	userId, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+		err := userIdentityErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	projectPageListHttp, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userId)
+	projectPages, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userId)
 	if getAllProjectPagesErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		err := getAllProjectPagesErr
+		return &models.Error{Message: err.Error()}, err
 	}
-	return projectPageListHttp, nil
+	return &models.ProjectPageHTTPList{ProjectPages: projectPages}, nil
 }

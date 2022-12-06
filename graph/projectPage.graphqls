@@ -10,6 +10,10 @@ type ProjectPageHttp {
     isShared: Boolean!
 }
 
+type ProjectPageHttpList {
+    projectPages: [ProjectPageHttp!]!
+}
+
 type DeletedProjectPage {
     projectPageId: String!
 }
@@ -23,14 +27,21 @@ input UpdateProjectPage {
     isShared: Boolean!
 }
 
+type Error {
+    code: Int!
+    message: String!
+}
+
+union ProjectPageResult = ProjectPageHttp | ProjectPageHttpList | Error
+
 extend type Mutation {
-    CreateProjectPage: ProjectPageHttp!
-    UpdateProjectPage(input: UpdateProjectPage!): ProjectPageHttp!
+    CreateProjectPage: ProjectPageResult!
+    UpdateProjectPage(input: UpdateProjectPage!): ProjectPageResult!
     DeleteProjectPage(projectID: String!): DeletedProjectPage!
 }
 
 extend type Query {
-    GetProjectPageById(projectPageID: String!): ProjectPageHttp!
-    GetAllProjectPagesByUserID(userID: String!): [ProjectPageHttp!]!
-    GetAllProjectPagesByAccessToken: [ProjectPageHttp!]!
+    GetProjectPageById(projectPageID: String!): ProjectPageResult!
+    GetAllProjectPagesByUserID(userID: String!): ProjectPageResult!
+    GetAllProjectPagesByAccessToken: ProjectPageResult!
 }
