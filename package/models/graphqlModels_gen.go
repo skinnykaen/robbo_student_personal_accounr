@@ -6,6 +6,14 @@ type ProjectPageResult interface {
 	IsProjectPageResult()
 }
 
+type ProjectPagesResult interface {
+	IsProjectPagesResult()
+}
+
+type StudentHTTPResult interface {
+	IsStudentHTTPResult()
+}
+
 type AbsoluteMediaHTTP struct {
 	ID          string `json:"ID"`
 	URI         string `json:"URI"`
@@ -73,6 +81,10 @@ type Error struct {
 
 func (Error) IsProjectPageResult() {}
 
+func (Error) IsProjectPagesResult() {}
+
+func (Error) IsStudentHTTPResult() {}
+
 type ImageHTTP struct {
 	ID    string `json:"ID"`
 	Raw   string `json:"Raw"`
@@ -118,15 +130,18 @@ func (ProjectPageHTTP) IsProjectPageResult() {}
 
 type ProjectPageHTTPList struct {
 	ProjectPages []*ProjectPageHTTP `json:"projectPages"`
+	CountRows    int                `json:"countRows"`
 }
 
-func (ProjectPageHTTPList) IsProjectPageResult() {}
+func (ProjectPageHTTPList) IsProjectPagesResult() {}
 
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`
 	RobboGroupID string    `json:"robboGroupId"`
 	RobboUnitID  string    `json:"robboUnitId"`
 }
+
+func (StudentHTTP) IsStudentHTTPResult() {}
 
 type UpdateProjectPage struct {
 	ProjectID     string `json:"projectId"`

@@ -12,6 +12,7 @@ type ProjectPageHttp {
 
 type ProjectPageHttpList {
     projectPages: [ProjectPageHttp!]!
+    countRows: Int!
 }
 
 type DeletedProjectPage {
@@ -32,7 +33,8 @@ type Error {
     message: String!
 }
 
-union ProjectPageResult = ProjectPageHttp | ProjectPageHttpList | Error
+union ProjectPageResult = ProjectPageHttp | Error
+union ProjectPagesResult = ProjectPageHttpList | Error
 
 extend type Mutation {
     CreateProjectPage: ProjectPageResult!
@@ -42,6 +44,6 @@ extend type Mutation {
 
 extend type Query {
     GetProjectPageById(projectPageID: String!): ProjectPageResult!
-    GetAllProjectPagesByUserID(userID: String!): ProjectPageResult!
-    GetAllProjectPagesByAccessToken: ProjectPageResult!
+    GetAllProjectPagesByUserID(userID: String!): ProjectPagesResult!
+    GetAllProjectPagesByAccessToken(page: String!, pageSize: String!): ProjectPagesResult!
 }

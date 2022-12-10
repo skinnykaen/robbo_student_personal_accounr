@@ -47,7 +47,15 @@ func (p *UsersDelegateImpl) GetStudentById(studentId string) (student *models.St
 	return
 }
 
-func (p *UsersDelegateImpl) UpdateStudent(studentHTTP *models.StudentHTTP) (err error) {
+func (p *UsersDelegateImpl) UpdateStudent(studentHTTP *models.StudentHTTP) (updatedStudent models.StudentHTTP, err error) {
 	studentCore := studentHTTP.ToCore()
-	return p.UseCase.UpdateStudent(studentCore)
+	updatedStudentCore, err := p.UseCase.UpdateStudent(studentCore)
+	if err != nil {
+		return
+	}
+	updatedStudent = models.StudentHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	updatedStudent.FromCore(updatedStudentCore)
+	return
 }

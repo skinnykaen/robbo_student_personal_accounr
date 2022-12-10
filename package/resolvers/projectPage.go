@@ -124,7 +124,7 @@ func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID st
 }
 
 // GetAllProjectPagesByUserID is the resolver for the GetAllProjectPagesByUserID field.
-func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPageResult, error) {
+func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPagesResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -141,7 +141,7 @@ func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID s
 		err := errors.New("no access")
 		return &models.Error{Message: "no access"}, err
 	}
-	projectPages, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userID)
+	projectPages, _, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userID, "0", "0")
 	if getAllProjectPagesErr != nil {
 		err := getAllProjectPagesErr
 		return &models.Error{Message: err.Error()}, err
@@ -153,21 +153,30 @@ func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID s
 }
 
 // GetAllProjectPagesByAccessToken is the resolver for the GetAllProjectPagesByAccessToken field.
-func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context) (models.ProjectPageResult, error) {
+func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context, page string, pageSize string) (models.ProjectPagesResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
 		return &models.Error{Message: "internal server error"}, err
 	}
-	userId, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
+	userId, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
 	if userIdentityErr != nil {
 		err := userIdentityErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	projectPages, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userId)
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
+	}
+	projectPages, countRows, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userId, page, pageSize)
 	if getAllProjectPagesErr != nil {
 		err := getAllProjectPagesErr
 		return &models.Error{Message: err.Error()}, err
 	}
-	return &models.ProjectPageHTTPList{ProjectPages: projectPages}, nil
+	return &models.ProjectPageHTTPList{
+		ProjectPages: projectPages,
+		CountRows:    countRows,
+	}, nil
 }

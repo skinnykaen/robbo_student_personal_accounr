@@ -150,11 +150,12 @@ type ComplexityRoot struct {
 	}
 
 	ProjectPageHttpList struct {
+		CountRows    func(childComplexity int) int
 		ProjectPages func(childComplexity int) int
 	}
 
 	Query struct {
-		GetAllProjectPagesByAccessToken func(childComplexity int) int
+		GetAllProjectPagesByAccessToken func(childComplexity int, page string, pageSize string) int
 		GetAllProjectPagesByUserID      func(childComplexity int, userID string) int
 		GetAllPublicCourses             func(childComplexity int, pageNumber string) int
 		GetCourseContent                func(childComplexity int, courseID string) int
@@ -185,23 +186,23 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateStudent(ctx context.Context, input models.NewStudent) (*models.StudentHTTP, error)
-	UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (*models.StudentHTTP, error)
+	CreateStudent(ctx context.Context, input models.NewStudent) (models.StudentHTTPResult, error)
+	UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (models.StudentHTTPResult, error)
 	DeleteStudent(ctx context.Context, studentID string) (string, error)
 	CreateProjectPage(ctx context.Context) (models.ProjectPageResult, error)
 	UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (models.ProjectPageResult, error)
 	DeleteProjectPage(ctx context.Context, projectID string) (*models.DeletedProjectPage, error)
 }
 type QueryResolver interface {
-	GetStudentByAccessToken(ctx context.Context) (*models.StudentHTTP, error)
-	GetStudentByID(ctx context.Context, studentID string) (*models.StudentHTTP, error)
+	GetStudentByAccessToken(ctx context.Context) (models.StudentHTTPResult, error)
+	GetStudentByID(ctx context.Context, studentID string) (models.StudentHTTPResult, error)
 	GetCourseContent(ctx context.Context, courseID string) (*models.CourseHTTP, error)
 	GetCoursesByUser(ctx context.Context) (*models.CoursesListHTTP, error)
 	GetAllPublicCourses(ctx context.Context, pageNumber string) (*models.CoursesListHTTP, error)
 	GetEnrollments(ctx context.Context, username string) (*models.EnrollmentsListHTTP, error)
 	GetProjectPageByID(ctx context.Context, projectPageID string) (models.ProjectPageResult, error)
-	GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPageResult, error)
-	GetAllProjectPagesByAccessToken(ctx context.Context) (models.ProjectPageResult, error)
+	GetAllProjectPagesByUserID(ctx context.Context, userID string) (models.ProjectPagesResult, error)
+	GetAllProjectPagesByAccessToken(ctx context.Context, page string, pageSize string) (models.ProjectPagesResult, error)
 }
 
 type executableSchema struct {
@@ -706,6 +707,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProjectPageHttp.Title(childComplexity), true
 
+	case "ProjectPageHttpList.countRows":
+		if e.complexity.ProjectPageHttpList.CountRows == nil {
+			break
+		}
+
+		return e.complexity.ProjectPageHttpList.CountRows(childComplexity), true
+
 	case "ProjectPageHttpList.projectPages":
 		if e.complexity.ProjectPageHttpList.ProjectPages == nil {
 			break
@@ -718,7 +726,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetAllProjectPagesByAccessToken(childComplexity), true
+		args, err := ec.field_Query_GetAllProjectPagesByAccessToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllProjectPagesByAccessToken(childComplexity, args["page"].(string), args["pageSize"].(string)), true
 
 	case "Query.GetAllProjectPagesByUserID":
 		if e.complexity.Query.GetAllProjectPagesByUserID == nil {
@@ -1057,6 +1070,7 @@ extend type Query {
 
 type ProjectPageHttpList {
     projectPages: [ProjectPageHttp!]!
+    countRows: Int!
 }
 
 type DeletedProjectPage {
@@ -1077,7 +1091,8 @@ type Error {
     message: String!
 }
 
-union ProjectPageResult = ProjectPageHttp | ProjectPageHttpList | Error
+union ProjectPageResult = ProjectPageHttp | Error
+union ProjectPagesResult = ProjectPageHttpList | Error
 
 extend type Mutation {
     CreateProjectPage: ProjectPageResult!
@@ -1087,8 +1102,8 @@ extend type Mutation {
 
 extend type Query {
     GetProjectPageById(projectPageID: String!): ProjectPageResult!
-    GetAllProjectPagesByUserID(userID: String!): ProjectPageResult!
-    GetAllProjectPagesByAccessToken: ProjectPageResult!
+    GetAllProjectPagesByUserID(userID: String!): ProjectPagesResult!
+    GetAllProjectPagesByAccessToken(page: String!, pageSize: String!): ProjectPagesResult!
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type UserHttp {
     id: ID!
@@ -1135,15 +1150,17 @@ input UpdateStudentInput {
     studentHttp: UpdateStudentHttp!
 }
 
+union StudentHttpResult = StudentHttp | Error
+
 type Mutation {
-    CreateStudent(input: NewStudent!): StudentHttp!
-    UpdateStudent(input: UpdateStudentInput!): StudentHttp!
+    CreateStudent(input: NewStudent!): StudentHttpResult!
+    UpdateStudent(input: UpdateStudentInput!): StudentHttpResult!
     DeleteStudent(studentId: String!): String!
 }
 
 type Query {
-    GetStudentByAccessToken: StudentHttp!
-    GetStudentById(studentId: String!): StudentHttp!
+    GetStudentByAccessToken: StudentHttpResult!
+    GetStudentById(studentId: String!): StudentHttpResult!
 }
 
 scalar Timestamp
@@ -1227,6 +1244,30 @@ func (ec *executionContext) field_Mutation_UpdateStudent_args(ctx context.Contex
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetAllProjectPagesByAccessToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg1
 	return args, nil
 }
 
@@ -3555,9 +3596,9 @@ func (ec *executionContext) _Mutation_CreateStudent(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.StudentHTTP)
+	res := resTmp.(models.StudentHTTPResult)
 	fc.Result = res
-	return ec.marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, field.Selections, res)
+	return ec.marshalNStudentHttpResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_CreateStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3567,15 +3608,7 @@ func (ec *executionContext) fieldContext_Mutation_CreateStudent(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "userHttp":
-				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
-			case "robboGroupId":
-				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
-			case "robboUnitId":
-				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
+			return nil, errors.New("field of type StudentHttpResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -3618,9 +3651,9 @@ func (ec *executionContext) _Mutation_UpdateStudent(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.StudentHTTP)
+	res := resTmp.(models.StudentHTTPResult)
 	fc.Result = res
-	return ec.marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, field.Selections, res)
+	return ec.marshalNStudentHttpResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_UpdateStudent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3630,15 +3663,7 @@ func (ec *executionContext) fieldContext_Mutation_UpdateStudent(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "userHttp":
-				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
-			case "robboGroupId":
-				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
-			case "robboUnitId":
-				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
+			return nil, errors.New("field of type StudentHttpResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -4504,6 +4529,50 @@ func (ec *executionContext) fieldContext_ProjectPageHttpList_projectPages(ctx co
 	return fc, nil
 }
 
+func (ec *executionContext) _ProjectPageHttpList_countRows(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTPList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttpList_countRows(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CountRows, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectPageHttpList_countRows(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectPageHttpList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_GetStudentByAccessToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_GetStudentByAccessToken(ctx, field)
 	if err != nil {
@@ -4530,9 +4599,9 @@ func (ec *executionContext) _Query_GetStudentByAccessToken(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.StudentHTTP)
+	res := resTmp.(models.StudentHTTPResult)
 	fc.Result = res
-	return ec.marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, field.Selections, res)
+	return ec.marshalNStudentHttpResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetStudentByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4542,15 +4611,7 @@ func (ec *executionContext) fieldContext_Query_GetStudentByAccessToken(ctx conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "userHttp":
-				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
-			case "robboGroupId":
-				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
-			case "robboUnitId":
-				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
+			return nil, errors.New("field of type StudentHttpResult does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4582,9 +4643,9 @@ func (ec *executionContext) _Query_GetStudentById(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.StudentHTTP)
+	res := resTmp.(models.StudentHTTPResult)
 	fc.Result = res
-	return ec.marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx, field.Selections, res)
+	return ec.marshalNStudentHttpResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetStudentById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4594,15 +4655,7 @@ func (ec *executionContext) fieldContext_Query_GetStudentById(ctx context.Contex
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "userHttp":
-				return ec.fieldContext_StudentHttp_userHttp(ctx, field)
-			case "robboGroupId":
-				return ec.fieldContext_StudentHttp_robboGroupId(ctx, field)
-			case "robboUnitId":
-				return ec.fieldContext_StudentHttp_robboUnitId(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type StudentHttp", field.Name)
+			return nil, errors.New("field of type StudentHttpResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -4971,9 +5024,9 @@ func (ec *executionContext) _Query_GetAllProjectPagesByUserID(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.ProjectPageResult)
+	res := resTmp.(models.ProjectPagesResult)
 	fc.Result = res
-	return ec.marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx, field.Selections, res)
+	return ec.marshalNProjectPagesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPagesResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByUserID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4983,7 +5036,7 @@ func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByUserID(ctx co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ProjectPageResult does not have child fields")
+			return nil, errors.New("field of type ProjectPagesResult does not have child fields")
 		},
 	}
 	defer func() {
@@ -5014,7 +5067,7 @@ func (ec *executionContext) _Query_GetAllProjectPagesByAccessToken(ctx context.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllProjectPagesByAccessToken(rctx)
+		return ec.resolvers.Query().GetAllProjectPagesByAccessToken(rctx, fc.Args["page"].(string), fc.Args["pageSize"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5026,9 +5079,9 @@ func (ec *executionContext) _Query_GetAllProjectPagesByAccessToken(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.ProjectPageResult)
+	res := resTmp.(models.ProjectPagesResult)
 	fc.Result = res
-	return ec.marshalNProjectPageResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPageResult(ctx, field.Selections, res)
+	return ec.marshalNProjectPagesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPagesResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5038,8 +5091,19 @@ func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByAccessToken(c
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ProjectPageResult does not have child fields")
+			return nil, errors.New("field of type ProjectPagesResult does not have child fields")
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetAllProjectPagesByAccessToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -7777,6 +7841,22 @@ func (ec *executionContext) _ProjectPageResult(ctx context.Context, sel ast.Sele
 			return graphql.Null
 		}
 		return ec._ProjectPageHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _ProjectPagesResult(ctx context.Context, sel ast.SelectionSet, obj models.ProjectPagesResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
 	case models.ProjectPageHTTPList:
 		return ec._ProjectPageHttpList(ctx, sel, &obj)
 	case *models.ProjectPageHTTPList:
@@ -7784,6 +7864,29 @@ func (ec *executionContext) _ProjectPageResult(ctx context.Context, sel ast.Sele
 			return graphql.Null
 		}
 		return ec._ProjectPageHttpList(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _StudentHttpResult(ctx context.Context, sel ast.SelectionSet, obj models.StudentHTTPResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.StudentHTTP:
+		return ec._StudentHttp(ctx, sel, &obj)
+	case *models.StudentHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._StudentHttp(ctx, sel, obj)
 	case models.Error:
 		return ec._Error(ctx, sel, &obj)
 	case *models.Error:
@@ -8202,7 +8305,7 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 	return out
 }
 
-var errorImplementors = []string{"Error", "ProjectPageResult"}
+var errorImplementors = []string{"Error", "ProjectPageResult", "ProjectPagesResult", "StudentHttpResult"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
@@ -8538,7 +8641,7 @@ func (ec *executionContext) _ProjectPageHttp(ctx context.Context, sel ast.Select
 	return out
 }
 
-var projectPageHttpListImplementors = []string{"ProjectPageHttpList", "ProjectPageResult"}
+var projectPageHttpListImplementors = []string{"ProjectPageHttpList", "ProjectPagesResult"}
 
 func (ec *executionContext) _ProjectPageHttpList(ctx context.Context, sel ast.SelectionSet, obj *models.ProjectPageHTTPList) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, projectPageHttpListImplementors)
@@ -8551,6 +8654,13 @@ func (ec *executionContext) _ProjectPageHttpList(ctx context.Context, sel ast.Se
 		case "projectPages":
 
 			out.Values[i] = ec._ProjectPageHttpList_projectPages(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "countRows":
+
+			out.Values[i] = ec._ProjectPageHttpList_countRows(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -8815,7 +8925,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var studentHttpImplementors = []string{"StudentHttp"}
+var studentHttpImplementors = []string{"StudentHttp", "StudentHttpResult"}
 
 func (ec *executionContext) _StudentHttp(ctx context.Context, sel ast.SelectionSet, obj *models.StudentHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, studentHttpImplementors)
@@ -9503,6 +9613,16 @@ func (ec *executionContext) marshalNProjectPageResult2githubᚗcomᚋskinnykaen�
 	return ec._ProjectPageResult(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNProjectPagesResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐProjectPagesResult(ctx context.Context, sel ast.SelectionSet, v models.ProjectPagesResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProjectPagesResult(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -9518,18 +9638,14 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNStudentHttp2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx context.Context, sel ast.SelectionSet, v models.StudentHTTP) graphql.Marshaler {
-	return ec._StudentHttp(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNStudentHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTP(ctx context.Context, sel ast.SelectionSet, v *models.StudentHTTP) graphql.Marshaler {
+func (ec *executionContext) marshalNStudentHttpResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐStudentHTTPResult(ctx context.Context, sel ast.SelectionSet, v models.StudentHTTPResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._StudentHttp(ctx, sel, v)
+	return ec._StudentHttpResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTimestamp2string(ctx context.Context, v interface{}) (string, error) {

@@ -48,8 +48,8 @@ func (p *UsersUseCaseImpl) DeleteStudent(studentId uint) (err error) {
 	return p.Gateway.DeleteStudent(studentId)
 }
 
-func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (err error) {
-	err = p.Gateway.UpdateStudent(student)
+func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (updatedStudent *models.StudentCore, err error) {
+	updatedStudent, err = p.Gateway.UpdateStudent(student)
 	if err != nil {
 		log.Println("Error update student")
 		return

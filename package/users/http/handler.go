@@ -172,7 +172,7 @@ func (h *Handler) UpdateStudent(c *gin.Context) {
 		UserHTTP: &userHttp,
 	}
 
-	err := h.usersDelegate.UpdateStudent(studentHttp)
+	_, err := h.usersDelegate.UpdateStudent(studentHttp)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

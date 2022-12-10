@@ -43,15 +43,17 @@ input UpdateStudentInput {
     studentHttp: UpdateStudentHttp!
 }
 
+union StudentHttpResult = StudentHttp | Error
+
 type Mutation {
-    CreateStudent(input: NewStudent!): StudentHttp!
-    UpdateStudent(input: UpdateStudentInput!): StudentHttp!
+    CreateStudent(input: NewStudent!): StudentHttpResult!
+    UpdateStudent(input: UpdateStudentInput!): StudentHttpResult!
     DeleteStudent(studentId: String!): String!
 }
 
 type Query {
-    GetStudentByAccessToken: StudentHttp!
-    GetStudentById(studentId: String!): StudentHttp!
+    GetStudentByAccessToken: StudentHttpResult!
+    GetStudentById(studentId: String!): StudentHttpResult!
 }
 
 scalar Timestamp

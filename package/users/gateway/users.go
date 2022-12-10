@@ -87,7 +87,7 @@ func (r *UsersGatewayImpl) GetStudentById(studentId string) (student *models.Stu
 	return
 }
 
-func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (err error) {
+func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (updatedStudent *models.StudentCore, err error) {
 	studentDb := models.StudentDB{}
 	studentDb.FromCore(student)
 
@@ -95,5 +95,6 @@ func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (err error
 		err = tx.Model(&studentDb).Where("id = ?", studentDb.ID).Updates(studentDb).Error
 		return
 	})
+	updatedStudent = studentDb.ToCore()
 	return
 }

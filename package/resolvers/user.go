@@ -13,14 +13,22 @@ import (
 )
 
 // CreateStudent is the resolver for the createStudent field.
-func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewStudent) (*models.StudentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
+func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewStudent) (models.StudentHTTPResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		err := errors.New("internal server error")
+		return &models.Error{Message: "internal server error"}, err
 	}
 	_, role, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if role < models.UnitAdmin || identityErr != nil {
-		return nil, identityErr
+	if identityErr != nil {
+		err := identityErr
+		return &models.Error{Message: "status unauthorized"}, err
+	}
+	allowedRoles := []models.Role{models.Student, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	if accessErr != nil {
+		err := errors.New("no access")
+		return &models.Error{Message: "no access"}, err
 	}
 
 	studentInput := models.StudentHTTP{
@@ -41,7 +49,7 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewSt
 }
 
 // UpdateStudent is the resolver for the updateStudent field.
-func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (*models.StudentHTTP, error) {
+func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (models.StudentHTTPResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -68,12 +76,12 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.Updat
 			Nickname:   input.StudentHTTP.UserHTTP.Nickname,
 		},
 	}
-	updateStudentErr := r.usersDelegate.UpdateStudent(updateStudentInput)
+	updatedStudent, updateStudentErr := r.usersDelegate.UpdateStudent(updateStudentInput)
 	if updateStudentErr != nil {
 		err := errors.New("baq request")
 		return nil, err
 	}
-	return updateStudentInput, nil
+	return updatedStudent, nil
 }
 
 // DeleteStudent is the resolver for the deleteStudent field.
@@ -104,7 +112,7 @@ func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) 
 }
 
 // GetStudentByAccessToken is the resolver for the GetStudentByAccessToken field.
-func (r *queryResolver) GetStudentByAccessToken(ctx context.Context) (*models.StudentHTTP, error) {
+func (r *queryResolver) GetStudentByAccessToken(ctx context.Context) (models.StudentHTTPResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")
@@ -120,7 +128,7 @@ func (r *queryResolver) GetStudentByAccessToken(ctx context.Context) (*models.St
 }
 
 // GetStudentByID is the resolver for the GetStudentById field.
-func (r *queryResolver) GetStudentByID(ctx context.Context, studentID string) (*models.StudentHTTP, error) {
+func (r *queryResolver) GetStudentByID(ctx context.Context, studentID string) (models.StudentHTTPResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		err := errors.New("internal server error")

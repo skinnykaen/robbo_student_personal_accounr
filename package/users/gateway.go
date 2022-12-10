@@ -7,5 +7,5 @@ type Gateway interface {
 	CreateStudent(student *models.StudentCore) (id string, err error)
 	DeleteStudent(studentId uint) (err error)
 	GetStudentById(studentId string) (student *models.StudentCore, err error)
-	UpdateStudent(student *models.StudentCore) (err error)
+	UpdateStudent(student *models.StudentCore) (updatedStudent *models.StudentCore, err error)
 }

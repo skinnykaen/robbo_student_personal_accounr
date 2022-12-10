@@ -6,6 +6,10 @@ type Gateway interface {
 	CreateProject(project *models.ProjectCore) (id string, err error)
 	DeleteProject(projectId string) (err error)
 	GetProjectById(projectId, userId string) (project *models.ProjectCore, err error)
-	GetProjectsByAuthorId(authorId string) (projects []*models.ProjectCore, err error)
+	GetProjectsByAuthorId(authorId string, page, pageSize int) (
+		projects []*models.ProjectCore,
+		countRows int64,
+		err error,
+	)
 	UpdateProject(project *models.ProjectCore) (err error)
 }
