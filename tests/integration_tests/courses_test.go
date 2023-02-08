@@ -6,17 +6,18 @@ import (
 	"github.com/hasura/go-graphql-client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/tests/factory"
-	"github.com/spf13/viper"
-	"log"
 	"net/http"
 	"testing"
 )
 
 func TestCreateAccessCourseRelationRobboGroup(t *testing.T) {
-	gqlClient := graphql.NewClient("http://localhost:8001/query", nil).WithRequestModifier(func(request *http.Request) {
-		request.Header.Add("Authorization", "Bearer "+viper.GetString("auth.token_super_admin"))
-		request.Header.Add("Content-Type", "application/json")
-	})
+	//tr := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//}
+	//httpClient := &http.Client{Transport: tr}
+	httpClient := &http.Client{}
+	gqlClient := graphql.NewClient("http://localhost:8001/query", httpClient)
+
 	var m struct {
 		CreateAccessCourseRelationRobboGroup struct {
 			models.CourseRelationHTTP `graphql:"... on CourseRelationHttp"`
@@ -26,18 +27,18 @@ func TestCreateAccessCourseRelationRobboGroup(t *testing.T) {
 
 	testData := factory.DataCreateCourseAccessRelationRobboGroup()
 
-	log.Println("Ok")
-	expect := testData[0].ExpectedError
-	correct := gqlClient.Mutate(context.Background(), &m, testData[0].Variables)
-	assert.Equal(t, expect, correct)
-
-	log.Println("Incorrect course id")
-	expect = testData[1].ExpectedError
-	correct = gqlClient.Mutate(context.Background(), &m, testData[1].Variables)
-	assert.Equal(t, expect.Error(), correct.Error())
-
-	log.Println("Incorrect robbo group id")
-	expect = testData[2].ExpectedError
-	correct = gqlClient.Mutate(context.Background(), &m, testData[2].Variables)
-	assert.Equal(t, expect.Error(), correct.Error())
+	for _, testCase := range testData {
+		t.Run(testCase.Name, func(t *testing.T) {
+			expect := testCase.ExpectedError
+			gqlClientWithRequestModifier := gqlClient.WithRequestModifier(func(request *http.Request) {
+				request.Header.Add("Authorization", testCase.Token)
+			})
+			correct := gqlClientWithRequestModifier.Mutate(context.Background(), &m, testCase.Variables)
+			if correct != nil {
+				assert.Equal(t, expect.Error(), correct.Error())
+			} else {
+				assert.Equal(t, expect, correct)
+			}
+		})
+	}
 }

@@ -2,14 +2,30 @@ package factory
 
 import (
 	"github.com/hasura/go-graphql-client"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/spf13/viper"
 )
 
-func DataCreateCourseAccessRelationRobboGroup() (data []DataTest) {
-	data = []DataTest{
+func DataCreateCourseAccessRelationRobboGroup() (data []models.DataTest) {
+	data = []models.DataTest{
 		{
-			Name: "Ok",
+			Name:  "There is no access without a token",
+			Token: "",
+			Variables: map[string]interface{}{
+				"NewCourseAccessRelationRobboGroup": models.NewAccessCourseRelationRobboGroup{
+					CourseID:     "1",
+					RobboGroupID: "1",
+				},
+			},
+			ExpectedError: graphql.Error{
+				Message:   auth.ErrNotAccess.Error(),
+				Locations: nil,
+			},
+		},
+		{
+			Name:  "Ok",
+			Token: "Bearer " + viper.GetString("auth.tokens.super_admin"),
 			Variables: map[string]interface{}{
 				"NewCourseAccessRelationRobboGroup": models.NewAccessCourseRelationRobboGroup{
 					CourseID:     "1",
@@ -19,30 +35,15 @@ func DataCreateCourseAccessRelationRobboGroup() (data []DataTest) {
 			ExpectedError: nil,
 		},
 		{
-			Name: "Incorrect course id",
-			Variables: map[string]interface{}{
-				"NewCourseAccessRelationRobboGroup": models.NewAccessCourseRelationRobboGroup{
-					CourseID:     "test",
-					RobboGroupID: "1",
-				},
-			},
-			ExpectedError: graphql.Error{
-				Message:   courses.ErrIncorrectInputParam.Error(),
-				Locations: nil,
-			},
-		},
-		{
-			Name: "Incorrect robbo group id",
+			Name:  "There is access to the super admin",
+			Token: "Bearer " + viper.GetString("auth.tokens.super_admin"),
 			Variables: map[string]interface{}{
 				"NewCourseAccessRelationRobboGroup": models.NewAccessCourseRelationRobboGroup{
 					CourseID:     "1",
-					RobboGroupID: "test",
+					RobboGroupID: "1",
 				},
 			},
-			ExpectedError: graphql.Error{
-				Message:   courses.ErrIncorrectInputParam.Error(),
-				Locations: nil,
-			},
+			ExpectedError: nil,
 		},
 	}
 	return

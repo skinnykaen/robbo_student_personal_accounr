@@ -9,10 +9,9 @@ import (
 
 func TestMain(m *testing.M) {
 	app, cleanerContainer := app.TestApp()
-	ctx := context.Background()
-	app.Start(ctx)
+	app.Start(context.Background())
 	code := m.Run()
-	app.Stop(ctx)
+	app.Stop(context.Background())
 	cleanerContainer()
 	os.Exit(code)
 }

@@ -5,10 +5,7 @@ package resolvers
 
 import (
 	"context"
-	"strconv"
-
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -27,17 +24,18 @@ func (r *mutationResolver) CreateAccessCourseRelationRobboGroup(ctx context.Cont
 		return nil, accessErr
 	}
 
-	_, parseErr := strconv.ParseUint(input.CourseID, 10, 64)
-	if parseErr != nil {
-		err := courses.ErrIncorrectInputParam
-		return &models.Error{Message: err.Error()}, err
-	}
-
-	_, parseErr = strconv.ParseUint(input.RobboGroupID, 10, 64)
-	if parseErr != nil {
-		err := courses.ErrIncorrectInputParam
-		return &models.Error{Message: err.Error()}, err
-	}
+	// TODO refactor
+	//_, parseErr := strconv.ParseUint(input.CourseID, 10, 64)
+	//if parseErr != nil {
+	//	err := courses.ErrIncorrectInputParam
+	//	return &models.Error{Message: err.Error()}, err
+	//}
+	//
+	//_, parseErr = strconv.ParseUint(input.RobboGroupID, 10, 64)
+	//if parseErr != nil {
+	//	err := courses.ErrIncorrectInputParam
+	//	return &models.Error{Message: err.Error()}, err
+	//}
 
 	courseRelation := &models.CourseRelationHTTP{
 		CourseID: input.CourseID,
@@ -532,9 +530,9 @@ func (r *queryResolver) GetEnrollments(ctx context.Context, username string) (mo
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
 // one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
 func (r *queryResolver) GetAccessCourseRelationsByCourseID(ctx context.Context, courseID string) (models.CourseRelationsResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
