@@ -25,7 +25,7 @@ func TestCreateAccessCourseRelationRobboGroup(t *testing.T) {
 		} `graphql:"CreateAccessCourseRelationRobboGroup(input: $NewCourseAccessRelationRobboGroup)"`
 	}
 
-	testData := factory.DataCreateCourseAccessRelationRobboGroup()
+	testData := factory.TestsCaseCreateCourseAccessRelationRobboGroup()
 
 	for _, testCase := range testData {
 		t.Run(testCase.Name, func(t *testing.T) {

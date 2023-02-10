@@ -4,11 +4,12 @@ import (
 	"github.com/hasura/go-graphql-client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	testmodels "github.com/skinnykaen/robbo_student_personal_account.git/tests/factory/models"
 	"github.com/spf13/viper"
 )
 
-func DataCreateCourseAccessRelationRobboGroup() (data []models.DataTest) {
-	data = []models.DataTest{
+func TestsCaseCreateCourseAccessRelationRobboGroup() (data []testmodels.TestTable) {
+	data = []testmodels.TestTable{
 		{
 			Name:  "There is no access without a token",
 			Token: "",

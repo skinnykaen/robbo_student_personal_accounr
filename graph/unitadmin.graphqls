@@ -34,6 +34,6 @@ extend type Mutation {
 	CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminResult!
 	UpdateUnitAdmin(input: UpdateProfileInput!): UnitAdminResult!
 	DeleteUnitAdmin(unitAdminId: String!): DeletedUnitAdmin!
-	SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
-	DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
+	SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error
+	DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error
 }
