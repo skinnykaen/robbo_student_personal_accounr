@@ -12,6 +12,7 @@ import (
 func LoadData() {
 	LoadDataForTestUnitAdmin()
 	LoadDataForTestRobboUnit()
+	LoadDataForTestRelationUnitAdminRobboUnit()
 }
 
 func LoadDataForTestUnitAdmin() {
@@ -54,7 +55,7 @@ func LoadDataForTestUnitAdmin() {
 
 	err := gqlClientWithRequestModifier.Mutate(context.Background(), &m, variables)
 	if err != nil {
-		log.Fatal("Failed to load data unit admin")
+		log.Fatalf("Failed to load data unit admin: %s", err)
 	}
 }
 
@@ -107,9 +108,14 @@ func LoadDataForTestRobboUnit() {
 		}
 		err := gqlClientWithRequestModifier.Mutate(context.Background(), &m, variables)
 		if err != nil {
-			log.Fatal("Failed to load data robbo units")
+			log.Fatalf("Failed to load data robbo units: %s", err)
 		}
 	}
+}
+
+func LoadDataForTestRelationUnitAdminRobboUnit() {
+	httpClient := &http.Client{}
+	gqlClient := graphql.NewClient("http://localhost:8001/query", httpClient)
 
 	unitAdminRobboUnits := []map[string]interface{}{
 		{
@@ -130,6 +136,10 @@ func LoadDataForTestRobboUnit() {
 		},
 	}
 
+	gqlClientWithRequestModifier := gqlClient.WithRequestModifier(func(request *http.Request) {
+		request.Header.Add("Authorization", "Bearer "+viper.GetString("auth.tokens.super_admin"))
+	})
+
 	for _, unitAdminRobboUnit := range unitAdminRobboUnits {
 
 		var m struct {
@@ -140,7 +150,7 @@ func LoadDataForTestRobboUnit() {
 
 		err := gqlClientWithRequestModifier.Mutate(context.Background(), &m, unitAdminRobboUnit)
 		if err != nil {
-			log.Fatalf("Failed to load data unitAdmin RobboUnits: %s", err)
+			log.Fatalf("Failed to load data relation unitAdmin robboUnit: %s", err)
 		}
 	}
 }

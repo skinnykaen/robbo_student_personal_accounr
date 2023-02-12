@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func TestsCaseCreateCourseAccessRelationRobboGroup() (data []testmodels.TestTable) {
+func TestTableCreateCourseAccessRelationRobboGroup() (data []testmodels.TestTable) {
 	data = []testmodels.TestTable{
 		{
 			Name:  "There is no access without a token",
@@ -18,6 +18,9 @@ func TestsCaseCreateCourseAccessRelationRobboGroup() (data []testmodels.TestTabl
 					CourseID:     "1",
 					RobboGroupID: "1",
 				},
+			},
+			Body: map[string]interface{}{
+				"CourseRelation": models.CourseRelationHTTP{},
 			},
 			ExpectedError: graphql.Error{
 				Message:   auth.ErrNotAccess.Error(),
@@ -33,6 +36,14 @@ func TestsCaseCreateCourseAccessRelationRobboGroup() (data []testmodels.TestTabl
 					RobboGroupID: "1",
 				},
 			},
+			Body: map[string]interface{}{
+				"CourseRelation": models.CourseRelationHTTP{
+					ID:        "1",
+					Parameter: "robbo_group",
+					CourseID:  "1",
+					ObjectID:  "1",
+				},
+			},
 			ExpectedError: nil,
 		},
 		{
@@ -44,7 +55,102 @@ func TestsCaseCreateCourseAccessRelationRobboGroup() (data []testmodels.TestTabl
 					RobboGroupID: "1",
 				},
 			},
+			Body: map[string]interface{}{
+				"CourseRelation": models.CourseRelationHTTP{
+					ID:        "2",
+					Parameter: "robbo_group",
+					CourseID:  "1",
+					ObjectID:  "1",
+				},
+			},
 			ExpectedError: nil,
+		},
+		{
+			Name:  "There is access to the unit admin",
+			Token: "Bearer " + viper.GetString("auth.tokens.unit_admin"),
+			Variables: map[string]interface{}{
+				"NewCourseAccessRelationRobboGroup": models.NewAccessCourseRelationRobboGroup{
+					CourseID:     "1",
+					RobboGroupID: "1",
+				},
+			},
+			Body: map[string]interface{}{
+				"CourseRelation": models.CourseRelationHTTP{
+					ID:        "3",
+					Parameter: "robbo_group",
+					CourseID:  "1",
+					ObjectID:  "1",
+				},
+			},
+			ExpectedError: nil,
+		},
+		{
+			Name:  "There is no access to the free listener",
+			Token: "Bearer " + viper.GetString("auth.tokens.free_listener"),
+			Variables: map[string]interface{}{
+				"NewCourseAccessRelationRobboGroup": models.NewAccessCourseRelationRobboGroup{
+					CourseID:     "1",
+					RobboGroupID: "1",
+				},
+			},
+			Body: map[string]interface{}{
+				"CourseRelation": models.CourseRelationHTTP{},
+			},
+			ExpectedError: graphql.Error{
+				Message:   auth.ErrNotAccess.Error(),
+				Locations: nil,
+			},
+		},
+		{
+			Name:  "There is no access to the teacher",
+			Token: "Bearer " + viper.GetString("auth.tokens.teacher"),
+			Variables: map[string]interface{}{
+				"NewCourseAccessRelationRobboGroup": models.NewAccessCourseRelationRobboGroup{
+					CourseID:     "1",
+					RobboGroupID: "1",
+				},
+			},
+			Body: map[string]interface{}{
+				"CourseRelation": models.CourseRelationHTTP{},
+			},
+			ExpectedError: graphql.Error{
+				Message:   auth.ErrNotAccess.Error(),
+				Locations: nil,
+			},
+		},
+		{
+			Name:  "There is no access to the parent",
+			Token: "Bearer " + viper.GetString("auth.tokens.parent"),
+			Variables: map[string]interface{}{
+				"NewCourseAccessRelationRobboGroup": models.NewAccessCourseRelationRobboGroup{
+					CourseID:     "1",
+					RobboGroupID: "1",
+				},
+			},
+			Body: map[string]interface{}{
+				"CourseRelation": models.CourseRelationHTTP{},
+			},
+			ExpectedError: graphql.Error{
+				Message:   auth.ErrNotAccess.Error(),
+				Locations: nil,
+			},
+		},
+		{
+			Name:  "There is no access to the student",
+			Token: "Bearer " + viper.GetString("auth.tokens.student"),
+			Variables: map[string]interface{}{
+				"NewCourseAccessRelationRobboGroup": models.NewAccessCourseRelationRobboGroup{
+					CourseID:     "1",
+					RobboGroupID: "1",
+				},
+			},
+			Body: map[string]interface{}{
+				"CourseRelation": models.CourseRelationHTTP{},
+			},
+			ExpectedError: graphql.Error{
+				Message:   auth.ErrNotAccess.Error(),
+				Locations: nil,
+			},
 		},
 	}
 	return

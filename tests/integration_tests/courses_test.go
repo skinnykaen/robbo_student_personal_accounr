@@ -25,7 +25,7 @@ func TestCreateAccessCourseRelationRobboGroup(t *testing.T) {
 		} `graphql:"CreateAccessCourseRelationRobboGroup(input: $NewCourseAccessRelationRobboGroup)"`
 	}
 
-	testData := factory.TestsCaseCreateCourseAccessRelationRobboGroup()
+	testData := factory.TestTableCreateCourseAccessRelationRobboGroup()
 
 	for _, testCase := range testData {
 		t.Run(testCase.Name, func(t *testing.T) {
@@ -37,7 +37,10 @@ func TestCreateAccessCourseRelationRobboGroup(t *testing.T) {
 			if correct != nil {
 				assert.Equal(t, expect.Error(), correct.Error())
 			} else {
-				assert.Equal(t, expect, correct)
+				assert.Equal(t, m.CreateAccessCourseRelationRobboGroup.ID, testCase.Body["CourseRelation"].(models.CourseRelationHTTP).ID)
+				assert.Equal(t, m.CreateAccessCourseRelationRobboGroup.Parameter, testCase.Body["CourseRelation"].(models.CourseRelationHTTP).Parameter)
+				assert.Equal(t, m.CreateAccessCourseRelationRobboGroup.CourseID, testCase.Body["CourseRelation"].(models.CourseRelationHTTP).CourseID)
+				assert.Equal(t, m.CreateAccessCourseRelationRobboGroup.ObjectID, testCase.Body["CourseRelation"].(models.CourseRelationHTTP).ObjectID)
 			}
 		})
 	}
