@@ -25,9 +25,9 @@ func TestCreateAccessCourseRelationRobboGroup(t *testing.T) {
 		} `graphql:"CreateAccessCourseRelationRobboGroup(input: $NewCourseAccessRelationRobboGroup)"`
 	}
 
-	testData := factory.TestTableCreateCourseAccessRelationRobboGroup()
+	testTable := factory.TestTableCreateCourseAccessRelationRobboGroup()
 
-	for _, testCase := range testData {
+	for _, testCase := range testTable {
 		t.Run(testCase.Name, func(t *testing.T) {
 			expect := testCase.ExpectedError
 			gqlClientWithRequestModifier := gqlClient.WithRequestModifier(func(request *http.Request) {
