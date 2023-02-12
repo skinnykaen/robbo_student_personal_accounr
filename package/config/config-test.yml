@@ -23,7 +23,13 @@ auth:
   refresh_signing_key: "refresh_signing_key"
   access_token_ttl: 300 # 5 min
   refresh_token_ttl: 604800 # 7 day
-  token_super_admin: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAiLCJyb2xlIjo1fQ.Ha3K9LpCV4AP_AJiY-Gt6WcyKn2pRGxXM0kA4eLR-nU"
+  tokens:
+    super_admin: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJyb2xlIjo1fQ.mJuaToxItew_T9pYqXe7PDKeBT73ZKArayCbQ6mivoM" #role 5 id 1
+    unit_admin: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJyb2xlIjo0fQ.0A6MRKXD5MFAzQghU8qULT3yHd-XGjGWWATPHjxQhMU" #role 4 id 1
+    free_listener: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJyb2xlIjozfQ.fnfKvD1I1tWBXgz_fX6a0zsMusaM3CK160tyj-6PDuc" #role 3 id 1
+    parent: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJyb2xlIjoyfQ.sxsjhPiX2WoSdsGpyxtDqyUvf3KSagMARMlkPW2V09g" #role 2 id 1
+    teacher: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJyb2xlIjoxfQ.P2vMwP0fO2fe-SImzol-uYM8sHvuvJHiqNWp6tgmNos" #role 1 id 1
+    student: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJyb2xlIjowfQ.2lLMZbFbpdQlH0WzYMWpnQkdIhSwxjqJqEZhMk7YsLo" #role 0 id 1
 
 projectPage:
   scratchLink: "0.0.0.0:8601/"

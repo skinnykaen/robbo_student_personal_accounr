@@ -2881,8 +2881,8 @@ extend type Mutation {
 	CreateUnitAdmin(input: NewUnitAdmin!): UnitAdminResult!
 	UpdateUnitAdmin(input: UpdateProfileInput!): UnitAdminResult!
 	DeleteUnitAdmin(unitAdminId: String!): DeletedUnitAdmin!
-	SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
-	DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error!
+	SetNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error
+	DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): Error
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type UserHttp {
     id: String!
@@ -9480,14 +9480,11 @@ func (ec *executionContext) _Mutation_SetNewUnitAdminForRobboUnit(ctx context.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*models.Error)
 	fc.Result = res
-	return ec.marshalNError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
+	return ec.marshalOError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_SetNewUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9541,14 +9538,11 @@ func (ec *executionContext) _Mutation_DeleteUnitAdminForRobboUnit(ctx context.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*models.Error)
 	fc.Result = res
-	return ec.marshalNError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
+	return ec.marshalOError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_DeleteUnitAdminForRobboUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19261,18 +19255,12 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_SetNewUnitAdminForRobboUnit(ctx, field)
 			})
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "DeleteUnitAdminForRobboUnit":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_DeleteUnitAdminForRobboUnit(ctx, field)
 			})
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -21850,20 +21838,6 @@ func (ec *executionContext) marshalNEnrollmentsResult2githubᚗcomᚋskinnykaen�
 		return graphql.Null
 	}
 	return ec._EnrollmentsResult(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNError2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx context.Context, sel ast.SelectionSet, v models.Error) graphql.Marshaler {
-	return ec._Error(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx context.Context, sel ast.SelectionSet, v *models.Error) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Error(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNGetUserResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐGetUserResult(ctx context.Context, sel ast.SelectionSet, v models.GetUserResult) graphql.Marshaler {

@@ -5,10 +5,8 @@ package resolvers
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -27,17 +25,18 @@ func (r *mutationResolver) CreateAccessCourseRelationRobboGroup(ctx context.Cont
 		return nil, accessErr
 	}
 
-	_, parseErr := strconv.ParseUint(input.CourseID, 10, 64)
-	if parseErr != nil {
-		err := courses.ErrIncorrectInputParam
-		return &models.Error{Message: err.Error()}, err
-	}
-
-	_, parseErr = strconv.ParseUint(input.RobboGroupID, 10, 64)
-	if parseErr != nil {
-		err := courses.ErrIncorrectInputParam
-		return &models.Error{Message: err.Error()}, err
-	}
+	// TODO refactor
+	//_, parseErr := strconv.ParseUint(input.CourseID, 10, 64)
+	//if parseErr != nil {
+	//	err := courses.ErrIncorrectInputParam
+	//	return &models.Error{Message: err.Error()}, err
+	//}
+	//
+	//_, parseErr = strconv.ParseUint(input.RobboGroupID, 10, 64)
+	//if parseErr != nil {
+	//	err := courses.ErrIncorrectInputParam
+	//	return &models.Error{Message: err.Error()}, err
+	//}
 
 	courseRelation := &models.CourseRelationHTTP{
 		CourseID: input.CourseID,
