@@ -180,6 +180,7 @@ func SetupGraphQLModule(delegate DelegateModule) GraphQLModule {
 			delegate.RobboUnitsDelegate,
 			delegate.CoursesDelegate,
 			delegate.ProjectPageDelegate,
+			delegate.CohortsDelegate,
 		),
 	}
 }

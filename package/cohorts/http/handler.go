@@ -55,7 +55,7 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 		ErrorHandling(accessErr, c)
 		return
 	}
-	createCohortResponse := models.CreateCohortHTTP{}
+	createCohortResponse := models.CohortHTTP{}
 	courseId := c.Param("courseId")
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -73,7 +73,7 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 	}
 	cohortHTTP := models.CohortHTTP{}
 
-	cohortId, err := h.cohortsDelegate.CreateCohort(&cohortHTTP, &createCohortResponse, courseId)
+	_, err = h.cohortsDelegate.CreateCohort(&createCohortResponse, courseId)
 
 	fmt.Println(cohortHTTP)
 	if err != nil {
@@ -82,9 +82,7 @@ func (h *Handler) CreateCohort(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, testCohortResponse{
-		cohortId,
-	})
+	c.Status(http.StatusOK)
 }
 
 func (h *Handler) AddStudent(c *gin.Context) {

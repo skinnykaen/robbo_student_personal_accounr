@@ -50,6 +50,15 @@ type ComplexityRoot struct {
 		URIAbsolute func(childComplexity int) int
 	}
 
+	CohortHttp struct {
+		AssignmentType  func(childComplexity int) int
+		GroupID         func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		UserCount       func(childComplexity int) int
+		UserPartitionID func(childComplexity int) int
+	}
+
 	CourseAPIMediaCollectionHttp struct {
 		BannerImage func(childComplexity int) int
 		CourseImage func(childComplexity int) int
@@ -169,6 +178,7 @@ type ComplexityRoot struct {
 		CreateAccessCourseRelationStudent    func(childComplexity int, input models.NewAccessCourseRelationStudent) int
 		CreateAccessCourseRelationTeacher    func(childComplexity int, input models.NewAccessCourseRelationTeacher) int
 		CreateAccessCourseRelationUnitAdmin  func(childComplexity int, input models.NewAccessCourseRelationUnitAdmin) int
+		CreateCohort                         func(childComplexity int, input models.NewCohort) int
 		CreateParent                         func(childComplexity int, input models.NewParent) int
 		CreateProjectPage                    func(childComplexity int) int
 		CreateRobboGroup                     func(childComplexity int, input models.NewRobboGroup) int
@@ -377,6 +387,7 @@ type MutationResolver interface {
 	SingIn(ctx context.Context, input models.SignInInput) (models.SignInResult, error)
 	SingOut(ctx context.Context) (*models.Error, error)
 	Refresh(ctx context.Context) (models.SignInResult, error)
+	CreateCohort(ctx context.Context, input models.NewCohort) (models.CohortResult, error)
 	CreateAccessCourseRelationRobboGroup(ctx context.Context, input models.NewAccessCourseRelationRobboGroup) (models.CourseRelationResult, error)
 	CreateAccessCourseRelationRobboUnit(ctx context.Context, input models.NewAccessCourseRelationRobboUnit) (models.CourseRelationResult, error)
 	CreateAccessCourseRelationStudent(ctx context.Context, input models.NewAccessCourseRelationStudent) (models.CourseRelationResult, error)
@@ -499,6 +510,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AbsoluteMediaHttp.URIAbsolute(childComplexity), true
+
+	case "CohortHttp.assignment_type":
+		if e.complexity.CohortHttp.AssignmentType == nil {
+			break
+		}
+
+		return e.complexity.CohortHttp.AssignmentType(childComplexity), true
+
+	case "CohortHttp.group_id":
+		if e.complexity.CohortHttp.GroupID == nil {
+			break
+		}
+
+		return e.complexity.CohortHttp.GroupID(childComplexity), true
+
+	case "CohortHttp.id":
+		if e.complexity.CohortHttp.ID == nil {
+			break
+		}
+
+		return e.complexity.CohortHttp.ID(childComplexity), true
+
+	case "CohortHttp.name":
+		if e.complexity.CohortHttp.Name == nil {
+			break
+		}
+
+		return e.complexity.CohortHttp.Name(childComplexity), true
+
+	case "CohortHttp.user_count":
+		if e.complexity.CohortHttp.UserCount == nil {
+			break
+		}
+
+		return e.complexity.CohortHttp.UserCount(childComplexity), true
+
+	case "CohortHttp.user_partition_id":
+		if e.complexity.CohortHttp.UserPartitionID == nil {
+			break
+		}
+
+		return e.complexity.CohortHttp.UserPartitionID(childComplexity), true
 
 	case "CourseAPIMediaCollectionHttp.banner_image":
 		if e.complexity.CourseAPIMediaCollectionHttp.BannerImage == nil {
@@ -977,6 +1030,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateAccessCourseRelationUnitAdmin(childComplexity, args["input"].(models.NewAccessCourseRelationUnitAdmin)), true
+
+	case "Mutation.CreateCohort":
+		if e.complexity.Mutation.CreateCohort == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_CreateCohort_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateCohort(childComplexity, args["input"].(models.NewCohort)), true
 
 	case "Mutation.CreateParent":
 		if e.complexity.Mutation.CreateParent == nil {
@@ -2330,6 +2395,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputNewAccessCourseRelationStudent,
 		ec.unmarshalInputNewAccessCourseRelationTeacher,
 		ec.unmarshalInputNewAccessCourseRelationUnitAdmin,
+		ec.unmarshalInputNewCohort,
 		ec.unmarshalInputNewParent,
 		ec.unmarshalInputNewRobboGroup,
 		ec.unmarshalInputNewRobboUnit,
@@ -2417,6 +2483,26 @@ extend type Mutation {
 	SingIn(input: SignInInput!): SignInResult!
 	SingOut: Error
 	Refresh: SignInResult
+}`, BuiltIn: false},
+	{Name: "../cohorts.graphqls", Input: `union CohortResult = CohortHttp | Error
+
+type CohortHttp {
+    id: Int!
+    name: String!
+    user_count: Int!
+    assignment_type: String!
+    user_partition_id: Int!
+    group_id: Int!
+}
+
+input NewCohort {
+    name: String!
+    assignment_type: String!
+    course_id: String!
+}
+
+extend type Mutation {
+    CreateCohort(input: NewCohort!): CohortResult!
 }`, BuiltIn: false},
 	{Name: "../courses.graphqls", Input: `type CourseHttp {
     id: String!
@@ -3023,6 +3109,21 @@ func (ec *executionContext) field_Mutation_CreateAccessCourseRelationUnitAdmin_a
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNNewAccessCourseRelationUnitAdmin2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewAccessCourseRelationUnitAdmin(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateCohort_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.NewCohort
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewCohort2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewCohort(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4765,6 +4866,270 @@ func (ec *executionContext) fieldContext_AbsoluteMediaHttp_uri_absolute(ctx cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CohortHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.CohortHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CohortHttp_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CohortHttp_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CohortHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CohortHttp_name(ctx context.Context, field graphql.CollectedField, obj *models.CohortHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CohortHttp_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CohortHttp_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CohortHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CohortHttp_user_count(ctx context.Context, field graphql.CollectedField, obj *models.CohortHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CohortHttp_user_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CohortHttp_user_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CohortHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CohortHttp_assignment_type(ctx context.Context, field graphql.CollectedField, obj *models.CohortHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CohortHttp_assignment_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssignmentType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CohortHttp_assignment_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CohortHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CohortHttp_user_partition_id(ctx context.Context, field graphql.CollectedField, obj *models.CohortHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CohortHttp_user_partition_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserPartitionID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CohortHttp_user_partition_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CohortHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CohortHttp_group_id(ctx context.Context, field graphql.CollectedField, obj *models.CohortHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CohortHttp_group_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GroupID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CohortHttp_group_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CohortHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7616,6 +7981,61 @@ func (ec *executionContext) fieldContext_Mutation_Refresh(ctx context.Context, f
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type SignInResult does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_CreateCohort(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateCohort(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateCohort(rctx, fc.Args["input"].(models.NewCohort))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.CohortResult)
+	fc.Result = res
+	return ec.marshalNCohortResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCohortResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_CreateCohort(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CohortResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_CreateCohort_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -16942,6 +17362,50 @@ func (ec *executionContext) unmarshalInputNewAccessCourseRelationUnitAdmin(ctx c
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputNewCohort(ctx context.Context, obj interface{}) (models.NewCohort, error) {
+	var it models.NewCohort
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "assignment_type", "course_id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "assignment_type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assignment_type"))
+			it.AssignmentType, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "course_id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("course_id"))
+			it.CourseID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewParent(ctx context.Context, obj interface{}) (models.NewParent, error) {
 	var it models.NewParent
 	asMap := map[string]interface{}{}
@@ -17566,6 +18030,29 @@ func (ec *executionContext) unmarshalInputUpdateRobboUnit(ctx context.Context, o
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _CohortResult(ctx context.Context, sel ast.SelectionSet, obj models.CohortResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.CohortHTTP:
+		return ec._CohortHttp(ctx, sel, &obj)
+	case *models.CohortHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CohortHttp(ctx, sel, obj)
+	case models.Error:
+		return ec._Error(ctx, sel, &obj)
+	case *models.Error:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Error(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _CourseRelationResult(ctx context.Context, sel ast.SelectionSet, obj models.CourseRelationResult) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -18131,6 +18618,69 @@ func (ec *executionContext) _AbsoluteMediaHttp(ctx context.Context, sel ast.Sele
 		case "uri_absolute":
 
 			out.Values[i] = ec._AbsoluteMediaHttp_uri_absolute(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var cohortHttpImplementors = []string{"CohortHttp", "CohortResult"}
+
+func (ec *executionContext) _CohortHttp(ctx context.Context, sel ast.SelectionSet, obj *models.CohortHTTP) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, cohortHttpImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CohortHttp")
+		case "id":
+
+			out.Values[i] = ec._CohortHttp_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+
+			out.Values[i] = ec._CohortHttp_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "user_count":
+
+			out.Values[i] = ec._CohortHttp_user_count(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "assignment_type":
+
+			out.Values[i] = ec._CohortHttp_assignment_type(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "user_partition_id":
+
+			out.Values[i] = ec._CohortHttp_user_partition_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "group_id":
+
+			out.Values[i] = ec._CohortHttp_group_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -18793,7 +19343,7 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 	return out
 }
 
-var errorImplementors = []string{"Error", "SignInResult", "CourseRelationResult", "CourseRelationsResult", "CourseResult", "CoursesResult", "EnrollmentsResult", "ParentsResult", "ParentResult", "PairsStudentParentsResult", "ProjectPageResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult"}
+var errorImplementors = []string{"Error", "SignInResult", "CohortResult", "CourseRelationResult", "CourseRelationsResult", "CourseResult", "CoursesResult", "EnrollmentsResult", "ParentsResult", "ParentResult", "PairsStudentParentsResult", "ProjectPageResult", "RobboGroupResult", "RobboGroupsResult", "RobboUnitResult", "RobboUnitsResult", "StudentResult", "StudentsResult", "TeacherResult", "TeachersResult", "UnitAdminResult", "UnitAdminsResult", "SuperAdminResult"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *models.Error) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
@@ -18961,6 +19511,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_Refresh(ctx, field)
 			})
 
+		case "CreateCohort":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_CreateCohort(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "CreateAccessCourseRelationRobboGroup":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -21572,6 +22131,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNCohortResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCohortResult(ctx context.Context, sel ast.SelectionSet, v models.CohortResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CohortResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNCourseAPIMediaCollectionHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseAPIMediaCollectionHTTP(ctx context.Context, sel ast.SelectionSet, v *models.CourseAPIMediaCollectionHTTP) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -21913,6 +22482,11 @@ func (ec *executionContext) unmarshalNNewAccessCourseRelationTeacher2githubᚗco
 
 func (ec *executionContext) unmarshalNNewAccessCourseRelationUnitAdmin2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewAccessCourseRelationUnitAdmin(ctx context.Context, v interface{}) (models.NewAccessCourseRelationUnitAdmin, error) {
 	res, err := ec.unmarshalInputNewAccessCourseRelationUnitAdmin(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewCohort2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐNewCohort(ctx context.Context, v interface{}) (models.NewCohort, error) {
+	res, err := ec.unmarshalInputNewCohort(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

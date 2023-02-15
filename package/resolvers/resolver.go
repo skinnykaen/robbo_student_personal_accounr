@@ -5,6 +5,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/cohorts"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
@@ -24,6 +25,7 @@ type Resolver struct {
 	robboUnitsDelegate  robboUnits.Delegate
 	coursesDelegate     courses.Delegate
 	projectPageDelegate projectPage.Delegate
+	cohortsDelegate     cohorts.Delegate
 }
 
 type MutationResolver struct{ *Resolver }
@@ -61,6 +63,7 @@ func NewResolver(
 	robboUnitsDelegate robboUnits.Delegate,
 	coursesDelegate courses.Delegate,
 	projectPageDelegate projectPage.Delegate,
+	cohortsDelegate cohorts.Delegate,
 ) Resolver {
 	return Resolver{
 		authDelegate:        authDelegate,
@@ -69,5 +72,6 @@ func NewResolver(
 		robboUnitsDelegate:  robboUnitsDelegate,
 		coursesDelegate:     coursesDelegate,
 		projectPageDelegate: projectPageDelegate,
+		cohortsDelegate:     cohortsDelegate,
 	}
 }

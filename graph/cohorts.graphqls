@@ -1,0 +1,20 @@
+union CohortResult = CohortHttp | Error
+
+type CohortHttp {
+    id: Int!
+    name: String!
+    user_count: Int!
+    assignment_type: String!
+    user_partition_id: Int!
+    group_id: Int!
+}
+
+input NewCohort {
+    name: String!
+    assignment_type: String!
+    course_id: String!
+}
+
+extend type Mutation {
+    CreateCohort(input: NewCohort!): CohortResult!
+}

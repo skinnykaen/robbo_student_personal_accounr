@@ -5,6 +5,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type CohortsGatewayImpl struct {
@@ -22,6 +23,15 @@ func SetupCohortsGateway(postgresClient db_client.PostgresClient) CohortsGateway
 	}
 }
 
-func (r *CohortsGatewayImpl) CreateCohort(cohort *models.CohortCore) (id string, err error) {
-	return "", nil
+func (r *CohortsGatewayImpl) CreateCohort(cohortCore *models.CohortCore) (newCohort *models.CohortCore, err error) {
+	cohortDb := models.CohortDB{}
+	cohortDb.FromCore(cohortCore)
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&cohortDb).Error
+		return
+	})
+
+	newCohort = cohortDb.ToCore()
+	return
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"go.uber.org/fx"
-	"strconv"
+	"log"
 )
 
 type CohortDelegateImpl struct {
@@ -28,16 +28,31 @@ func SetupCohortDelegate(usecase cohorts.UseCase, edx edx.UseCase) CohortDelegat
 	}
 }
 
-func (p *CohortDelegateImpl) CreateCohort(cohort *models.CohortHTTP, createCohort *models.CreateCohortHTTP, courseId string) (id string, err error) {
-	body, err := p.EdxUseCase.CreateCohort(courseId, createCohort.Message)
-	if err != nil {
-		return "", cohorts.ErrBadRequest
+func (p *CohortDelegateImpl) CreateCohort(cohort *models.CohortHTTP, courseId string) (newCohort models.CohortHTTP, err error) {
+	cohortParams := models.CreateCohortHTTP{
+		Message: map[string]interface{}{
+			"name":            cohort.Name,
+			"assignment_type": cohort.AssignmentType,
+		},
 	}
-	err = json.Unmarshal(body, cohort)
+
+	body, err := p.EdxUseCase.CreateCohort(courseId, cohortParams.Message)
 	if err != nil {
-		return "", cohorts.ErrInternalServerLevel
+		log.Println(err)
+		return
 	}
-	id = strconv.FormatUint(uint64(cohort.ID), 10)
+	err = json.Unmarshal(body, &cohort)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	cohortCore := cohort.ToCore()
+	newCohortCore, err := p.CohortUseCase.CreateCohort(cohortCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newCohort.FromCore(newCohortCore)
 	return
 }
 
