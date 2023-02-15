@@ -96,6 +96,7 @@ func (c *PostgresClient) Migrate() (err error) {
 		&models.TeachersRobboGroupsDB{},
 		&models.StudentsOfTeacherDB{},
 		&models.CourseRelationDB{},
+		&models.CohortDB{},
 	)
 	return
 }
