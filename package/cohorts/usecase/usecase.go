@@ -23,6 +23,6 @@ func SetupCohortUseCase(gateway cohorts.Gateway) CohortUseCaseModule {
 	}
 }
 
-func (p *CohortUseCaseImpl) CreateCohort(cohort *models.CohortCore) (id string, err error) {
+func (p *CohortUseCaseImpl) CreateCohort(cohort *models.CohortCore) (newCohort *models.CohortCore, err error) {
 	return p.Gateway.CreateCohort(cohort)
 }

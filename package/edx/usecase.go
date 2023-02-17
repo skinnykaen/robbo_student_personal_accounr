@@ -21,7 +21,7 @@ type UseCase interface {
 	PostWithAuth(url string, params map[string]interface{}) (respBody []byte, err error)
 
 	CreateCohort(courseId string, cohortParams map[string]interface{}) (respBody []byte, err error)
-	AddStudent(username, courseId string, cohortId int) (respBody []byte, err error)
+	AddStudentToCohort(courseId, cohortId, studentId string) (respBody []byte, err error)
 
 	GetCoursesByUser() (respBody []byte, err error)
 	GetAllPublicCourses(pageNumber int) (respBody []byte, err error)

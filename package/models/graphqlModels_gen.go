@@ -2,6 +2,10 @@
 
 package models
 
+type CohortResult interface {
+	IsCohortResult()
+}
+
 type CourseRelationResult interface {
 	IsCourseRelationResult()
 }
@@ -95,6 +99,17 @@ type AbsoluteMediaHTTP struct {
 	URI         string `json:"uri"`
 	URIAbsolute string `json:"uri_absolute"`
 }
+
+type CohortHTTP struct {
+	ID              int    `json:"id"`
+	Name            string `json:"name"`
+	UserCount       int    `json:"user_count"`
+	AssignmentType  string `json:"assignment_type"`
+	UserPartitionID int    `json:"user_partition_id"`
+	GroupID         int    `json:"group_id"`
+}
+
+func (CohortHTTP) IsCohortResult() {}
 
 type CourseAPIMediaCollectionHTTP struct {
 	ID          string             `json:"id"`
@@ -208,6 +223,8 @@ type Error struct {
 
 func (Error) IsSignInResult() {}
 
+func (Error) IsCohortResult() {}
+
 func (Error) IsCourseRelationResult() {}
 
 func (Error) IsCourseRelationsResult() {}
@@ -283,6 +300,12 @@ type NewAccessCourseRelationTeacher struct {
 type NewAccessCourseRelationUnitAdmin struct {
 	CourseID    string `json:"courseId"`
 	UnitAdminID string `json:"unitAdminId"`
+}
+
+type NewCohort struct {
+	Name           string `json:"name"`
+	AssignmentType string `json:"assignment_type"`
+	CourseID       string `json:"course_id"`
 }
 
 type NewParent struct {
