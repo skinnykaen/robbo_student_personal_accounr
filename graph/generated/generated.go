@@ -173,6 +173,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AddChildToParent                     func(childComplexity int, parentID string, childID string) int
+		AddStudentToCohort                   func(childComplexity int, courseID string, cohortID string, studentID string) int
 		CreateAccessCourseRelationRobboGroup func(childComplexity int, input models.NewAccessCourseRelationRobboGroup) int
 		CreateAccessCourseRelationRobboUnit  func(childComplexity int, input models.NewAccessCourseRelationRobboUnit) int
 		CreateAccessCourseRelationStudent    func(childComplexity int, input models.NewAccessCourseRelationStudent) int
@@ -388,6 +389,7 @@ type MutationResolver interface {
 	SingOut(ctx context.Context) (*models.Error, error)
 	Refresh(ctx context.Context) (models.SignInResult, error)
 	CreateCohort(ctx context.Context, input models.NewCohort) (models.CohortResult, error)
+	AddStudentToCohort(ctx context.Context, courseID string, cohortID string, studentID string) (*models.Error, error)
 	CreateAccessCourseRelationRobboGroup(ctx context.Context, input models.NewAccessCourseRelationRobboGroup) (models.CourseRelationResult, error)
 	CreateAccessCourseRelationRobboUnit(ctx context.Context, input models.NewAccessCourseRelationRobboUnit) (models.CourseRelationResult, error)
 	CreateAccessCourseRelationStudent(ctx context.Context, input models.NewAccessCourseRelationStudent) (models.CourseRelationResult, error)
@@ -970,6 +972,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddChildToParent(childComplexity, args["parentId"].(string), args["childId"].(string)), true
+
+	case "Mutation.AddStudentToCohort":
+		if e.complexity.Mutation.AddStudentToCohort == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_AddStudentToCohort_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddStudentToCohort(childComplexity, args["courseId"].(string), args["cohortId"].(string), args["studentId"].(string)), true
 
 	case "Mutation.CreateAccessCourseRelationRobboGroup":
 		if e.complexity.Mutation.CreateAccessCourseRelationRobboGroup == nil {
@@ -2503,6 +2517,7 @@ input NewCohort {
 
 extend type Mutation {
     CreateCohort(input: NewCohort!): CohortResult!
+    AddStudentToCohort(courseId: String!, cohortId: String!, studentId: String!): Error
 }`, BuiltIn: false},
 	{Name: "../courses.graphqls", Input: `type CourseHttp {
     id: String!
@@ -3039,6 +3054,39 @@ func (ec *executionContext) field_Mutation_AddChildToParent_args(ctx context.Con
 		}
 	}
 	args["childId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_AddStudentToCohort_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["cohortId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cohortId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["cohortId"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["studentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("studentId"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["studentId"] = arg2
 	return args, nil
 }
 
@@ -8034,6 +8082,64 @@ func (ec *executionContext) fieldContext_Mutation_CreateCohort(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_CreateCohort_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_AddStudentToCohort(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_AddStudentToCohort(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddStudentToCohort(rctx, fc.Args["courseId"].(string), fc.Args["cohortId"].(string), fc.Args["studentId"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Error)
+	fc.Result = res
+	return ec.marshalOError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_AddStudentToCohort(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_Error_code(ctx, field)
+			case "message":
+				return ec.fieldContext_Error_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Error", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_AddStudentToCohort_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -19520,6 +19626,12 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "AddStudentToCohort":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_AddStudentToCohort(ctx, field)
+			})
+
 		case "CreateAccessCourseRelationRobboGroup":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {

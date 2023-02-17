@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"io/ioutil"
@@ -141,7 +142,14 @@ func (p *EdxApiUseCaseImpl) CreateCohort(courseId string, cohortParams map[strin
 	return p.PostWithAuth(urlAddr, cohortParams)
 }
 
-func (p *EdxApiUseCaseImpl) AddStudent(username, courseId string, cohortId int) (respBody []byte, err error) {
+func (p *EdxApiUseCaseImpl) AddStudentToCohort(courseId, cohortId, studentId string) (respBody []byte, err error) {
+	student, getStudentByIdErr := p.usersGateway.GetStudentById(studentId)
+	if getStudentByIdErr != nil {
+		err = getStudentByIdErr
+		return nil, err
+	}
+	studentEmail := student.Email
+	log.Println(studentEmail)
 	err = p.RefreshToken()
 	if err != nil {
 		log.Println("token not refresh")
@@ -150,7 +158,7 @@ func (p *EdxApiUseCaseImpl) AddStudent(username, courseId string, cohortId int) 
 	}
 
 	var bearer = "Bearer " + viper.GetString("api.token")
-	urlAddr := viper.GetString("api_urls.postCohort") + courseId + "/cohorts/" + strconv.Itoa(cohortId) + "/users/" + username
+	urlAddr := viper.GetString("api_urls.postCohort") + courseId + "/cohorts/" + cohortId + "/users/" + studentEmail
 	request, err := http.NewRequest("POST", urlAddr, nil)
 	if err != nil {
 		log.Println(err)
@@ -167,6 +175,7 @@ func (p *EdxApiUseCaseImpl) AddStudent(username, courseId string, cohortId int) 
 		return nil, edx.ErrOnResp
 	}
 	if response.StatusCode != http.StatusOK {
+		log.Println(response.StatusCode)
 		return nil, edx.ErrIncorrectInputParam
 	}
 	defer response.Body.Close()
@@ -275,7 +284,6 @@ func (p *EdxApiUseCaseImpl) PostRegistration(registrationMessage edx.Registratio
 }
 
 func (p *EdxApiUseCaseImpl) Login(email, password string) (respBody []byte, err error) {
-
 	urlAddr := viper.GetString("api_urls.login")
 	client := &http.Client{}
 	jar := &myjar{}
@@ -337,6 +345,7 @@ func handleCookies(n []*http.Cookie) (csrfToken string, found bool) {
 }
 
 type EdxApiUseCaseImpl struct {
+	usersGateway users.Gateway
 }
 
 type EdxApiUseCaseModule struct {
@@ -344,8 +353,10 @@ type EdxApiUseCaseModule struct {
 	edx.UseCase
 }
 
-func SetupEdxApiUseCase() EdxApiUseCaseModule {
+func SetupEdxApiUseCase(usersGateway users.Gateway) EdxApiUseCaseModule {
 	return EdxApiUseCaseModule{
-		UseCase: &EdxApiUseCaseImpl{},
+		UseCase: &EdxApiUseCaseImpl{
+			usersGateway,
+		},
 	}
 }

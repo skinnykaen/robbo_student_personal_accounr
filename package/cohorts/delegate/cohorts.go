@@ -56,10 +56,10 @@ func (p *CohortDelegateImpl) CreateCohort(cohort *models.CohortHTTP, courseId st
 	return
 }
 
-func (p *CohortDelegateImpl) AddStudent(username, courseId string, cohortId int) (err error) {
-	_, err = p.EdxUseCase.AddStudent(username, courseId, cohortId)
+func (p *CohortDelegateImpl) AddStudentToCohort(courseId, cohortId, studentId string) (err error) {
+	_, err = p.EdxUseCase.AddStudentToCohort(courseId, cohortId, studentId)
 	if err != nil {
-		return cohorts.ErrBadRequest
+		return
 	}
 	return
 }

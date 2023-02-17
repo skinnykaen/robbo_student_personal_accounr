@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type Handler struct {
@@ -36,7 +35,7 @@ func (h *Handler) InitCohortRoutes(router *gin.Engine) {
 	cohort := router.Group("/cohort")
 	{
 		cohort.POST("/createCohort/:courseId", h.CreateCohort)
-		cohort.POST("/addStudent/:username/:courseId/:cohortId", h.AddStudent)
+		cohort.POST("/addStudent/:courseId/:cohortId/:studentId", h.AddStudent)
 	}
 }
 
@@ -100,16 +99,10 @@ func (h *Handler) AddStudent(c *gin.Context) {
 		ErrorHandling(accessErr, c)
 		return
 	}
-	tempCohortId := c.Param("cohortId")
-	cohortId, atoiErr := strconv.Atoi(tempCohortId)
-	if atoiErr != nil {
-		atoiErr = cohorts.ErrBadRequest
-		ErrorHandling(atoiErr, c)
-		return
-	}
+	cohortId := c.Param("cohortId")
 	courseId := c.Param("courseId")
-	username := c.Param("username")
-	err := h.cohortsDelegate.AddStudent(username, courseId, cohortId)
+	studentId := c.Param("studentId")
+	err := h.cohortsDelegate.AddStudentToCohort(courseId, cohortId, studentId)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)

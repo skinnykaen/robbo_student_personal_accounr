@@ -17,4 +17,5 @@ input NewCohort {
 
 extend type Mutation {
     CreateCohort(input: NewCohort!): CohortResult!
+    AddStudentToCohort(courseId: String!, cohortId: String!, studentId: String!): Error
 }

@@ -5,7 +5,6 @@ package resolvers
 
 import (
 	"context"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -40,4 +39,30 @@ func (r *mutationResolver) CreateCohort(ctx context.Context, input models.NewCoh
 		}
 	}
 	return &newCohort, nil
+}
+
+// AddStudentToCohort is the resolver for the AddStudentToCohort field.
+func (r *mutationResolver) AddStudentToCohort(ctx context.Context, courseID string, cohortID string, studentID string) (*models.Error, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
+	}
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+
+	addStudentToCohortErr := r.cohortsDelegate.AddStudentToCohort(courseID, cohortID, studentID)
+	if addStudentToCohortErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: addStudentToCohortErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &models.Error{}, nil
 }
