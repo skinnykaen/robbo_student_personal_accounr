@@ -76,7 +76,7 @@ func (h *Handler) GetProject(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		err := errors.New("no access")
 		c.AbortWithError(http.StatusUnauthorized, err)

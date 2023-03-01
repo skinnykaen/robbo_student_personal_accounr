@@ -1,0 +1,36 @@
+type StudentHttp {
+	userHttp: UserHttp!
+	robboGroupId: String!
+	robboUnitId: String!
+}
+
+
+input NewStudent {
+	email: String!
+	password: String!
+	nickname: String!
+	firstname: String!
+	lastname: String!
+	middlename: String!
+	parentId: String!
+}
+
+
+type DeletedStudent {
+	studentId: String!
+}
+
+union StudentResult = StudentHttp | Error
+
+type Mutation {
+	CreateStudent(input: NewStudent!): StudentResult!
+	UpdateStudent(input: UpdateProfileInput!): StudentResult!
+	DeleteStudent(studentId: String!): DeletedStudent!
+}
+
+type Query {
+	GetStudentByAccessToken: StudentResult!
+	GetStudentById(studentId: String!): StudentResult!
+}
+
+scalar Timestamp

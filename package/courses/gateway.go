@@ -18,4 +18,5 @@ type Gateway interface {
 	UpdateImage(image *models.ImageCore) (err error)
 	UpdateCourseApiMediaCollection(courseApiMediaCollection *models.CourseApiMediaCollectionCore) (err error)
 	UpdateCourse(course *models.CourseCore) (err error)
+	GetAccessCourseRelationsByStudentId(studentId string) (courseRelations []*models.CourseRelationCore, err error)
 }

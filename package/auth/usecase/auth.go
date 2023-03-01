@@ -101,11 +101,11 @@ func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refres
 		student := &models.StudentCore{
 			UserCore: *userCore,
 		}
-		id, createStudentErr := a.Gateway.CreateStudent(student)
+		newStudent, createStudentErr := a.Gateway.CreateStudent(student)
 		if createStudentErr != nil {
 			return "", "", createStudentErr
 		}
-		userCore.Id = id
+		userCore.Id = newStudent.Id
 	case models.Teacher:
 
 	case models.Parent:

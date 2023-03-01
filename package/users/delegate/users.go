@@ -25,12 +25,24 @@ func SetupUsersDelegate(usecase users.UseCase) UsersDelegateModule {
 	}
 }
 
-func (p *UsersDelegateImpl) CreateStudent(student *models.StudentHTTP, parentId string) (id string, err error) {
+func (p *UsersDelegateImpl) CreateStudent(
+	student *models.StudentHTTP,
+	parentId string,
+) (newStudent *models.StudentHTTP, err error) {
 	studentCore := student.ToCore()
-	return p.UseCase.CreateStudent(studentCore, parentId)
+	newStudentCore, err := p.UseCase.CreateStudent(studentCore, parentId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newStudent = &models.StudentHTTP{
+		UserHTTP: &models.UserHTTP{},
+	}
+	newStudent.FromCore(newStudentCore)
+	return
 }
 
-func (p *UsersDelegateImpl) DeleteStudent(studentId uint) (err error) {
+func (p *UsersDelegateImpl) DeleteStudent(studentId string) (err error) {
 	return p.UseCase.DeleteStudent(studentId)
 }
 

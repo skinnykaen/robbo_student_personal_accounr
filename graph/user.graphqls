@@ -10,50 +10,11 @@ type UserHttp {
     createdAt: Timestamp!
 }
 
-input UpdateUserHttp {
-    id: ID!
+input UpdateProfileInput {
+    id: String!
     email: String!
     nickname: String!
     firstname: String!
     lastname: String!
     middlename: String!
 }
-
-type StudentHttp {
-    userHttp: UserHttp!
-    robboGroupId: String!
-    robboUnitId: String!
-}
-
-input UpdateStudentHttp {
-    userHttp: UpdateUserHttp!
-}
-
-input NewStudent {
-    email: String!
-    password: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-    parentId: String!
-}
-
-input UpdateStudentInput {
-    studentHttp: UpdateStudentHttp!
-}
-
-union StudentHttpResult = StudentHttp | Error
-
-type Mutation {
-    CreateStudent(input: NewStudent!): StudentHttpResult!
-    UpdateStudent(input: UpdateStudentInput!): StudentHttpResult!
-    DeleteStudent(studentId: String!): String!
-}
-
-type Query {
-    GetStudentByAccessToken: StudentHttpResult!
-    GetStudentById(studentId: String!): StudentHttpResult!
-}
-
-scalar Timestamp

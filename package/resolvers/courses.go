@@ -5,33 +5,36 @@ package resolvers
 
 import (
 	"context"
-	"errors"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // GetCourseContent is the resolver for the GetCourseContent field.
 func (r *queryResolver) GetCourseContent(ctx context.Context, courseID string) (*models.CourseHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
+		return nil, getGinContextErr
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{
+		models.Student,
 	}
-	allowedRoles := []models.Role{models.Student, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		return nil, accessErr
 	}
+
 	courseHttp, getCourseContentErr := r.coursesDelegate.GetCourseContent(courseID)
 	if getCourseContentErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getCourseContentErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return courseHttp, nil
 }
@@ -40,64 +43,81 @@ func (r *queryResolver) GetCourseContent(ctx context.Context, courseID string) (
 func (r *queryResolver) GetCoursesByUser(ctx context.Context) (*models.CoursesListHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
+		return nil, getGinContextErr
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{
+		models.Student,
 	}
-	coursesListHttp, getCoursesByUserErr := r.coursesDelegate.GetCoursesByUser()
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+
+	courses, getCoursesByUserErr := r.coursesDelegate.
+		GetCoursesByUser(userId, userRole, "1", "10")
 	if getCoursesByUserErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getCoursesByUserErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
-	return coursesListHttp, nil
+	return courses, nil
 }
 
 // GetAllPublicCourses is the resolver for the GetAllPublicCourses field.
 func (r *queryResolver) GetAllPublicCourses(ctx context.Context, pageNumber string) (*models.CoursesListHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
+		return nil, getGinContextErr
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{
+		models.Student,
 	}
-	coursesListHttp, getAllPublicCoursesErr := r.coursesDelegate.GetAllPublicCourses(pageNumber)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+	courses, getAllPublicCoursesErr := r.coursesDelegate.GetAllPublicCourses(pageNumber)
 	if getAllPublicCoursesErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getAllPublicCoursesErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
-	return coursesListHttp, nil
+	return courses, nil
 }
 
 // GetEnrollments is the resolver for the GetEnrollments field.
 func (r *queryResolver) GetEnrollments(ctx context.Context, username string) (*models.EnrollmentsListHTTP, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
+		return nil, getGinContextErr
 	}
-	_, role, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
+	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := r.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
-		err := errors.New("no access")
-		return nil, err
+		return nil, accessErr
 	}
-	enrollmentListHttp, GetEnrollmentsErr := r.coursesDelegate.GetEnrollments(username)
-	if GetEnrollmentsErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+
+	enrollments, getEnrollmentsErr := r.coursesDelegate.GetEnrollments(username)
+	if getEnrollmentsErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getEnrollmentsErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
-	return enrollmentListHttp, nil
+	return enrollments, nil
 }

@@ -1,14 +1,16 @@
 package gateway
 
 import (
+	"errors"
+	"github.com/jackc/pgconn"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"log"
-	"strconv"
 )
 
 type UsersGatewayImpl struct {
@@ -50,20 +52,24 @@ func (r *UsersGatewayImpl) GetStudent(email, password string) (student *models.S
 	return
 }
 
-func (r *UsersGatewayImpl) CreateStudent(student *models.StudentCore) (id string, err error) {
+func (r *UsersGatewayImpl) CreateStudent(student *models.StudentCore) (newStudent *models.StudentCore, err error) {
 	studentDb := models.StudentDB{}
 	studentDb.FromCore(student)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&studentDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return users.ErrAlreadyUsedEmail
+		}
 		return
 	})
 
-	id = strconv.FormatUint(uint64(studentDb.ID), 10)
+	newStudent = studentDb.ToCore()
 	return
 }
 
-func (r *UsersGatewayImpl) DeleteStudent(studentId uint) (err error) {
+func (r *UsersGatewayImpl) DeleteStudent(studentId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Delete(&models.StudentDB{}, studentId).Error
 		return
@@ -87,14 +93,22 @@ func (r *UsersGatewayImpl) GetStudentById(studentId string) (student *models.Stu
 	return
 }
 
-func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (updatedStudent *models.StudentCore, err error) {
+func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (studentUpdated *models.StudentCore, err error) {
 	studentDb := models.StudentDB{}
 	studentDb.FromCore(student)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&studentDb).Where("id = ?", studentDb.ID).Updates(studentDb).Error
+		if err = tx.Model(&studentDb).Clauses(clause.Returning{}).
+			Where("id = ?", studentDb.ID).First(&models.StudentDB{}).Updates(studentDb).Error; err != nil {
+			var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+			if errors.As(err, &duplicateEntryError) {
+				return users.ErrAlreadyUsedEmail
+			}
+			err = auth.ErrUserNotFound
+			return
+		}
 		return
 	})
-	updatedStudent = studentDb.ToCore()
+	studentUpdated = studentDb.ToCore()
 	return
 }

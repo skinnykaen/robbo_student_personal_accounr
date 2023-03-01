@@ -8,7 +8,6 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type Handler struct {
@@ -114,7 +113,7 @@ func (h *Handler) CreateStudent(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -152,7 +151,7 @@ func (h *Handler) UpdateStudent(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -192,7 +191,7 @@ func (h *Handler) DeleteStudent(c *gin.Context) {
 	}
 
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -200,14 +199,7 @@ func (h *Handler) DeleteStudent(c *gin.Context) {
 	}
 
 	studentId := c.Param("studentId")
-	id, atoiErr := strconv.Atoi(studentId)
-	if atoiErr != nil {
-		atoiErr = users.ErrBadRequest
-		log.Println(atoiErr)
-		ErrorHandling(atoiErr, c)
-		return
-	}
-	err := h.usersDelegate.DeleteStudent(uint(id))
+	err := h.usersDelegate.DeleteStudent(studentId)
 
 	if err != nil {
 		log.Println(err)
@@ -221,7 +213,7 @@ func ErrorHandling(err error, c *gin.Context) {
 	switch err {
 	case users.ErrBadRequest:
 		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
-	case users.ErrInternalServerLevel:
+	case users.ErrInternalServerError:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case users.ErrBadRequestBody:
 		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())

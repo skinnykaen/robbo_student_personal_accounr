@@ -10,8 +10,12 @@ type ProjectPagesResult interface {
 	IsProjectPagesResult()
 }
 
-type StudentHTTPResult interface {
-	IsStudentHTTPResult()
+type SignInResult interface {
+	IsSignInResult()
+}
+
+type StudentResult interface {
+	IsStudentResult()
 }
 
 type AbsoluteMediaHTTP struct {
@@ -51,13 +55,34 @@ type CourseHTTP struct {
 	Media            *CourseAPIMediaCollectionHTTP `json:"Media"`
 }
 
+type CourseRelationHTTP struct {
+	ID           string `json:"id"`
+	LastModified string `json:"lastModified"`
+	Parameter    string `json:"parameter"`
+	CourseID     string `json:"courseId"`
+	ObjectID     string `json:"objectId"`
+}
+
+type CourseRelationHTTPList struct {
+	CourseRelations []*CourseRelationHTTP `json:"courseRelations"`
+}
+
 type CoursesListHTTP struct {
 	Results    []*CourseHTTP `json:"Results"`
 	Pagination *Pagination   `json:"Pagination"`
+	CountRows  int           `json:"countRows"`
+}
+
+type DeletedCourseRelation struct {
+	CourseRelationID string `json:"courseRelationId"`
 }
 
 type DeletedProjectPage struct {
 	ProjectPageID string `json:"projectPageId"`
+}
+
+type DeletedStudent struct {
+	StudentID string `json:"studentId"`
 }
 
 type EnrollmentHTTP struct {
@@ -79,11 +104,13 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+func (Error) IsSignInResult() {}
+
 func (Error) IsProjectPageResult() {}
 
 func (Error) IsProjectPagesResult() {}
 
-func (Error) IsStudentHTTPResult() {}
+func (Error) IsStudentResult() {}
 
 type ImageHTTP struct {
 	ID    string `json:"ID"`
@@ -135,13 +162,34 @@ type ProjectPageHTTPList struct {
 
 func (ProjectPageHTTPList) IsProjectPagesResult() {}
 
+type SignInInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	UserRole int    `json:"userRole"`
+}
+
+type SingInResponse struct {
+	AccessToken string `json:"accessToken"`
+}
+
+func (SingInResponse) IsSignInResult() {}
+
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`
 	RobboGroupID string    `json:"robboGroupId"`
 	RobboUnitID  string    `json:"robboUnitId"`
 }
 
-func (StudentHTTP) IsStudentHTTPResult() {}
+func (StudentHTTP) IsStudentResult() {}
+
+type UpdateProfileInput struct {
+	ID         string `json:"id"`
+	Email      string `json:"email"`
+	Nickname   string `json:"nickname"`
+	Firstname  string `json:"firstname"`
+	Lastname   string `json:"lastname"`
+	Middlename string `json:"middlename"`
+}
 
 type UpdateProjectPage struct {
 	ProjectID     string `json:"projectId"`
@@ -150,23 +198,6 @@ type UpdateProjectPage struct {
 	Notes         string `json:"notes"`
 	Title         string `json:"title"`
 	IsShared      bool   `json:"isShared"`
-}
-
-type UpdateStudentHTTP struct {
-	UserHTTP *UpdateUserHTTP `json:"userHttp"`
-}
-
-type UpdateStudentInput struct {
-	StudentHTTP *UpdateStudentHTTP `json:"studentHttp"`
-}
-
-type UpdateUserHTTP struct {
-	ID         string `json:"id"`
-	Email      string `json:"email"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
 }
 
 type UserHTTP struct {

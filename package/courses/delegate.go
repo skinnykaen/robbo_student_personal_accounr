@@ -10,7 +10,7 @@ type Delegate interface {
 	DeleteCourse(courseId string) (err error)
 	UpdateCourse(course *models.CourseHTTP) (err error)
 	GetCourseContent(courseId string) (courseHTTP *models.CourseHTTP, err error)
-	GetCoursesByUser() (coursesListHTTP *models.CoursesListHTTP, err error)
+	GetCoursesByUser(userId string, role models.Role, page string, pageSize string) (coursesListHTTP *models.CoursesListHTTP, err error)
 	GetAllPublicCourses(pageNumber string) (coursesListHTTP *models.CoursesListHTTP, err error)
 	GetEnrollments(username string) (enrollmentListHTTP *models.EnrollmentsListHTTP, err error)
 	PostUnenroll(postUnenrollHTTP *models.PostEnrollmentHTTP) (err error)

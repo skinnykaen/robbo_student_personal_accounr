@@ -63,15 +63,37 @@ func (p *CourseDelegateImpl) GetCourseContent(courseId string) (courseHTTP *mode
 	return courseHTTP, nil
 }
 
-func (p *CourseDelegateImpl) GetCoursesByUser() (coursesListHTTP *models.CoursesListHTTP, err error) {
-	body, err := p.EdxUseCase.GetCoursesByUser()
-	if err != nil {
-		return nil, courses.ErrBadRequest
+func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role, page string, pageSize string) (
+	coursesListHTTP *models.CoursesListHTTP,
+	err error,
+) {
+	var courseAccessRelations []*models.CourseRelationCore
+	var errGetRelations error
+	switch role {
+	case models.Student:
+		courseAccessRelations, errGetRelations = p.CoursesUseCase.GetAccessCourseRelationsByStudentId(userId)
 	}
-	err = json.Unmarshal(body, &coursesListHTTP)
-	if err != nil {
-		return nil, courses.ErrInternalServerLevel
+	if errGetRelations != nil {
+		return nil, errGetRelations
 	}
+	for _, courseAccessRelation := range courseAccessRelations {
+		var courseHTTP *models.CourseHTTP
+		body, err := p.EdxUseCase.GetCourseContent(courseAccessRelation.CourseId)
+		if err != nil {
+			return nil, courses.ErrBadRequest
+		}
+		err = json.Unmarshal(body, &courseHTTP)
+		if err != nil {
+			return nil, courses.ErrInternalServerLevel
+		}
+		coursesListHTTP = &models.CoursesListHTTP{
+			Results:    []*models.CourseHTTP{},
+			Pagination: &models.Pagination{},
+			CountRows:  0,
+		}
+		coursesListHTTP.Results = append(coursesListHTTP.Results, courseHTTP)
+	}
+	coursesListHTTP.CountRows = len(courseAccessRelations)
 	return coursesListHTTP, nil
 }
 

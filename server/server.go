@@ -20,6 +20,7 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 		fx.Hook{
 			OnStart: func(ctx context.Context) (err error) {
 				router := SetupGinRouter(handlers)
+				router.Use(TokenAuthMiddleware())
 				router.GET("/", playgroundHandler())
 				router.POST("/query", graphqlHandler(graphQLModule))
 
@@ -28,15 +29,23 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 					Handler: cors.New(
 						// TODO make config
 						cors.Options{
-							AllowedOrigins:   []string{"http://0.0.0.0:3030", "http://0.0.0.0:8601", "http://localhost:3030"},
+							AllowedOrigins: []string{
+								"http://0.0.0.0:3030",
+								"http://0.0.0.0:3000",
+								"http://0.0.0.0:8601",
+								"http://localhost:3030",
+								"http://localhost:3000",
+							},
 							AllowCredentials: true,
 							AllowedMethods: []string{
-								http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions, http.MethodOptions,
+								http.MethodGet,
+								http.MethodPost,
+								http.MethodPut,
+								http.MethodDelete,
+								http.MethodOptions,
+								http.MethodOptions,
 							},
 							AllowedHeaders: []string{"*"},
-							//AllowedHeaders: []string{
-							//	"Origin", "X-Requested-With", "Content-Type", "Accept", "Set-Cookie", "Authorization",
-							//},
 						},
 					).Handler(router),
 					ReadTimeout:    10 * time.Second,

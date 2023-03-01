@@ -7,7 +7,6 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
-	"log"
 )
 
 type UsersUseCaseImpl struct {
@@ -31,27 +30,26 @@ func (p *UsersUseCaseImpl) GetStudentById(studentId string) (student *models.Stu
 	return p.Gateway.GetStudentById(studentId)
 }
 
-func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId string) (id string, err error) {
+func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId string) (newStudent *models.StudentCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(student.Password))
 	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
 	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
 	student.Password = passwordHash
-	id, err = p.Gateway.CreateStudent(student)
+	newStudent, err = p.Gateway.CreateStudent(student)
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (p *UsersUseCaseImpl) DeleteStudent(studentId uint) (err error) {
+func (p *UsersUseCaseImpl) DeleteStudent(studentId string) (err error) {
 	return p.Gateway.DeleteStudent(studentId)
 }
 
-func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (updatedStudent *models.StudentCore, err error) {
-	updatedStudent, err = p.Gateway.UpdateStudent(student)
+func (p *UsersUseCaseImpl) UpdateStudent(student *models.StudentCore) (studentUpdated *models.StudentCore, err error) {
+	studentUpdated, err = p.Gateway.UpdateStudent(student)
 	if err != nil {
-		log.Println("Error update student")
 		return
 	}
 	return

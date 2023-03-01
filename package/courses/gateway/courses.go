@@ -26,6 +26,24 @@ func SetupCoursesGateway(postgresClient db_client.PostgresClient) CoursesGateway
 	}
 }
 
+func (r *CoursesGatewayImpl) GetAccessCourseRelationsByStudentId(studentId string) (courseRelations []*models.CourseRelationCore, err error) {
+	var courseRelationsDb []*models.CourseRelationDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("parameter = ? AND object_id = ?", "student", studentId).Find(&courseRelationsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, courseRelationDb := range courseRelationsDb {
+		var courseRelationCore *models.CourseRelationCore
+
+		courseRelationCore = courseRelationDb.ToCore()
+		courseRelations = append(courseRelations, courseRelationCore)
+	}
+	return
+}
+
 func (r *CoursesGatewayImpl) CreateCourse(course *models.CourseCore) (id string, err error) {
 	courseDb := models.CourseDB{}
 	courseDb.FromCore(course)

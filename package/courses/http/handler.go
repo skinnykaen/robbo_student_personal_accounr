@@ -86,7 +86,7 @@ func (h *Handler) CreateCourse(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -116,7 +116,7 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.Student, models.FreeListener, models.Teacher, models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)
@@ -134,15 +134,10 @@ func (h *Handler) GetCourseContent(c *gin.Context) {
 }
 
 func (h *Handler) GetCoursesByUser(c *gin.Context) {
-	log.Println("Get Courses By User")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
-	if userIdentityErr != nil {
-		log.Println(userIdentityErr)
-		ErrorHandling(userIdentityErr, c)
-		return
-	}
+	userId := c.Value("user_id").(string)
+	userRole := c.Value("user_role").(models.Role)
 
-	coursesHTTP, err := h.coursesDelegate.GetCoursesByUser()
+	coursesHTTP, err := h.coursesDelegate.GetCoursesByUser(userId, userRole, "1", "10")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -180,7 +175,7 @@ func (h *Handler) GetEnrollments(c *gin.Context) {
 		return
 	}
 	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
-	accessErr := h.authDelegate.UserAccess(role, allowedRoles)
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		log.Println(accessErr)
 		ErrorHandling(accessErr, c)

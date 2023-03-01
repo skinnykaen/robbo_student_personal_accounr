@@ -6,4 +6,5 @@ type UseCase interface {
 	CreateCourse(course *models.CourseCore) (id string, err error)
 	DeleteCourse(courseId string) (err error)
 	UpdateCourse(course *models.CourseCore) (err error)
+	GetAccessCourseRelationsByStudentId(studentId string) (courseRelations []*models.CourseRelationCore, err error)
 }

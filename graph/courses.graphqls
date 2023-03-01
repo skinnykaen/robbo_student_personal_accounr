@@ -67,9 +67,27 @@ type Pagination {
 	Count: Int!
 	Num_Pages: Int!
 }
+
 type CoursesListHttp {
 	Results:    [CourseHttp!]!
 	Pagination: Pagination!
+	countRows: Int!
+}
+
+type DeletedCourseRelation {
+	courseRelationId: String!
+}
+
+type CourseRelationHttp {
+	id: String!
+	lastModified: String!
+	parameter: String!
+	courseId: String!
+	objectId: String!
+}
+
+type CourseRelationHttpList {
+	courseRelations: [CourseRelationHttp!]!
 }
 
 extend type Query {

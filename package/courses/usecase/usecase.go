@@ -8,7 +8,7 @@ import (
 )
 
 type CourseUseCaseImpl struct {
-	courses.Gateway
+	courseGateway courses.Gateway
 }
 
 type CourseUseCaseModule struct {
@@ -19,13 +19,13 @@ type CourseUseCaseModule struct {
 func SetupCourseUseCase(gateway courses.Gateway) CourseUseCaseModule {
 	return CourseUseCaseModule{
 		UseCase: &CourseUseCaseImpl{
-			Gateway: gateway,
+			courseGateway: gateway,
 		},
 	}
 }
 
 func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, err error) {
-	CourseId, err := p.Gateway.CreateCourse(course)
+	CourseId, err := p.courseGateway.CreateCourse(course)
 	if err != nil {
 		log.Println("Error create Course")
 		return "", err
@@ -34,7 +34,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 	mediaCore := &models.CourseApiMediaCollectionCore{
 		CourseID: CourseId,
 	}
-	MediaId, err := p.Gateway.CreateCourseApiMediaCollection(mediaCore)
+	MediaId, err := p.courseGateway.CreateCourseApiMediaCollection(mediaCore)
 	if err != nil {
 		log.Println("Error create CourseApiMediaCollection")
 		return "", err
@@ -45,7 +45,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 		UriAbsolute:                course.Media.BannerImage.UriAbsolute,
 		CourseApiMediaCollectionID: MediaId,
 	}
-	_, err = p.Gateway.CreateAbsoluteMedia(bannerImage)
+	_, err = p.courseGateway.CreateAbsoluteMedia(bannerImage)
 	if err != nil {
 		log.Println("Error create AbsoluteMedia")
 		return "", err
@@ -55,7 +55,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 		Uri:                        course.Media.CourseImage.Uri,
 		CourseApiMediaCollectionID: MediaId,
 	}
-	_, err = p.Gateway.CreateMedia(courseImage)
+	_, err = p.courseGateway.CreateMedia(courseImage)
 	if err != nil {
 		log.Println("Error create Media")
 		return "", err
@@ -65,7 +65,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 		Uri:                        course.Media.CourseVideo.Uri,
 		CourseApiMediaCollectionID: MediaId,
 	}
-	_, err = p.Gateway.CreateMedia(courseVideo)
+	_, err = p.courseGateway.CreateMedia(courseVideo)
 	if err != nil {
 		log.Println("Error create Media")
 		return "", err
@@ -77,7 +77,7 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 		Large:                      course.Media.Image.Large,
 		CourseApiMediaCollectionID: MediaId,
 	}
-	_, err = p.Gateway.CreateImage(image)
+	_, err = p.courseGateway.CreateImage(image)
 	if err != nil {
 		log.Println("Error create Image")
 		return "", err
@@ -87,37 +87,37 @@ func (p *CourseUseCaseImpl) CreateCourse(course *models.CourseCore) (id string, 
 }
 
 func (p *CourseUseCaseImpl) UpdateCourse(course *models.CourseCore) (err error) {
-	err = p.Gateway.UpdateAbsoluteMedia(&course.Media.BannerImage)
+	err = p.courseGateway.UpdateAbsoluteMedia(&course.Media.BannerImage)
 	if err != nil {
 		log.Println("Error update AbsoluteMedia")
 		return
 	}
 
-	err = p.Gateway.UpdateMedia(&course.Media.CourseImage)
+	err = p.courseGateway.UpdateMedia(&course.Media.CourseImage)
 	if err != nil {
 		log.Println("Error update Media")
 		return
 	}
 
-	err = p.Gateway.UpdateMedia(&course.Media.CourseVideo)
+	err = p.courseGateway.UpdateMedia(&course.Media.CourseVideo)
 	if err != nil {
 		log.Println("Error update Media")
 		return
 	}
 
-	err = p.Gateway.UpdateImage(&course.Media.Image)
+	err = p.courseGateway.UpdateImage(&course.Media.Image)
 	if err != nil {
 		log.Println("Error update Image")
 		return
 	}
 
-	err = p.Gateway.UpdateCourseApiMediaCollection(&course.Media)
+	err = p.courseGateway.UpdateCourseApiMediaCollection(&course.Media)
 	if err != nil {
 		log.Println("Error update CourseApiMediaCollection")
 		return
 	}
 
-	err = p.Gateway.UpdateCourse(course)
+	err = p.courseGateway.UpdateCourse(course)
 	if err != nil {
 		log.Println("Error update Course")
 		return
@@ -126,32 +126,38 @@ func (p *CourseUseCaseImpl) UpdateCourse(course *models.CourseCore) (err error) 
 	return nil
 }
 
+func (p *CourseUseCaseImpl) GetAccessCourseRelationsByStudentId(
+	studentId string,
+) (courseRelations []*models.CourseRelationCore, err error) {
+	return p.courseGateway.GetAccessCourseRelationsByStudentId(studentId)
+}
+
 func (p *CourseUseCaseImpl) DeleteCourse(courseId string) (err error) {
-	id, err := p.Gateway.DeleteCourse(courseId)
+	id, err := p.courseGateway.DeleteCourse(courseId)
 	if err != nil {
 		log.Println("Error delete Course")
 		return
 	}
 
-	courseApiMediaCollectionId, err := p.Gateway.DeleteCourseApiMediaCollection(id)
+	courseApiMediaCollectionId, err := p.courseGateway.DeleteCourseApiMediaCollection(id)
 	if err != nil {
 		log.Println("Error delete CourseApiMediaCollection")
 		return
 	}
 
-	err = p.Gateway.DeleteAbsoluteMedia(courseApiMediaCollectionId)
+	err = p.courseGateway.DeleteAbsoluteMedia(courseApiMediaCollectionId)
 	if err != nil {
 		log.Println("Error delete AbsoluteMedia")
 		return
 	}
 
-	err = p.Gateway.DeleteMedia(courseApiMediaCollectionId)
+	err = p.courseGateway.DeleteMedia(courseApiMediaCollectionId)
 	if err != nil {
 		log.Println("Error delete Media")
 		return
 	}
 
-	err = p.Gateway.DeleteImage(courseApiMediaCollectionId)
+	err = p.courseGateway.DeleteImage(courseApiMediaCollectionId)
 	if err != nil {
 		log.Println("Error delete Image")
 		return
