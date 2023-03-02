@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -94,10 +95,10 @@ func (h *Handler) GetProject(c *gin.Context) {
 		return
 	}
 
-	//var jsonMap map[string]interface{}
-	//json.Unmarshal([]byte(project.Json), &jsonMap)
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(project.Json), &jsonMap)
 
-	c.JSON(http.StatusOK, project.Json)
+	c.JSON(http.StatusOK, jsonMap)
 }
 
 func (h *Handler) UpdateProject(c *gin.Context) {

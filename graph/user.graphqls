@@ -18,3 +18,9 @@ input UpdateProfileInput {
     lastname: String!
     middlename: String!
 }
+
+union GetUserResult = StudentHttp
+
+extend type Query {
+    GetUser(peekUserId: String, peekUserRole: Int): GetUserResult!
+}

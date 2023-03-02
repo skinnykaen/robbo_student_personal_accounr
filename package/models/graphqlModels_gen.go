@@ -2,6 +2,10 @@
 
 package models
 
+type GetUserResult interface {
+	IsGetUserResult()
+}
+
 type ProjectPageResult interface {
 	IsProjectPageResult()
 }
@@ -19,40 +23,40 @@ type StudentResult interface {
 }
 
 type AbsoluteMediaHTTP struct {
-	ID          string `json:"ID"`
-	URI         string `json:"URI"`
-	URIAbsolute string `json:"URI_Absolute"`
+	ID          string `json:"id"`
+	URI         string `json:"uri"`
+	URIAbsolute string `json:"uri_absolute"`
 }
 
 type CourseAPIMediaCollectionHTTP struct {
-	ID          string             `json:"ID"`
-	BannerImage *AbsoluteMediaHTTP `json:"Banner_Image"`
-	CourseImage *MediaHTTP         `json:"Course_Image"`
-	CourseVideo *MediaHTTP         `json:"Course_Video"`
-	Image       *ImageHTTP         `json:"Image"`
+	ID          string             `json:"id"`
+	BannerImage *AbsoluteMediaHTTP `json:"banner_image"`
+	CourseImage *MediaHTTP         `json:"course_image"`
+	CourseVideo *MediaHTTP         `json:"course_video"`
+	Image       *ImageHTTP         `json:"image"`
 }
 
 type CourseHTTP struct {
-	ID               string                        `json:"ID"`
-	BlocksURL        string                        `json:"Blocks_URL"`
-	Effort           string                        `json:"Effort"`
-	EnrollmentStart  string                        `json:"Enrollment_Start"`
-	EnrollmentEnd    string                        `json:"Enrollment_End"`
-	End              string                        `json:"End"`
-	Name             string                        `json:"Name"`
-	Number           string                        `json:"Number"`
-	Org              string                        `json:"Org"`
-	ShortDescription string                        `json:"Short_Description"`
-	Start            string                        `json:"Start"`
-	StartDisplay     string                        `json:"Start_Display"`
-	StartType        string                        `json:"Start_Type"`
-	Pacing           string                        `json:"Pacing"`
-	MobileAvailable  bool                          `json:"Mobile_Available"`
-	Hidden           bool                          `json:"Hidden"`
-	InvitationOnly   bool                          `json:"Invitation_Only"`
-	Overview         *string                       `json:"Overview"`
-	CourseID         string                        `json:"Course_ID"`
-	Media            *CourseAPIMediaCollectionHTTP `json:"Media"`
+	ID               string                        `json:"id"`
+	BlocksURL        string                        `json:"blocks_url"`
+	Effort           string                        `json:"effort"`
+	EnrollmentStart  string                        `json:"enrollment_start"`
+	EnrollmentEnd    string                        `json:"enrollment_end"`
+	End              string                        `json:"end"`
+	Name             string                        `json:"name"`
+	Number           string                        `json:"number"`
+	Org              string                        `json:"org"`
+	ShortDescription string                        `json:"short_description"`
+	Start            string                        `json:"start"`
+	StartDisplay     string                        `json:"start_display"`
+	StartType        string                        `json:"start_type"`
+	Pacing           string                        `json:"pacing"`
+	MobileAvailable  bool                          `json:"mobile_available"`
+	Hidden           bool                          `json:"hidden"`
+	InvitationOnly   bool                          `json:"invitation_only"`
+	Overview         *string                       `json:"overview"`
+	CourseID         string                        `json:"course_id"`
+	Media            *CourseAPIMediaCollectionHTTP `json:"media"`
 }
 
 type CourseRelationHTTP struct {
@@ -68,8 +72,8 @@ type CourseRelationHTTPList struct {
 }
 
 type CoursesListHTTP struct {
-	Results    []*CourseHTTP `json:"Results"`
-	Pagination *Pagination   `json:"Pagination"`
+	Results    []*CourseHTTP `json:"results"`
+	Pagination *Pagination   `json:"pagination"`
 	CountRows  int           `json:"countRows"`
 }
 
@@ -86,17 +90,17 @@ type DeletedStudent struct {
 }
 
 type EnrollmentHTTP struct {
-	Created  string `json:"Created"`
-	Mode     string `json:"Mode"`
-	IsActive bool   `json:"IsActive"`
-	User     string `json:"User"`
-	CourseID string `json:"Course_ID"`
+	Created  string `json:"created"`
+	Mode     string `json:"mode"`
+	IsActive bool   `json:"isActive"`
+	User     string `json:"user"`
+	CourseID string `json:"course_id"`
 }
 
 type EnrollmentsListHTTP struct {
-	Next     string            `json:"Next"`
-	Previous string            `json:"Previous"`
-	Results  []*EnrollmentHTTP `json:"Results"`
+	Next     string            `json:"next"`
+	Previous string            `json:"previous"`
+	Results  []*EnrollmentHTTP `json:"results"`
 }
 
 type Error struct {
@@ -113,15 +117,15 @@ func (Error) IsProjectPagesResult() {}
 func (Error) IsStudentResult() {}
 
 type ImageHTTP struct {
-	ID    string `json:"ID"`
-	Raw   string `json:"Raw"`
-	Small string `json:"Small"`
-	Large string `json:"Large"`
+	ID    string `json:"id"`
+	Raw   string `json:"raw"`
+	Small string `json:"small"`
+	Large string `json:"large"`
 }
 
 type MediaHTTP struct {
-	ID  string `json:"ID"`
-	URI string `json:"URI"`
+	ID  string `json:"id"`
+	URI string `json:"uri"`
 }
 
 type NewStudent struct {
@@ -135,10 +139,10 @@ type NewStudent struct {
 }
 
 type Pagination struct {
-	Next     string `json:"Next"`
-	Previous string `json:"Previous"`
-	Count    int    `json:"Count"`
-	NumPages int    `json:"Num_Pages"`
+	Next     string `json:"next"`
+	Previous string `json:"previous"`
+	Count    int    `json:"count"`
+	NumPages int    `json:"num_pages"`
 }
 
 type ProjectPageHTTP struct {
@@ -181,6 +185,8 @@ type StudentHTTP struct {
 }
 
 func (StudentHTTP) IsStudentResult() {}
+
+func (StudentHTTP) IsGetUserResult() {}
 
 type UpdateProfileInput struct {
 	ID         string `json:"id"`

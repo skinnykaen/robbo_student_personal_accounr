@@ -188,6 +188,7 @@ type ComplexityRoot struct {
 		GetProjectPageByID              func(childComplexity int, projectPageID string) int
 		GetStudentByAccessToken         func(childComplexity int) int
 		GetStudentByID                  func(childComplexity int, studentID string) int
+		GetUser                         func(childComplexity int, peekUserID *string, peekUserRole *int) int
 	}
 
 	SingInResponse struct {
@@ -234,6 +235,7 @@ type QueryResolver interface {
 	GetProjectPageByID(ctx context.Context, projectPageID string) (models.ProjectPageResult, error)
 	GetAllProjectPagesByUserID(ctx context.Context, userID string, page string, pageSize string) (models.ProjectPagesResult, error)
 	GetAllProjectPagesByAccessToken(ctx context.Context, page string, pageSize string) (models.ProjectPagesResult, error)
+	GetUser(ctx context.Context, peekUserID *string, peekUserRole *int) (models.GetUserResult, error)
 }
 
 type executableSchema struct {
@@ -251,196 +253,196 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "AbsoluteMediaHttp.ID":
+	case "AbsoluteMediaHttp.id":
 		if e.complexity.AbsoluteMediaHttp.ID == nil {
 			break
 		}
 
 		return e.complexity.AbsoluteMediaHttp.ID(childComplexity), true
 
-	case "AbsoluteMediaHttp.URI":
+	case "AbsoluteMediaHttp.uri":
 		if e.complexity.AbsoluteMediaHttp.URI == nil {
 			break
 		}
 
 		return e.complexity.AbsoluteMediaHttp.URI(childComplexity), true
 
-	case "AbsoluteMediaHttp.URI_Absolute":
+	case "AbsoluteMediaHttp.uri_absolute":
 		if e.complexity.AbsoluteMediaHttp.URIAbsolute == nil {
 			break
 		}
 
 		return e.complexity.AbsoluteMediaHttp.URIAbsolute(childComplexity), true
 
-	case "CourseAPIMediaCollectionHttp.Banner_Image":
+	case "CourseAPIMediaCollectionHttp.banner_image":
 		if e.complexity.CourseAPIMediaCollectionHttp.BannerImage == nil {
 			break
 		}
 
 		return e.complexity.CourseAPIMediaCollectionHttp.BannerImage(childComplexity), true
 
-	case "CourseAPIMediaCollectionHttp.Course_Image":
+	case "CourseAPIMediaCollectionHttp.course_image":
 		if e.complexity.CourseAPIMediaCollectionHttp.CourseImage == nil {
 			break
 		}
 
 		return e.complexity.CourseAPIMediaCollectionHttp.CourseImage(childComplexity), true
 
-	case "CourseAPIMediaCollectionHttp.Course_Video":
+	case "CourseAPIMediaCollectionHttp.course_video":
 		if e.complexity.CourseAPIMediaCollectionHttp.CourseVideo == nil {
 			break
 		}
 
 		return e.complexity.CourseAPIMediaCollectionHttp.CourseVideo(childComplexity), true
 
-	case "CourseAPIMediaCollectionHttp.ID":
+	case "CourseAPIMediaCollectionHttp.id":
 		if e.complexity.CourseAPIMediaCollectionHttp.ID == nil {
 			break
 		}
 
 		return e.complexity.CourseAPIMediaCollectionHttp.ID(childComplexity), true
 
-	case "CourseAPIMediaCollectionHttp.Image":
+	case "CourseAPIMediaCollectionHttp.image":
 		if e.complexity.CourseAPIMediaCollectionHttp.Image == nil {
 			break
 		}
 
 		return e.complexity.CourseAPIMediaCollectionHttp.Image(childComplexity), true
 
-	case "CourseHttp.Blocks_URL":
+	case "CourseHttp.blocks_url":
 		if e.complexity.CourseHttp.BlocksURL == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.BlocksURL(childComplexity), true
 
-	case "CourseHttp.Course_ID":
+	case "CourseHttp.course_id":
 		if e.complexity.CourseHttp.CourseID == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.CourseID(childComplexity), true
 
-	case "CourseHttp.Effort":
+	case "CourseHttp.effort":
 		if e.complexity.CourseHttp.Effort == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.Effort(childComplexity), true
 
-	case "CourseHttp.End":
+	case "CourseHttp.end":
 		if e.complexity.CourseHttp.End == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.End(childComplexity), true
 
-	case "CourseHttp.Enrollment_End":
+	case "CourseHttp.enrollment_end":
 		if e.complexity.CourseHttp.EnrollmentEnd == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.EnrollmentEnd(childComplexity), true
 
-	case "CourseHttp.Enrollment_Start":
+	case "CourseHttp.enrollment_start":
 		if e.complexity.CourseHttp.EnrollmentStart == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.EnrollmentStart(childComplexity), true
 
-	case "CourseHttp.Hidden":
+	case "CourseHttp.hidden":
 		if e.complexity.CourseHttp.Hidden == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.Hidden(childComplexity), true
 
-	case "CourseHttp.ID":
+	case "CourseHttp.id":
 		if e.complexity.CourseHttp.ID == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.ID(childComplexity), true
 
-	case "CourseHttp.Invitation_Only":
+	case "CourseHttp.invitation_only":
 		if e.complexity.CourseHttp.InvitationOnly == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.InvitationOnly(childComplexity), true
 
-	case "CourseHttp.Media":
+	case "CourseHttp.media":
 		if e.complexity.CourseHttp.Media == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.Media(childComplexity), true
 
-	case "CourseHttp.Mobile_Available":
+	case "CourseHttp.mobile_available":
 		if e.complexity.CourseHttp.MobileAvailable == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.MobileAvailable(childComplexity), true
 
-	case "CourseHttp.Name":
+	case "CourseHttp.name":
 		if e.complexity.CourseHttp.Name == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.Name(childComplexity), true
 
-	case "CourseHttp.Number":
+	case "CourseHttp.number":
 		if e.complexity.CourseHttp.Number == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.Number(childComplexity), true
 
-	case "CourseHttp.Org":
+	case "CourseHttp.org":
 		if e.complexity.CourseHttp.Org == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.Org(childComplexity), true
 
-	case "CourseHttp.Overview":
+	case "CourseHttp.overview":
 		if e.complexity.CourseHttp.Overview == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.Overview(childComplexity), true
 
-	case "CourseHttp.Pacing":
+	case "CourseHttp.pacing":
 		if e.complexity.CourseHttp.Pacing == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.Pacing(childComplexity), true
 
-	case "CourseHttp.Short_Description":
+	case "CourseHttp.short_description":
 		if e.complexity.CourseHttp.ShortDescription == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.ShortDescription(childComplexity), true
 
-	case "CourseHttp.Start":
+	case "CourseHttp.start":
 		if e.complexity.CourseHttp.Start == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.Start(childComplexity), true
 
-	case "CourseHttp.Start_Display":
+	case "CourseHttp.start_display":
 		if e.complexity.CourseHttp.StartDisplay == nil {
 			break
 		}
 
 		return e.complexity.CourseHttp.StartDisplay(childComplexity), true
 
-	case "CourseHttp.Start_Type":
+	case "CourseHttp.start_type":
 		if e.complexity.CourseHttp.StartType == nil {
 			break
 		}
@@ -496,14 +498,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CoursesListHttp.CountRows(childComplexity), true
 
-	case "CoursesListHttp.Pagination":
+	case "CoursesListHttp.pagination":
 		if e.complexity.CoursesListHttp.Pagination == nil {
 			break
 		}
 
 		return e.complexity.CoursesListHttp.Pagination(childComplexity), true
 
-	case "CoursesListHttp.Results":
+	case "CoursesListHttp.results":
 		if e.complexity.CoursesListHttp.Results == nil {
 			break
 		}
@@ -531,56 +533,56 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeletedStudent.StudentID(childComplexity), true
 
-	case "EnrollmentHttp.Course_ID":
+	case "EnrollmentHttp.course_id":
 		if e.complexity.EnrollmentHttp.CourseID == nil {
 			break
 		}
 
 		return e.complexity.EnrollmentHttp.CourseID(childComplexity), true
 
-	case "EnrollmentHttp.Created":
+	case "EnrollmentHttp.created":
 		if e.complexity.EnrollmentHttp.Created == nil {
 			break
 		}
 
 		return e.complexity.EnrollmentHttp.Created(childComplexity), true
 
-	case "EnrollmentHttp.IsActive":
+	case "EnrollmentHttp.isActive":
 		if e.complexity.EnrollmentHttp.IsActive == nil {
 			break
 		}
 
 		return e.complexity.EnrollmentHttp.IsActive(childComplexity), true
 
-	case "EnrollmentHttp.Mode":
+	case "EnrollmentHttp.mode":
 		if e.complexity.EnrollmentHttp.Mode == nil {
 			break
 		}
 
 		return e.complexity.EnrollmentHttp.Mode(childComplexity), true
 
-	case "EnrollmentHttp.User":
+	case "EnrollmentHttp.user":
 		if e.complexity.EnrollmentHttp.User == nil {
 			break
 		}
 
 		return e.complexity.EnrollmentHttp.User(childComplexity), true
 
-	case "EnrollmentsListHttp.Next":
+	case "EnrollmentsListHttp.next":
 		if e.complexity.EnrollmentsListHttp.Next == nil {
 			break
 		}
 
 		return e.complexity.EnrollmentsListHttp.Next(childComplexity), true
 
-	case "EnrollmentsListHttp.Previous":
+	case "EnrollmentsListHttp.previous":
 		if e.complexity.EnrollmentsListHttp.Previous == nil {
 			break
 		}
 
 		return e.complexity.EnrollmentsListHttp.Previous(childComplexity), true
 
-	case "EnrollmentsListHttp.Results":
+	case "EnrollmentsListHttp.results":
 		if e.complexity.EnrollmentsListHttp.Results == nil {
 			break
 		}
@@ -601,42 +603,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Error.Message(childComplexity), true
 
-	case "ImageHttp.ID":
+	case "ImageHttp.id":
 		if e.complexity.ImageHttp.ID == nil {
 			break
 		}
 
 		return e.complexity.ImageHttp.ID(childComplexity), true
 
-	case "ImageHttp.Large":
+	case "ImageHttp.large":
 		if e.complexity.ImageHttp.Large == nil {
 			break
 		}
 
 		return e.complexity.ImageHttp.Large(childComplexity), true
 
-	case "ImageHttp.Raw":
+	case "ImageHttp.raw":
 		if e.complexity.ImageHttp.Raw == nil {
 			break
 		}
 
 		return e.complexity.ImageHttp.Raw(childComplexity), true
 
-	case "ImageHttp.Small":
+	case "ImageHttp.small":
 		if e.complexity.ImageHttp.Small == nil {
 			break
 		}
 
 		return e.complexity.ImageHttp.Small(childComplexity), true
 
-	case "MediaHttp.ID":
+	case "MediaHttp.id":
 		if e.complexity.MediaHttp.ID == nil {
 			break
 		}
 
 		return e.complexity.MediaHttp.ID(childComplexity), true
 
-	case "MediaHttp.URI":
+	case "MediaHttp.uri":
 		if e.complexity.MediaHttp.URI == nil {
 			break
 		}
@@ -736,28 +738,28 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateStudent(childComplexity, args["input"].(models.UpdateProfileInput)), true
 
-	case "Pagination.Count":
+	case "Pagination.count":
 		if e.complexity.Pagination.Count == nil {
 			break
 		}
 
 		return e.complexity.Pagination.Count(childComplexity), true
 
-	case "Pagination.Next":
+	case "Pagination.next":
 		if e.complexity.Pagination.Next == nil {
 			break
 		}
 
 		return e.complexity.Pagination.Next(childComplexity), true
 
-	case "Pagination.Num_Pages":
+	case "Pagination.num_pages":
 		if e.complexity.Pagination.NumPages == nil {
 			break
 		}
 
 		return e.complexity.Pagination.NumPages(childComplexity), true
 
-	case "Pagination.Previous":
+	case "Pagination.previous":
 		if e.complexity.Pagination.Previous == nil {
 			break
 		}
@@ -938,6 +940,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetStudentByID(childComplexity, args["studentId"].(string)), true
+
+	case "Query.GetUser":
+		if e.complexity.Query.GetUser == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUser(childComplexity, args["peekUserId"].(*string), args["peekUserRole"].(*int)), true
 
 	case "SingInResponse.accessToken":
 		if e.complexity.SingInResponse.AccessToken == nil {
@@ -1120,78 +1134,78 @@ extend type Mutation {
 	Refresh: SignInResult
 }`, BuiltIn: false},
 	{Name: "../courses.graphqls", Input: `type CourseHttp {
-	ID: String!
-	Blocks_URL: String!
-	Effort: String!
-	Enrollment_Start: Timestamp!
-	Enrollment_End: Timestamp!
-	End: Timestamp!
-	Name: String!
-	Number: String!
-	Org: String!
-	Short_Description: String!
-	Start: Timestamp!
-	Start_Display: String!
-	Start_Type: String!
-	Pacing: String!
-	Mobile_Available: Boolean!
-	Hidden: Boolean!
-	Invitation_Only: Boolean!
-	Overview: String
-	Course_ID: String!
-	Media: CourseAPIMediaCollectionHttp!
+	id: String!
+	blocks_url: String!
+	effort: String!
+	enrollment_start: Timestamp!
+	enrollment_end: Timestamp!
+	end: Timestamp!
+	name: String!
+	number: String!
+	org: String!
+	short_description: String!
+	start: Timestamp!
+	start_display: String!
+	start_type: String!
+	pacing: String!
+	mobile_available: Boolean!
+	hidden: Boolean!
+	invitation_only: Boolean!
+	overview: String
+	course_id: String!
+	media: CourseAPIMediaCollectionHttp!
 }
 
 type CourseAPIMediaCollectionHttp {
-	ID: String!
-	Banner_Image: AbsoluteMediaHttp
-	Course_Image: MediaHttp
-	Course_Video: MediaHttp
-	Image: ImageHttp
+	id: String!
+	banner_image: AbsoluteMediaHttp
+	course_image: MediaHttp
+	course_video: MediaHttp
+	image: ImageHttp
 }
 
 type AbsoluteMediaHttp {
-	ID: String!
-	URI: String!
-	URI_Absolute: String!
+	id: String!
+	uri: String!
+	uri_absolute: String!
 }
 
 type ImageHttp {
-	ID: String!
-	Raw: String!
-	Small: String!
-	Large: String!
+	id: String!
+	raw: String!
+	small: String!
+	large: String!
 }
 
 type MediaHttp {
-	ID: String!
-	URI: String!
+	id: String!
+	uri: String!
 }
 
 type EnrollmentHttp {
-	Created: Timestamp!
-	Mode: String!
-	IsActive: Boolean!
-	User: String!
-	Course_ID: String!
+	created: Timestamp!
+	mode: String!
+	isActive: Boolean!
+	user: String!
+	course_id: String!
 }
 
 type EnrollmentsListHttp {
-	Next: String!
-	Previous: String!
-	Results:  [EnrollmentHttp!]
+	next: String!
+	previous: String!
+	results:  [EnrollmentHttp!]
 }
 
 type Pagination {
-	Next: String!
-	Previous: String!
-	Count: Int!
-	Num_Pages: Int!
+	next: String!
+	previous: String!
+	count: Int!
+	num_pages: Int!
 }
 
 type CoursesListHttp {
-	Results:    [CourseHttp!]!
-	Pagination: Pagination!
+	results:    [CourseHttp!]!
+	pagination: Pagination!
 	countRows: Int!
 }
 
@@ -1322,6 +1336,12 @@ input UpdateProfileInput {
     firstname: String!
     lastname: String!
     middlename: String!
+}
+
+union GetUserResult = StudentHttp
+
+extend type Query {
+    GetUser(peekUserId: String, peekUserRole: Int): GetUserResult!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -1552,6 +1572,30 @@ func (ec *executionContext) field_Query_GetStudentById_args(ctx context.Context,
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_GetUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["peekUserId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("peekUserId"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["peekUserId"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["peekUserRole"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("peekUserRole"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["peekUserRole"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1605,8 +1649,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AbsoluteMediaHttp_ID(ctx context.Context, field graphql.CollectedField, obj *models.AbsoluteMediaHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AbsoluteMediaHttp_ID(ctx, field)
+func (ec *executionContext) _AbsoluteMediaHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.AbsoluteMediaHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AbsoluteMediaHttp_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1636,7 +1680,7 @@ func (ec *executionContext) _AbsoluteMediaHttp_ID(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AbsoluteMediaHttp_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AbsoluteMediaHttp_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AbsoluteMediaHttp",
 		Field:      field,
@@ -1649,8 +1693,8 @@ func (ec *executionContext) fieldContext_AbsoluteMediaHttp_ID(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _AbsoluteMediaHttp_URI(ctx context.Context, field graphql.CollectedField, obj *models.AbsoluteMediaHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AbsoluteMediaHttp_URI(ctx, field)
+func (ec *executionContext) _AbsoluteMediaHttp_uri(ctx context.Context, field graphql.CollectedField, obj *models.AbsoluteMediaHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AbsoluteMediaHttp_uri(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1680,7 +1724,7 @@ func (ec *executionContext) _AbsoluteMediaHttp_URI(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AbsoluteMediaHttp_URI(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AbsoluteMediaHttp_uri(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AbsoluteMediaHttp",
 		Field:      field,
@@ -1693,8 +1737,8 @@ func (ec *executionContext) fieldContext_AbsoluteMediaHttp_URI(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _AbsoluteMediaHttp_URI_Absolute(ctx context.Context, field graphql.CollectedField, obj *models.AbsoluteMediaHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AbsoluteMediaHttp_URI_Absolute(ctx, field)
+func (ec *executionContext) _AbsoluteMediaHttp_uri_absolute(ctx context.Context, field graphql.CollectedField, obj *models.AbsoluteMediaHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AbsoluteMediaHttp_uri_absolute(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1724,7 +1768,7 @@ func (ec *executionContext) _AbsoluteMediaHttp_URI_Absolute(ctx context.Context,
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AbsoluteMediaHttp_URI_Absolute(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AbsoluteMediaHttp_uri_absolute(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AbsoluteMediaHttp",
 		Field:      field,
@@ -1737,8 +1781,8 @@ func (ec *executionContext) fieldContext_AbsoluteMediaHttp_URI_Absolute(ctx cont
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseAPIMediaCollectionHttp_ID(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_ID(ctx, field)
+func (ec *executionContext) _CourseAPIMediaCollectionHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1768,7 +1812,7 @@ func (ec *executionContext) _CourseAPIMediaCollectionHttp_ID(ctx context.Context
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseAPIMediaCollectionHttp",
 		Field:      field,
@@ -1781,8 +1825,8 @@ func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_ID(ctx con
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseAPIMediaCollectionHttp_Banner_Image(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_Banner_Image(ctx, field)
+func (ec *executionContext) _CourseAPIMediaCollectionHttp_banner_image(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_banner_image(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1809,7 +1853,7 @@ func (ec *executionContext) _CourseAPIMediaCollectionHttp_Banner_Image(ctx conte
 	return ec.marshalOAbsoluteMediaHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐAbsoluteMediaHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Banner_Image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_banner_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseAPIMediaCollectionHttp",
 		Field:      field,
@@ -1817,12 +1861,12 @@ func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Banner_Ima
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ID":
-				return ec.fieldContext_AbsoluteMediaHttp_ID(ctx, field)
-			case "URI":
-				return ec.fieldContext_AbsoluteMediaHttp_URI(ctx, field)
-			case "URI_Absolute":
-				return ec.fieldContext_AbsoluteMediaHttp_URI_Absolute(ctx, field)
+			case "id":
+				return ec.fieldContext_AbsoluteMediaHttp_id(ctx, field)
+			case "uri":
+				return ec.fieldContext_AbsoluteMediaHttp_uri(ctx, field)
+			case "uri_absolute":
+				return ec.fieldContext_AbsoluteMediaHttp_uri_absolute(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AbsoluteMediaHttp", field.Name)
 		},
@@ -1830,8 +1874,8 @@ func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Banner_Ima
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseAPIMediaCollectionHttp_Course_Image(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_Course_Image(ctx, field)
+func (ec *executionContext) _CourseAPIMediaCollectionHttp_course_image(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_course_image(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1858,7 +1902,7 @@ func (ec *executionContext) _CourseAPIMediaCollectionHttp_Course_Image(ctx conte
 	return ec.marshalOMediaHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐMediaHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Course_Image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_course_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseAPIMediaCollectionHttp",
 		Field:      field,
@@ -1866,10 +1910,10 @@ func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Course_Ima
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ID":
-				return ec.fieldContext_MediaHttp_ID(ctx, field)
-			case "URI":
-				return ec.fieldContext_MediaHttp_URI(ctx, field)
+			case "id":
+				return ec.fieldContext_MediaHttp_id(ctx, field)
+			case "uri":
+				return ec.fieldContext_MediaHttp_uri(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type MediaHttp", field.Name)
 		},
@@ -1877,8 +1921,8 @@ func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Course_Ima
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseAPIMediaCollectionHttp_Course_Video(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_Course_Video(ctx, field)
+func (ec *executionContext) _CourseAPIMediaCollectionHttp_course_video(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_course_video(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1905,7 +1949,7 @@ func (ec *executionContext) _CourseAPIMediaCollectionHttp_Course_Video(ctx conte
 	return ec.marshalOMediaHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐMediaHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Course_Video(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_course_video(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseAPIMediaCollectionHttp",
 		Field:      field,
@@ -1913,10 +1957,10 @@ func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Course_Vid
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ID":
-				return ec.fieldContext_MediaHttp_ID(ctx, field)
-			case "URI":
-				return ec.fieldContext_MediaHttp_URI(ctx, field)
+			case "id":
+				return ec.fieldContext_MediaHttp_id(ctx, field)
+			case "uri":
+				return ec.fieldContext_MediaHttp_uri(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type MediaHttp", field.Name)
 		},
@@ -1924,8 +1968,8 @@ func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Course_Vid
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseAPIMediaCollectionHttp_Image(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_Image(ctx, field)
+func (ec *executionContext) _CourseAPIMediaCollectionHttp_image(ctx context.Context, field graphql.CollectedField, obj *models.CourseAPIMediaCollectionHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseAPIMediaCollectionHttp_image(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1952,7 +1996,7 @@ func (ec *executionContext) _CourseAPIMediaCollectionHttp_Image(ctx context.Cont
 	return ec.marshalOImageHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐImageHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseAPIMediaCollectionHttp",
 		Field:      field,
@@ -1960,14 +2004,14 @@ func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Image(ctx 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ID":
-				return ec.fieldContext_ImageHttp_ID(ctx, field)
-			case "Raw":
-				return ec.fieldContext_ImageHttp_Raw(ctx, field)
-			case "Small":
-				return ec.fieldContext_ImageHttp_Small(ctx, field)
-			case "Large":
-				return ec.fieldContext_ImageHttp_Large(ctx, field)
+			case "id":
+				return ec.fieldContext_ImageHttp_id(ctx, field)
+			case "raw":
+				return ec.fieldContext_ImageHttp_raw(ctx, field)
+			case "small":
+				return ec.fieldContext_ImageHttp_small(ctx, field)
+			case "large":
+				return ec.fieldContext_ImageHttp_large(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ImageHttp", field.Name)
 		},
@@ -1975,8 +2019,8 @@ func (ec *executionContext) fieldContext_CourseAPIMediaCollectionHttp_Image(ctx 
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_ID(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_ID(ctx, field)
+func (ec *executionContext) _CourseHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2006,7 +2050,7 @@ func (ec *executionContext) _CourseHttp_ID(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2019,8 +2063,8 @@ func (ec *executionContext) fieldContext_CourseHttp_ID(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Blocks_URL(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Blocks_URL(ctx, field)
+func (ec *executionContext) _CourseHttp_blocks_url(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_blocks_url(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2050,7 +2094,7 @@ func (ec *executionContext) _CourseHttp_Blocks_URL(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Blocks_URL(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_blocks_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2063,8 +2107,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Blocks_URL(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Effort(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Effort(ctx, field)
+func (ec *executionContext) _CourseHttp_effort(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_effort(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2094,7 +2138,7 @@ func (ec *executionContext) _CourseHttp_Effort(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Effort(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_effort(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2107,8 +2151,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Effort(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Enrollment_Start(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Enrollment_Start(ctx, field)
+func (ec *executionContext) _CourseHttp_enrollment_start(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_enrollment_start(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2138,7 +2182,7 @@ func (ec *executionContext) _CourseHttp_Enrollment_Start(ctx context.Context, fi
 	return ec.marshalNTimestamp2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Enrollment_Start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_enrollment_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2151,8 +2195,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Enrollment_Start(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Enrollment_End(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Enrollment_End(ctx, field)
+func (ec *executionContext) _CourseHttp_enrollment_end(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_enrollment_end(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2182,7 +2226,7 @@ func (ec *executionContext) _CourseHttp_Enrollment_End(ctx context.Context, fiel
 	return ec.marshalNTimestamp2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Enrollment_End(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_enrollment_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2195,8 +2239,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Enrollment_End(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_End(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_End(ctx, field)
+func (ec *executionContext) _CourseHttp_end(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_end(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2226,7 +2270,7 @@ func (ec *executionContext) _CourseHttp_End(ctx context.Context, field graphql.C
 	return ec.marshalNTimestamp2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_End(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_end(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2239,8 +2283,8 @@ func (ec *executionContext) fieldContext_CourseHttp_End(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Name(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Name(ctx, field)
+func (ec *executionContext) _CourseHttp_name(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2270,7 +2314,7 @@ func (ec *executionContext) _CourseHttp_Name(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2283,8 +2327,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Name(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Number(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Number(ctx, field)
+func (ec *executionContext) _CourseHttp_number(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_number(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2314,7 +2358,7 @@ func (ec *executionContext) _CourseHttp_Number(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_number(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2327,8 +2371,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Number(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Org(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Org(ctx, field)
+func (ec *executionContext) _CourseHttp_org(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_org(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2358,7 +2402,7 @@ func (ec *executionContext) _CourseHttp_Org(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Org(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_org(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2371,8 +2415,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Org(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Short_Description(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Short_Description(ctx, field)
+func (ec *executionContext) _CourseHttp_short_description(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_short_description(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2402,7 +2446,7 @@ func (ec *executionContext) _CourseHttp_Short_Description(ctx context.Context, f
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Short_Description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_short_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2415,8 +2459,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Short_Description(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Start(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Start(ctx, field)
+func (ec *executionContext) _CourseHttp_start(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_start(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2446,7 +2490,7 @@ func (ec *executionContext) _CourseHttp_Start(ctx context.Context, field graphql
 	return ec.marshalNTimestamp2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2459,8 +2503,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Start(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Start_Display(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Start_Display(ctx, field)
+func (ec *executionContext) _CourseHttp_start_display(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_start_display(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2490,7 +2534,7 @@ func (ec *executionContext) _CourseHttp_Start_Display(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Start_Display(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_start_display(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2503,8 +2547,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Start_Display(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Start_Type(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Start_Type(ctx, field)
+func (ec *executionContext) _CourseHttp_start_type(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_start_type(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2534,7 +2578,7 @@ func (ec *executionContext) _CourseHttp_Start_Type(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Start_Type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_start_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2547,8 +2591,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Start_Type(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Pacing(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Pacing(ctx, field)
+func (ec *executionContext) _CourseHttp_pacing(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_pacing(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2578,7 +2622,7 @@ func (ec *executionContext) _CourseHttp_Pacing(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Pacing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_pacing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2591,8 +2635,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Pacing(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Mobile_Available(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Mobile_Available(ctx, field)
+func (ec *executionContext) _CourseHttp_mobile_available(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_mobile_available(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2622,7 +2666,7 @@ func (ec *executionContext) _CourseHttp_Mobile_Available(ctx context.Context, fi
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Mobile_Available(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_mobile_available(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2635,8 +2679,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Mobile_Available(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Hidden(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Hidden(ctx, field)
+func (ec *executionContext) _CourseHttp_hidden(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_hidden(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2666,7 +2710,7 @@ func (ec *executionContext) _CourseHttp_Hidden(ctx context.Context, field graphq
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Hidden(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_hidden(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2679,8 +2723,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Hidden(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Invitation_Only(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Invitation_Only(ctx, field)
+func (ec *executionContext) _CourseHttp_invitation_only(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_invitation_only(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2710,7 +2754,7 @@ func (ec *executionContext) _CourseHttp_Invitation_Only(ctx context.Context, fie
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Invitation_Only(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_invitation_only(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2723,8 +2767,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Invitation_Only(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Overview(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Overview(ctx, field)
+func (ec *executionContext) _CourseHttp_overview(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_overview(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2751,7 +2795,7 @@ func (ec *executionContext) _CourseHttp_Overview(ctx context.Context, field grap
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Overview(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_overview(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2764,8 +2808,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Overview(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Course_ID(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Course_ID(ctx, field)
+func (ec *executionContext) _CourseHttp_course_id(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_course_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2795,7 +2839,7 @@ func (ec *executionContext) _CourseHttp_Course_ID(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Course_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_course_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2808,8 +2852,8 @@ func (ec *executionContext) fieldContext_CourseHttp_Course_ID(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseHttp_Media(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseHttp_Media(ctx, field)
+func (ec *executionContext) _CourseHttp_media(ctx context.Context, field graphql.CollectedField, obj *models.CourseHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseHttp_media(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2839,7 +2883,7 @@ func (ec *executionContext) _CourseHttp_Media(ctx context.Context, field graphql
 	return ec.marshalNCourseAPIMediaCollectionHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseAPIMediaCollectionHTTP(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CourseHttp_Media(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CourseHttp_media(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseHttp",
 		Field:      field,
@@ -2847,16 +2891,16 @@ func (ec *executionContext) fieldContext_CourseHttp_Media(ctx context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ID":
-				return ec.fieldContext_CourseAPIMediaCollectionHttp_ID(ctx, field)
-			case "Banner_Image":
-				return ec.fieldContext_CourseAPIMediaCollectionHttp_Banner_Image(ctx, field)
-			case "Course_Image":
-				return ec.fieldContext_CourseAPIMediaCollectionHttp_Course_Image(ctx, field)
-			case "Course_Video":
-				return ec.fieldContext_CourseAPIMediaCollectionHttp_Course_Video(ctx, field)
-			case "Image":
-				return ec.fieldContext_CourseAPIMediaCollectionHttp_Image(ctx, field)
+			case "id":
+				return ec.fieldContext_CourseAPIMediaCollectionHttp_id(ctx, field)
+			case "banner_image":
+				return ec.fieldContext_CourseAPIMediaCollectionHttp_banner_image(ctx, field)
+			case "course_image":
+				return ec.fieldContext_CourseAPIMediaCollectionHttp_course_image(ctx, field)
+			case "course_video":
+				return ec.fieldContext_CourseAPIMediaCollectionHttp_course_video(ctx, field)
+			case "image":
+				return ec.fieldContext_CourseAPIMediaCollectionHttp_image(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseAPIMediaCollectionHttp", field.Name)
 		},
@@ -3140,8 +3184,8 @@ func (ec *executionContext) fieldContext_CourseRelationHttpList_courseRelations(
 	return fc, nil
 }
 
-func (ec *executionContext) _CoursesListHttp_Results(ctx context.Context, field graphql.CollectedField, obj *models.CoursesListHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CoursesListHttp_Results(ctx, field)
+func (ec *executionContext) _CoursesListHttp_results(ctx context.Context, field graphql.CollectedField, obj *models.CoursesListHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CoursesListHttp_results(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3171,7 +3215,7 @@ func (ec *executionContext) _CoursesListHttp_Results(ctx context.Context, field 
 	return ec.marshalNCourseHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐCourseHTTPᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CoursesListHttp_Results(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CoursesListHttp_results(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CoursesListHttp",
 		Field:      field,
@@ -3179,46 +3223,46 @@ func (ec *executionContext) fieldContext_CoursesListHttp_Results(ctx context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ID":
-				return ec.fieldContext_CourseHttp_ID(ctx, field)
-			case "Blocks_URL":
-				return ec.fieldContext_CourseHttp_Blocks_URL(ctx, field)
-			case "Effort":
-				return ec.fieldContext_CourseHttp_Effort(ctx, field)
-			case "Enrollment_Start":
-				return ec.fieldContext_CourseHttp_Enrollment_Start(ctx, field)
-			case "Enrollment_End":
-				return ec.fieldContext_CourseHttp_Enrollment_End(ctx, field)
-			case "End":
-				return ec.fieldContext_CourseHttp_End(ctx, field)
-			case "Name":
-				return ec.fieldContext_CourseHttp_Name(ctx, field)
-			case "Number":
-				return ec.fieldContext_CourseHttp_Number(ctx, field)
-			case "Org":
-				return ec.fieldContext_CourseHttp_Org(ctx, field)
-			case "Short_Description":
-				return ec.fieldContext_CourseHttp_Short_Description(ctx, field)
-			case "Start":
-				return ec.fieldContext_CourseHttp_Start(ctx, field)
-			case "Start_Display":
-				return ec.fieldContext_CourseHttp_Start_Display(ctx, field)
-			case "Start_Type":
-				return ec.fieldContext_CourseHttp_Start_Type(ctx, field)
-			case "Pacing":
-				return ec.fieldContext_CourseHttp_Pacing(ctx, field)
-			case "Mobile_Available":
-				return ec.fieldContext_CourseHttp_Mobile_Available(ctx, field)
-			case "Hidden":
-				return ec.fieldContext_CourseHttp_Hidden(ctx, field)
-			case "Invitation_Only":
-				return ec.fieldContext_CourseHttp_Invitation_Only(ctx, field)
-			case "Overview":
-				return ec.fieldContext_CourseHttp_Overview(ctx, field)
-			case "Course_ID":
-				return ec.fieldContext_CourseHttp_Course_ID(ctx, field)
-			case "Media":
-				return ec.fieldContext_CourseHttp_Media(ctx, field)
+			case "id":
+				return ec.fieldContext_CourseHttp_id(ctx, field)
+			case "blocks_url":
+				return ec.fieldContext_CourseHttp_blocks_url(ctx, field)
+			case "effort":
+				return ec.fieldContext_CourseHttp_effort(ctx, field)
+			case "enrollment_start":
+				return ec.fieldContext_CourseHttp_enrollment_start(ctx, field)
+			case "enrollment_end":
+				return ec.fieldContext_CourseHttp_enrollment_end(ctx, field)
+			case "end":
+				return ec.fieldContext_CourseHttp_end(ctx, field)
+			case "name":
+				return ec.fieldContext_CourseHttp_name(ctx, field)
+			case "number":
+				return ec.fieldContext_CourseHttp_number(ctx, field)
+			case "org":
+				return ec.fieldContext_CourseHttp_org(ctx, field)
+			case "short_description":
+				return ec.fieldContext_CourseHttp_short_description(ctx, field)
+			case "start":
+				return ec.fieldContext_CourseHttp_start(ctx, field)
+			case "start_display":
+				return ec.fieldContext_CourseHttp_start_display(ctx, field)
+			case "start_type":
+				return ec.fieldContext_CourseHttp_start_type(ctx, field)
+			case "pacing":
+				return ec.fieldContext_CourseHttp_pacing(ctx, field)
+			case "mobile_available":
+				return ec.fieldContext_CourseHttp_mobile_available(ctx, field)
+			case "hidden":
+				return ec.fieldContext_CourseHttp_hidden(ctx, field)
+			case "invitation_only":
+				return ec.fieldContext_CourseHttp_invitation_only(ctx, field)
+			case "overview":
+				return ec.fieldContext_CourseHttp_overview(ctx, field)
+			case "course_id":
+				return ec.fieldContext_CourseHttp_course_id(ctx, field)
+			case "media":
+				return ec.fieldContext_CourseHttp_media(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseHttp", field.Name)
 		},
@@ -3226,8 +3270,8 @@ func (ec *executionContext) fieldContext_CoursesListHttp_Results(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _CoursesListHttp_Pagination(ctx context.Context, field graphql.CollectedField, obj *models.CoursesListHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CoursesListHttp_Pagination(ctx, field)
+func (ec *executionContext) _CoursesListHttp_pagination(ctx context.Context, field graphql.CollectedField, obj *models.CoursesListHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CoursesListHttp_pagination(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3257,7 +3301,7 @@ func (ec *executionContext) _CoursesListHttp_Pagination(ctx context.Context, fie
 	return ec.marshalNPagination2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐPagination(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CoursesListHttp_Pagination(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CoursesListHttp_pagination(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CoursesListHttp",
 		Field:      field,
@@ -3265,14 +3309,14 @@ func (ec *executionContext) fieldContext_CoursesListHttp_Pagination(ctx context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "Next":
-				return ec.fieldContext_Pagination_Next(ctx, field)
-			case "Previous":
-				return ec.fieldContext_Pagination_Previous(ctx, field)
-			case "Count":
-				return ec.fieldContext_Pagination_Count(ctx, field)
-			case "Num_Pages":
-				return ec.fieldContext_Pagination_Num_Pages(ctx, field)
+			case "next":
+				return ec.fieldContext_Pagination_next(ctx, field)
+			case "previous":
+				return ec.fieldContext_Pagination_previous(ctx, field)
+			case "count":
+				return ec.fieldContext_Pagination_count(ctx, field)
+			case "num_pages":
+				return ec.fieldContext_Pagination_num_pages(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Pagination", field.Name)
 		},
@@ -3456,8 +3500,8 @@ func (ec *executionContext) fieldContext_DeletedStudent_studentId(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _EnrollmentHttp_Created(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnrollmentHttp_Created(ctx, field)
+func (ec *executionContext) _EnrollmentHttp_created(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EnrollmentHttp_created(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3487,7 +3531,7 @@ func (ec *executionContext) _EnrollmentHttp_Created(ctx context.Context, field g
 	return ec.marshalNTimestamp2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EnrollmentHttp_Created(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EnrollmentHttp_created(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnrollmentHttp",
 		Field:      field,
@@ -3500,8 +3544,8 @@ func (ec *executionContext) fieldContext_EnrollmentHttp_Created(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _EnrollmentHttp_Mode(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnrollmentHttp_Mode(ctx, field)
+func (ec *executionContext) _EnrollmentHttp_mode(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EnrollmentHttp_mode(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3531,7 +3575,7 @@ func (ec *executionContext) _EnrollmentHttp_Mode(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EnrollmentHttp_Mode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EnrollmentHttp_mode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnrollmentHttp",
 		Field:      field,
@@ -3544,8 +3588,8 @@ func (ec *executionContext) fieldContext_EnrollmentHttp_Mode(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _EnrollmentHttp_IsActive(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnrollmentHttp_IsActive(ctx, field)
+func (ec *executionContext) _EnrollmentHttp_isActive(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EnrollmentHttp_isActive(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3575,7 +3619,7 @@ func (ec *executionContext) _EnrollmentHttp_IsActive(ctx context.Context, field 
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EnrollmentHttp_IsActive(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EnrollmentHttp_isActive(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnrollmentHttp",
 		Field:      field,
@@ -3588,8 +3632,8 @@ func (ec *executionContext) fieldContext_EnrollmentHttp_IsActive(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _EnrollmentHttp_User(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnrollmentHttp_User(ctx, field)
+func (ec *executionContext) _EnrollmentHttp_user(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EnrollmentHttp_user(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3619,7 +3663,7 @@ func (ec *executionContext) _EnrollmentHttp_User(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EnrollmentHttp_User(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EnrollmentHttp_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnrollmentHttp",
 		Field:      field,
@@ -3632,8 +3676,8 @@ func (ec *executionContext) fieldContext_EnrollmentHttp_User(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _EnrollmentHttp_Course_ID(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnrollmentHttp_Course_ID(ctx, field)
+func (ec *executionContext) _EnrollmentHttp_course_id(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EnrollmentHttp_course_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3663,7 +3707,7 @@ func (ec *executionContext) _EnrollmentHttp_Course_ID(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EnrollmentHttp_Course_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EnrollmentHttp_course_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnrollmentHttp",
 		Field:      field,
@@ -3676,8 +3720,8 @@ func (ec *executionContext) fieldContext_EnrollmentHttp_Course_ID(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _EnrollmentsListHttp_Next(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentsListHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnrollmentsListHttp_Next(ctx, field)
+func (ec *executionContext) _EnrollmentsListHttp_next(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentsListHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EnrollmentsListHttp_next(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3707,7 +3751,7 @@ func (ec *executionContext) _EnrollmentsListHttp_Next(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EnrollmentsListHttp_Next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EnrollmentsListHttp_next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnrollmentsListHttp",
 		Field:      field,
@@ -3720,8 +3764,8 @@ func (ec *executionContext) fieldContext_EnrollmentsListHttp_Next(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _EnrollmentsListHttp_Previous(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentsListHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnrollmentsListHttp_Previous(ctx, field)
+func (ec *executionContext) _EnrollmentsListHttp_previous(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentsListHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EnrollmentsListHttp_previous(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3751,7 +3795,7 @@ func (ec *executionContext) _EnrollmentsListHttp_Previous(ctx context.Context, f
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EnrollmentsListHttp_Previous(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EnrollmentsListHttp_previous(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnrollmentsListHttp",
 		Field:      field,
@@ -3764,8 +3808,8 @@ func (ec *executionContext) fieldContext_EnrollmentsListHttp_Previous(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _EnrollmentsListHttp_Results(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentsListHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnrollmentsListHttp_Results(ctx, field)
+func (ec *executionContext) _EnrollmentsListHttp_results(ctx context.Context, field graphql.CollectedField, obj *models.EnrollmentsListHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EnrollmentsListHttp_results(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3792,7 +3836,7 @@ func (ec *executionContext) _EnrollmentsListHttp_Results(ctx context.Context, fi
 	return ec.marshalOEnrollmentHttp2ᚕᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐEnrollmentHTTPᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EnrollmentsListHttp_Results(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EnrollmentsListHttp_results(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnrollmentsListHttp",
 		Field:      field,
@@ -3800,16 +3844,16 @@ func (ec *executionContext) fieldContext_EnrollmentsListHttp_Results(ctx context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "Created":
-				return ec.fieldContext_EnrollmentHttp_Created(ctx, field)
-			case "Mode":
-				return ec.fieldContext_EnrollmentHttp_Mode(ctx, field)
-			case "IsActive":
-				return ec.fieldContext_EnrollmentHttp_IsActive(ctx, field)
-			case "User":
-				return ec.fieldContext_EnrollmentHttp_User(ctx, field)
-			case "Course_ID":
-				return ec.fieldContext_EnrollmentHttp_Course_ID(ctx, field)
+			case "created":
+				return ec.fieldContext_EnrollmentHttp_created(ctx, field)
+			case "mode":
+				return ec.fieldContext_EnrollmentHttp_mode(ctx, field)
+			case "isActive":
+				return ec.fieldContext_EnrollmentHttp_isActive(ctx, field)
+			case "user":
+				return ec.fieldContext_EnrollmentHttp_user(ctx, field)
+			case "course_id":
+				return ec.fieldContext_EnrollmentHttp_course_id(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type EnrollmentHttp", field.Name)
 		},
@@ -3905,8 +3949,8 @@ func (ec *executionContext) fieldContext_Error_message(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageHttp_ID(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageHttp_ID(ctx, field)
+func (ec *executionContext) _ImageHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageHttp_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3936,7 +3980,7 @@ func (ec *executionContext) _ImageHttp_ID(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ImageHttp_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ImageHttp_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ImageHttp",
 		Field:      field,
@@ -3949,8 +3993,8 @@ func (ec *executionContext) fieldContext_ImageHttp_ID(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageHttp_Raw(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageHttp_Raw(ctx, field)
+func (ec *executionContext) _ImageHttp_raw(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageHttp_raw(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3980,7 +4024,7 @@ func (ec *executionContext) _ImageHttp_Raw(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ImageHttp_Raw(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ImageHttp_raw(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ImageHttp",
 		Field:      field,
@@ -3993,8 +4037,8 @@ func (ec *executionContext) fieldContext_ImageHttp_Raw(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageHttp_Small(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageHttp_Small(ctx, field)
+func (ec *executionContext) _ImageHttp_small(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageHttp_small(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4024,7 +4068,7 @@ func (ec *executionContext) _ImageHttp_Small(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ImageHttp_Small(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ImageHttp_small(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ImageHttp",
 		Field:      field,
@@ -4037,8 +4081,8 @@ func (ec *executionContext) fieldContext_ImageHttp_Small(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _ImageHttp_Large(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ImageHttp_Large(ctx, field)
+func (ec *executionContext) _ImageHttp_large(ctx context.Context, field graphql.CollectedField, obj *models.ImageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageHttp_large(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4068,7 +4112,7 @@ func (ec *executionContext) _ImageHttp_Large(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ImageHttp_Large(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ImageHttp_large(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ImageHttp",
 		Field:      field,
@@ -4081,8 +4125,8 @@ func (ec *executionContext) fieldContext_ImageHttp_Large(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _MediaHttp_ID(ctx context.Context, field graphql.CollectedField, obj *models.MediaHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MediaHttp_ID(ctx, field)
+func (ec *executionContext) _MediaHttp_id(ctx context.Context, field graphql.CollectedField, obj *models.MediaHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MediaHttp_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4112,7 +4156,7 @@ func (ec *executionContext) _MediaHttp_ID(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MediaHttp_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MediaHttp_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MediaHttp",
 		Field:      field,
@@ -4125,8 +4169,8 @@ func (ec *executionContext) fieldContext_MediaHttp_ID(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _MediaHttp_URI(ctx context.Context, field graphql.CollectedField, obj *models.MediaHTTP) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MediaHttp_URI(ctx, field)
+func (ec *executionContext) _MediaHttp_uri(ctx context.Context, field graphql.CollectedField, obj *models.MediaHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MediaHttp_uri(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4156,7 +4200,7 @@ func (ec *executionContext) _MediaHttp_URI(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MediaHttp_URI(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MediaHttp_uri(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MediaHttp",
 		Field:      field,
@@ -4639,8 +4683,8 @@ func (ec *executionContext) fieldContext_Mutation_DeleteProjectPage(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Pagination_Next(ctx context.Context, field graphql.CollectedField, obj *models.Pagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Pagination_Next(ctx, field)
+func (ec *executionContext) _Pagination_next(ctx context.Context, field graphql.CollectedField, obj *models.Pagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Pagination_next(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4670,7 +4714,7 @@ func (ec *executionContext) _Pagination_Next(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Pagination_Next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Pagination_next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Pagination",
 		Field:      field,
@@ -4683,8 +4727,8 @@ func (ec *executionContext) fieldContext_Pagination_Next(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Pagination_Previous(ctx context.Context, field graphql.CollectedField, obj *models.Pagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Pagination_Previous(ctx, field)
+func (ec *executionContext) _Pagination_previous(ctx context.Context, field graphql.CollectedField, obj *models.Pagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Pagination_previous(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4714,7 +4758,7 @@ func (ec *executionContext) _Pagination_Previous(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Pagination_Previous(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Pagination_previous(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Pagination",
 		Field:      field,
@@ -4727,8 +4771,8 @@ func (ec *executionContext) fieldContext_Pagination_Previous(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Pagination_Count(ctx context.Context, field graphql.CollectedField, obj *models.Pagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Pagination_Count(ctx, field)
+func (ec *executionContext) _Pagination_count(ctx context.Context, field graphql.CollectedField, obj *models.Pagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Pagination_count(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4758,7 +4802,7 @@ func (ec *executionContext) _Pagination_Count(ctx context.Context, field graphql
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Pagination_Count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Pagination_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Pagination",
 		Field:      field,
@@ -4771,8 +4815,8 @@ func (ec *executionContext) fieldContext_Pagination_Count(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Pagination_Num_Pages(ctx context.Context, field graphql.CollectedField, obj *models.Pagination) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Pagination_Num_Pages(ctx, field)
+func (ec *executionContext) _Pagination_num_pages(ctx context.Context, field graphql.CollectedField, obj *models.Pagination) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Pagination_num_pages(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4802,7 +4846,7 @@ func (ec *executionContext) _Pagination_Num_Pages(ctx context.Context, field gra
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Pagination_Num_Pages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Pagination_num_pages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Pagination",
 		Field:      field,
@@ -5457,46 +5501,46 @@ func (ec *executionContext) fieldContext_Query_GetCourseContent(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ID":
-				return ec.fieldContext_CourseHttp_ID(ctx, field)
-			case "Blocks_URL":
-				return ec.fieldContext_CourseHttp_Blocks_URL(ctx, field)
-			case "Effort":
-				return ec.fieldContext_CourseHttp_Effort(ctx, field)
-			case "Enrollment_Start":
-				return ec.fieldContext_CourseHttp_Enrollment_Start(ctx, field)
-			case "Enrollment_End":
-				return ec.fieldContext_CourseHttp_Enrollment_End(ctx, field)
-			case "End":
-				return ec.fieldContext_CourseHttp_End(ctx, field)
-			case "Name":
-				return ec.fieldContext_CourseHttp_Name(ctx, field)
-			case "Number":
-				return ec.fieldContext_CourseHttp_Number(ctx, field)
-			case "Org":
-				return ec.fieldContext_CourseHttp_Org(ctx, field)
-			case "Short_Description":
-				return ec.fieldContext_CourseHttp_Short_Description(ctx, field)
-			case "Start":
-				return ec.fieldContext_CourseHttp_Start(ctx, field)
-			case "Start_Display":
-				return ec.fieldContext_CourseHttp_Start_Display(ctx, field)
-			case "Start_Type":
-				return ec.fieldContext_CourseHttp_Start_Type(ctx, field)
-			case "Pacing":
-				return ec.fieldContext_CourseHttp_Pacing(ctx, field)
-			case "Mobile_Available":
-				return ec.fieldContext_CourseHttp_Mobile_Available(ctx, field)
-			case "Hidden":
-				return ec.fieldContext_CourseHttp_Hidden(ctx, field)
-			case "Invitation_Only":
-				return ec.fieldContext_CourseHttp_Invitation_Only(ctx, field)
-			case "Overview":
-				return ec.fieldContext_CourseHttp_Overview(ctx, field)
-			case "Course_ID":
-				return ec.fieldContext_CourseHttp_Course_ID(ctx, field)
-			case "Media":
-				return ec.fieldContext_CourseHttp_Media(ctx, field)
+			case "id":
+				return ec.fieldContext_CourseHttp_id(ctx, field)
+			case "blocks_url":
+				return ec.fieldContext_CourseHttp_blocks_url(ctx, field)
+			case "effort":
+				return ec.fieldContext_CourseHttp_effort(ctx, field)
+			case "enrollment_start":
+				return ec.fieldContext_CourseHttp_enrollment_start(ctx, field)
+			case "enrollment_end":
+				return ec.fieldContext_CourseHttp_enrollment_end(ctx, field)
+			case "end":
+				return ec.fieldContext_CourseHttp_end(ctx, field)
+			case "name":
+				return ec.fieldContext_CourseHttp_name(ctx, field)
+			case "number":
+				return ec.fieldContext_CourseHttp_number(ctx, field)
+			case "org":
+				return ec.fieldContext_CourseHttp_org(ctx, field)
+			case "short_description":
+				return ec.fieldContext_CourseHttp_short_description(ctx, field)
+			case "start":
+				return ec.fieldContext_CourseHttp_start(ctx, field)
+			case "start_display":
+				return ec.fieldContext_CourseHttp_start_display(ctx, field)
+			case "start_type":
+				return ec.fieldContext_CourseHttp_start_type(ctx, field)
+			case "pacing":
+				return ec.fieldContext_CourseHttp_pacing(ctx, field)
+			case "mobile_available":
+				return ec.fieldContext_CourseHttp_mobile_available(ctx, field)
+			case "hidden":
+				return ec.fieldContext_CourseHttp_hidden(ctx, field)
+			case "invitation_only":
+				return ec.fieldContext_CourseHttp_invitation_only(ctx, field)
+			case "overview":
+				return ec.fieldContext_CourseHttp_overview(ctx, field)
+			case "course_id":
+				return ec.fieldContext_CourseHttp_course_id(ctx, field)
+			case "media":
+				return ec.fieldContext_CourseHttp_media(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseHttp", field.Name)
 		},
@@ -5554,10 +5598,10 @@ func (ec *executionContext) fieldContext_Query_GetCoursesByUser(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "Results":
-				return ec.fieldContext_CoursesListHttp_Results(ctx, field)
-			case "Pagination":
-				return ec.fieldContext_CoursesListHttp_Pagination(ctx, field)
+			case "results":
+				return ec.fieldContext_CoursesListHttp_results(ctx, field)
+			case "pagination":
+				return ec.fieldContext_CoursesListHttp_pagination(ctx, field)
 			case "countRows":
 				return ec.fieldContext_CoursesListHttp_countRows(ctx, field)
 			}
@@ -5606,10 +5650,10 @@ func (ec *executionContext) fieldContext_Query_GetAllPublicCourses(ctx context.C
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "Results":
-				return ec.fieldContext_CoursesListHttp_Results(ctx, field)
-			case "Pagination":
-				return ec.fieldContext_CoursesListHttp_Pagination(ctx, field)
+			case "results":
+				return ec.fieldContext_CoursesListHttp_results(ctx, field)
+			case "pagination":
+				return ec.fieldContext_CoursesListHttp_pagination(ctx, field)
 			case "countRows":
 				return ec.fieldContext_CoursesListHttp_countRows(ctx, field)
 			}
@@ -5669,12 +5713,12 @@ func (ec *executionContext) fieldContext_Query_GetEnrollments(ctx context.Contex
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "Next":
-				return ec.fieldContext_EnrollmentsListHttp_Next(ctx, field)
-			case "Previous":
-				return ec.fieldContext_EnrollmentsListHttp_Previous(ctx, field)
-			case "Results":
-				return ec.fieldContext_EnrollmentsListHttp_Results(ctx, field)
+			case "next":
+				return ec.fieldContext_EnrollmentsListHttp_next(ctx, field)
+			case "previous":
+				return ec.fieldContext_EnrollmentsListHttp_previous(ctx, field)
+			case "results":
+				return ec.fieldContext_EnrollmentsListHttp_results(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type EnrollmentsListHttp", field.Name)
 		},
@@ -5852,6 +5896,61 @@ func (ec *executionContext) fieldContext_Query_GetAllProjectPagesByAccessToken(c
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_GetAllProjectPagesByAccessToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUser(rctx, fc.Args["peekUserId"].(*string), fc.Args["peekUserRole"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.GetUserResult)
+	fc.Result = res
+	return ec.marshalNGetUserResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐGetUserResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GetUserResult does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -8612,6 +8711,22 @@ func (ec *executionContext) unmarshalInputUpdateProjectPage(ctx context.Context,
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _GetUserResult(ctx context.Context, sel ast.SelectionSet, obj models.GetUserResult) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case models.StudentHTTP:
+		return ec._StudentHttp(ctx, sel, &obj)
+	case *models.StudentHTTP:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._StudentHttp(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _ProjectPageResult(ctx context.Context, sel ast.SelectionSet, obj models.ProjectPageResult) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -8718,23 +8833,23 @@ func (ec *executionContext) _AbsoluteMediaHttp(ctx context.Context, sel ast.Sele
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AbsoluteMediaHttp")
-		case "ID":
+		case "id":
 
-			out.Values[i] = ec._AbsoluteMediaHttp_ID(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "URI":
-
-			out.Values[i] = ec._AbsoluteMediaHttp_URI(ctx, field, obj)
+			out.Values[i] = ec._AbsoluteMediaHttp_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "URI_Absolute":
+		case "uri":
 
-			out.Values[i] = ec._AbsoluteMediaHttp_URI_Absolute(ctx, field, obj)
+			out.Values[i] = ec._AbsoluteMediaHttp_uri(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "uri_absolute":
+
+			out.Values[i] = ec._AbsoluteMediaHttp_uri_absolute(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -8760,28 +8875,28 @@ func (ec *executionContext) _CourseAPIMediaCollectionHttp(ctx context.Context, s
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CourseAPIMediaCollectionHttp")
-		case "ID":
+		case "id":
 
-			out.Values[i] = ec._CourseAPIMediaCollectionHttp_ID(ctx, field, obj)
+			out.Values[i] = ec._CourseAPIMediaCollectionHttp_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Banner_Image":
+		case "banner_image":
 
-			out.Values[i] = ec._CourseAPIMediaCollectionHttp_Banner_Image(ctx, field, obj)
+			out.Values[i] = ec._CourseAPIMediaCollectionHttp_banner_image(ctx, field, obj)
 
-		case "Course_Image":
+		case "course_image":
 
-			out.Values[i] = ec._CourseAPIMediaCollectionHttp_Course_Image(ctx, field, obj)
+			out.Values[i] = ec._CourseAPIMediaCollectionHttp_course_image(ctx, field, obj)
 
-		case "Course_Video":
+		case "course_video":
 
-			out.Values[i] = ec._CourseAPIMediaCollectionHttp_Course_Video(ctx, field, obj)
+			out.Values[i] = ec._CourseAPIMediaCollectionHttp_course_video(ctx, field, obj)
 
-		case "Image":
+		case "image":
 
-			out.Values[i] = ec._CourseAPIMediaCollectionHttp_Image(ctx, field, obj)
+			out.Values[i] = ec._CourseAPIMediaCollectionHttp_image(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -8804,139 +8919,139 @@ func (ec *executionContext) _CourseHttp(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CourseHttp")
-		case "ID":
+		case "id":
 
-			out.Values[i] = ec._CourseHttp_ID(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Blocks_URL":
-
-			out.Values[i] = ec._CourseHttp_Blocks_URL(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Effort":
+		case "blocks_url":
 
-			out.Values[i] = ec._CourseHttp_Effort(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Enrollment_Start":
-
-			out.Values[i] = ec._CourseHttp_Enrollment_Start(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_blocks_url(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Enrollment_End":
+		case "effort":
 
-			out.Values[i] = ec._CourseHttp_Enrollment_End(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "End":
-
-			out.Values[i] = ec._CourseHttp_End(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_effort(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Name":
+		case "enrollment_start":
 
-			out.Values[i] = ec._CourseHttp_Name(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Number":
-
-			out.Values[i] = ec._CourseHttp_Number(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_enrollment_start(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Org":
+		case "enrollment_end":
 
-			out.Values[i] = ec._CourseHttp_Org(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Short_Description":
-
-			out.Values[i] = ec._CourseHttp_Short_Description(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_enrollment_end(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Start":
+		case "end":
 
-			out.Values[i] = ec._CourseHttp_Start(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Start_Display":
-
-			out.Values[i] = ec._CourseHttp_Start_Display(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_end(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Start_Type":
+		case "name":
 
-			out.Values[i] = ec._CourseHttp_Start_Type(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Pacing":
-
-			out.Values[i] = ec._CourseHttp_Pacing(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Mobile_Available":
+		case "number":
 
-			out.Values[i] = ec._CourseHttp_Mobile_Available(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Hidden":
-
-			out.Values[i] = ec._CourseHttp_Hidden(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_number(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Invitation_Only":
+		case "org":
 
-			out.Values[i] = ec._CourseHttp_Invitation_Only(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Overview":
-
-			out.Values[i] = ec._CourseHttp_Overview(ctx, field, obj)
-
-		case "Course_ID":
-
-			out.Values[i] = ec._CourseHttp_Course_ID(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_org(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Media":
+		case "short_description":
 
-			out.Values[i] = ec._CourseHttp_Media(ctx, field, obj)
+			out.Values[i] = ec._CourseHttp_short_description(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "start":
+
+			out.Values[i] = ec._CourseHttp_start(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "start_display":
+
+			out.Values[i] = ec._CourseHttp_start_display(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "start_type":
+
+			out.Values[i] = ec._CourseHttp_start_type(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "pacing":
+
+			out.Values[i] = ec._CourseHttp_pacing(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "mobile_available":
+
+			out.Values[i] = ec._CourseHttp_mobile_available(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "hidden":
+
+			out.Values[i] = ec._CourseHttp_hidden(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "invitation_only":
+
+			out.Values[i] = ec._CourseHttp_invitation_only(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "overview":
+
+			out.Values[i] = ec._CourseHttp_overview(ctx, field, obj)
+
+		case "course_id":
+
+			out.Values[i] = ec._CourseHttp_course_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "media":
+
+			out.Values[i] = ec._CourseHttp_media(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -9046,16 +9161,16 @@ func (ec *executionContext) _CoursesListHttp(ctx context.Context, sel ast.Select
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CoursesListHttp")
-		case "Results":
+		case "results":
 
-			out.Values[i] = ec._CoursesListHttp_Results(ctx, field, obj)
+			out.Values[i] = ec._CoursesListHttp_results(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Pagination":
+		case "pagination":
 
-			out.Values[i] = ec._CoursesListHttp_Pagination(ctx, field, obj)
+			out.Values[i] = ec._CoursesListHttp_pagination(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -9172,37 +9287,37 @@ func (ec *executionContext) _EnrollmentHttp(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("EnrollmentHttp")
-		case "Created":
+		case "created":
 
-			out.Values[i] = ec._EnrollmentHttp_Created(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Mode":
-
-			out.Values[i] = ec._EnrollmentHttp_Mode(ctx, field, obj)
+			out.Values[i] = ec._EnrollmentHttp_created(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "IsActive":
+		case "mode":
 
-			out.Values[i] = ec._EnrollmentHttp_IsActive(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "User":
-
-			out.Values[i] = ec._EnrollmentHttp_User(ctx, field, obj)
+			out.Values[i] = ec._EnrollmentHttp_mode(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Course_ID":
+		case "isActive":
 
-			out.Values[i] = ec._EnrollmentHttp_Course_ID(ctx, field, obj)
+			out.Values[i] = ec._EnrollmentHttp_isActive(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "user":
+
+			out.Values[i] = ec._EnrollmentHttp_user(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "course_id":
+
+			out.Values[i] = ec._EnrollmentHttp_course_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -9228,23 +9343,23 @@ func (ec *executionContext) _EnrollmentsListHttp(ctx context.Context, sel ast.Se
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("EnrollmentsListHttp")
-		case "Next":
+		case "next":
 
-			out.Values[i] = ec._EnrollmentsListHttp_Next(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Previous":
-
-			out.Values[i] = ec._EnrollmentsListHttp_Previous(ctx, field, obj)
+			out.Values[i] = ec._EnrollmentsListHttp_next(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Results":
+		case "previous":
 
-			out.Values[i] = ec._EnrollmentsListHttp_Results(ctx, field, obj)
+			out.Values[i] = ec._EnrollmentsListHttp_previous(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "results":
+
+			out.Values[i] = ec._EnrollmentsListHttp_results(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -9302,30 +9417,30 @@ func (ec *executionContext) _ImageHttp(ctx context.Context, sel ast.SelectionSet
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ImageHttp")
-		case "ID":
+		case "id":
 
-			out.Values[i] = ec._ImageHttp_ID(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Raw":
-
-			out.Values[i] = ec._ImageHttp_Raw(ctx, field, obj)
+			out.Values[i] = ec._ImageHttp_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Small":
+		case "raw":
 
-			out.Values[i] = ec._ImageHttp_Small(ctx, field, obj)
+			out.Values[i] = ec._ImageHttp_raw(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Large":
+		case "small":
 
-			out.Values[i] = ec._ImageHttp_Large(ctx, field, obj)
+			out.Values[i] = ec._ImageHttp_small(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "large":
+
+			out.Values[i] = ec._ImageHttp_large(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -9351,16 +9466,16 @@ func (ec *executionContext) _MediaHttp(ctx context.Context, sel ast.SelectionSet
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MediaHttp")
-		case "ID":
+		case "id":
 
-			out.Values[i] = ec._MediaHttp_ID(ctx, field, obj)
+			out.Values[i] = ec._MediaHttp_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "URI":
+		case "uri":
 
-			out.Values[i] = ec._MediaHttp_URI(ctx, field, obj)
+			out.Values[i] = ec._MediaHttp_uri(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -9491,30 +9606,30 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Pagination")
-		case "Next":
+		case "next":
 
-			out.Values[i] = ec._Pagination_Next(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "Previous":
-
-			out.Values[i] = ec._Pagination_Previous(ctx, field, obj)
+			out.Values[i] = ec._Pagination_next(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Count":
+		case "previous":
 
-			out.Values[i] = ec._Pagination_Count(ctx, field, obj)
+			out.Values[i] = ec._Pagination_previous(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Num_Pages":
+		case "count":
 
-			out.Values[i] = ec._Pagination_Num_Pages(ctx, field, obj)
+			out.Values[i] = ec._Pagination_count(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "num_pages":
+
+			out.Values[i] = ec._Pagination_num_pages(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -9875,6 +9990,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "GetUser":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -9926,7 +10064,7 @@ func (ec *executionContext) _SingInResponse(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var studentHttpImplementors = []string{"StudentHttp", "StudentResult"}
+var studentHttpImplementors = []string{"StudentHttp", "StudentResult", "GetUserResult"}
 
 func (ec *executionContext) _StudentHttp(ctx context.Context, sel ast.SelectionSet, obj *models.StudentHTTP) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, studentHttpImplementors)
@@ -10573,6 +10711,16 @@ func (ec *executionContext) marshalNEnrollmentsListHttp2ᚖgithubᚗcomᚋskinny
 	return ec._EnrollmentsListHttp(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNGetUserResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐGetUserResult(ctx context.Context, sel ast.SelectionSet, v models.GetUserResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetUserResult(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -11112,6 +11260,22 @@ func (ec *executionContext) marshalOImageHttp2ᚖgithubᚗcomᚋskinnykaenᚋrob
 		return graphql.Null
 	}
 	return ec._ImageHttp(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
 }
 
 func (ec *executionContext) marshalOMediaHttp2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐMediaHTTP(ctx context.Context, sel ast.SelectionSet, v *models.MediaHTTP) graphql.Marshaler {

@@ -58,7 +58,7 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.Updat
 		return nil, getGinContextErr
 	}
 	userRole := ginContext.Value("user_role").(models.Role)
-	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin, models.Student}
 	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {
 		return nil, accessErr

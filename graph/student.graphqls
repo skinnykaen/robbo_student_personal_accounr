@@ -4,7 +4,6 @@ type StudentHttp {
 	robboUnitId: String!
 }
 
-
 input NewStudent {
 	email: String!
 	password: String!
@@ -14,7 +13,6 @@ input NewStudent {
 	middlename: String!
 	parentId: String!
 }
-
 
 type DeletedStudent {
 	studentId: String!
