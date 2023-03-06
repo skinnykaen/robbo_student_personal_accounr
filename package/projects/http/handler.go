@@ -32,7 +32,7 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 	{
 		project.POST("/", h.CreateProject)
 		project.GET("/:projectId", h.GetProject)
-		project.PUT("/:projectId", h.UpdateProject)
+		project.POST("/:projectId", h.UpdateProject)
 		project.DELETE("/", h.DeleteProject)
 	}
 }
