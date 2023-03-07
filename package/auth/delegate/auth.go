@@ -95,3 +95,18 @@ func (s *AuthDelegateImpl) UserAccess(currentRole models.Role, roles []models.Ro
 	}
 	return
 }
+
+func (s *AuthDelegateImpl) RequestResetPassword(email string) (err error) {
+	err = s.UseCase.RequestResetPassword(email)
+	if err != nil {
+		return
+	}
+	return
+}
+func (s *AuthDelegateImpl) ConfirmResetPassword(email, verifyCode string) (err error) {
+	err = s.UseCase.ConfirmResetPassword(email, verifyCode)
+	if err != nil {
+		return
+	}
+	return
+}

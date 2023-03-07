@@ -4,6 +4,7 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"gorm.io/gorm"
 	"strconv"
+	"time"
 )
 
 type Role int
@@ -34,6 +35,8 @@ type UserDB struct {
 	Firstname  string `gorm:"not null;size:256"`
 	Middlename string `gorm:"not null;size:256"`
 	Lastname   string `gorm:"not null;size:256"`
+	Code       string
+	ExpiresAt  time.Time
 }
 
 type UserCore struct {
@@ -46,6 +49,8 @@ type UserCore struct {
 	Middlename string
 	Lastname   string
 	CreatedAt  string
+	Code       string
+	ExpiresAt  time.Time
 }
 
 func (em *UserHTTP) ToCore() UserCore {
@@ -85,6 +90,8 @@ func (em *UserDB) ToCore() UserCore {
 		Lastname:   em.Lastname,
 		Middlename: em.Middlename,
 		CreatedAt:  em.CreatedAt.String(),
+		Code:       em.Code,
+		ExpiresAt:  em.ExpiresAt,
 	}
 }
 
@@ -98,4 +105,6 @@ func (em *UserDB) FromCore(user *UserCore) {
 	em.Firstname = user.Firstname
 	em.Lastname = user.Lastname
 	em.Middlename = user.Middlename
+	em.Code = user.Code
+	em.ExpiresAt = user.ExpiresAt
 }

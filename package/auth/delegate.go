@@ -12,4 +12,6 @@ type Delegate interface {
 	UserIdentity(c *gin.Context) (id string, role models.Role, err error)
 	UserAccess(currentRole models.Role, roles []models.Role, ctx context.Context) (err error)
 	RefreshToken(refreshToken string) (newAccessToken string, err error)
+	RequestResetPassword(email string) (err error)
+	ConfirmResetPassword(email, verifyCode string) (err error)
 }

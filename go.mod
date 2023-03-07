@@ -9,6 +9,7 @@ require (
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/hasura/go-graphql-client v0.8.1
 	github.com/jackc/pgconn v1.12.0
+	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/ory/dockertest/v3 v3.9.1
 	github.com/rs/cors v1.8.2
 	github.com/spf13/viper v1.11.0

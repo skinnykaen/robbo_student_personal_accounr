@@ -11,4 +11,7 @@ type UseCase interface {
 	ParseToken(token string, key []byte) (claims *models.UserClaims, err error)
 	RefreshToken(refreshToken string) (newAccessToken string, err error)
 	GenerateToken(user *models.UserCore, duration time.Duration, signingKey []byte) (token string, err error)
+	RequestResetPassword(email string) (err error)
+	ConfirmResetPassword(email, verifyCode string) (err error)
+	SendEmail(subject, to, body string) (err error)
 }
