@@ -33,7 +33,7 @@ func (p *UsersUseCaseImpl) GetStudentById(studentId string) (student *models.Stu
 func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId string) (newStudent *models.StudentCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(student.Password))
-	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
+	pwd.Write([]byte(viper.GetString("auth_hash_salt")))
 	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
 	student.Password = passwordHash
 	newStudent, err = p.Gateway.CreateStudent(student)

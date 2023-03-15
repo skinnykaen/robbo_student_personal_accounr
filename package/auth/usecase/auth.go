@@ -27,11 +27,11 @@ type AuthUseCaseModule struct {
 }
 
 func SetupAuthUseCase(gateway users.Gateway) AuthUseCaseModule {
-	hashSalt := viper.GetString("auth.hash_salt")
-	accessSigningKey := []byte(viper.GetString("auth.access_signing_key"))
-	refreshSigningKey := []byte(viper.GetString("auth.refresh_signing_key"))
-	accessTokenTTLTime := viper.GetDuration("auth.access_token_ttl")
-	refreshTokenTTLTime := viper.GetDuration("auth.refresh_token_ttl")
+	hashSalt := viper.GetString("auth_hash_salt")
+	accessSigningKey := []byte(viper.GetString("auth_access_signing_key"))
+	refreshSigningKey := []byte(viper.GetString("auth_refresh_signing_key"))
+	accessTokenTTLTime := viper.GetDuration("auth_access_token_ttl")
+	refreshTokenTTLTime := viper.GetDuration("auth_refresh_token_ttl")
 
 	return AuthUseCaseModule{
 		UseCase: &AuthUseCaseImpl{

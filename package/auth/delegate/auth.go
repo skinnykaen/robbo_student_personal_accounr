@@ -57,7 +57,7 @@ func (s *AuthDelegateImpl) UserIdentity(c *gin.Context) (id string, role models.
 		return
 	}
 
-	claims, err := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
+	claims, err := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth_access_signing_key")))
 	if err != nil {
 		log.Println(err)
 		return "", models.Anonymous, auth.ErrInvalidAccessToken
