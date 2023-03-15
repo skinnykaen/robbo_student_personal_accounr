@@ -32,11 +32,11 @@ type AuthUseCaseModule struct {
 }
 
 func SetupAuthUseCase(gateway users.Gateway) AuthUseCaseModule {
-	hashSalt := viper.GetString("auth.hash_salt")
-	accessSigningKey := []byte(viper.GetString("auth.access_signing_key"))
-	refreshSigningKey := []byte(viper.GetString("auth.refresh_signing_key"))
-	accessTokenTTLTime := viper.GetDuration("auth.access_token_ttl")
-	refreshTokenTTLTime := viper.GetDuration("auth.refresh_token_ttl")
+	hashSalt := viper.GetString("auth_hash_salt")
+	accessSigningKey := []byte(viper.GetString("auth_access_signing_key"))
+	refreshSigningKey := []byte(viper.GetString("auth_refresh_signing_key"))
+	accessTokenTTLTime := viper.GetDuration("auth_access_token_ttl")
+	refreshTokenTTLTime := viper.GetDuration("auth_refresh_token_ttl")
 
 	return AuthUseCaseModule{
 		UseCase: &AuthUseCaseImpl{
@@ -242,7 +242,7 @@ func (a *AuthUseCaseImpl) RequestResetPassword(email string) (err error) {
 		UserCore: models.UserCore{
 			Email:     email,
 			Code:      verifyCode,
-			ExpiresAt: time.Now().Add(time.Second * viper.GetDuration("auth.pass_reset_code_expiration")),
+			ExpiresAt: time.Now().Add(time.Second * viper.GetDuration("auth_pass_reset_code_expiration")),
 		},
 	}
 	_, err = a.Gateway.UpdateStudentByEmail(studentCore)
@@ -300,8 +300,8 @@ func (a *AuthUseCaseImpl) ConfirmResetPassword(email, verifyCode string) (err er
 }
 
 func (a *AuthUseCaseImpl) SendEmail(subject, to, body string) (err error) {
-	from := viper.GetString("mail.username")
-	pass := viper.GetString("mail.password")
+	from := viper.GetString("mail_username")
+	pass := viper.GetString("mail_password")
 
 	e := email.NewEmail()
 	e.From = "Robbo <" + from + ">"
@@ -309,8 +309,8 @@ func (a *AuthUseCaseImpl) SendEmail(subject, to, body string) (err error) {
 	e.Subject = subject
 	e.HTML = []byte(body)
 
-	auth := smtp.PlainAuth("", from, pass, "smtp.yandex.ru")
-	err = e.Send("smtp.yandex.ru:25", auth)
+	auth := smtp.PlainAuth("", from, pass, viper.GetString("smtp_server_host"))
+	err = e.Send(viper.GetString("smtp_server_address"), auth)
 	if err != nil {
 		log.Println(err)
 		return

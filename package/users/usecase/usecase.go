@@ -166,7 +166,7 @@ func (p *UsersUseCaseImpl) GetStudentByParentId(parentId string) (students []*mo
 func (p *UsersUseCaseImpl) CreateStudent(student *models.StudentCore, parentId string) (newStudent *models.StudentCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(student.Password))
-	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
+	pwd.Write([]byte(viper.GetString("auth_hash_salt")))
 	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
 	student.Password = passwordHash
 	newStudent, err = p.usersGateway.CreateStudent(student)
@@ -256,7 +256,7 @@ func (p *UsersUseCaseImpl) UpdateTeacher(teacher *models.TeacherCore) (teacherUp
 func (p *UsersUseCaseImpl) CreateTeacher(teacher *models.TeacherCore) (newTeacher models.TeacherCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(teacher.Password))
-	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
+	pwd.Write([]byte(viper.GetString("auth_hash_salt")))
 	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
 	teacher.Password = passwordHash
 	return p.usersGateway.CreateTeacher(teacher)
@@ -292,7 +292,7 @@ func (p *UsersUseCaseImpl) GetAllParent(page, pageSize int) (parents []*models.P
 func (p *UsersUseCaseImpl) CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(parent.Password))
-	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
+	pwd.Write([]byte(viper.GetString("auth_hash_salt")))
 	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
 	parent.Password = passwordHash
 	return p.usersGateway.CreateParent(parent)
@@ -360,7 +360,7 @@ func (p *UsersUseCaseImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (uni
 func (p *UsersUseCaseImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (newUnitAdmin *models.UnitAdminCore, err error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(unitAdmin.Password))
-	pwd.Write([]byte(viper.GetString("auth.hash_salt")))
+	pwd.Write([]byte(viper.GetString("auth_hash_salt")))
 	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
 	unitAdmin.Password = passwordHash
 	return p.usersGateway.CreateUnitAdmin(unitAdmin)

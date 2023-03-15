@@ -67,7 +67,7 @@ func (s *AuthDelegateImpl) UserIdentity(c *gin.Context) (id string, role models.
 		}
 	}
 
-	claims, parseTokenErr := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
+	claims, parseTokenErr := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth_access_signing_key")))
 	if err != nil {
 		return "", models.Anonymous, &gqlerror.Error{
 			Path:    graphql.GetPath(c),

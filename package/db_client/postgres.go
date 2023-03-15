@@ -28,7 +28,7 @@ func NewPostgresClient(_logger *log.Logger) (postgresClient PostgresClient, err 
 			Colorful:                  true,        // Disable color
 		},
 	)
-	db, err := gorm.Open(postgres.Open(viper.GetString("postgres.postgresDsn")), &gorm.Config{Logger: newLogger})
+	db, err := gorm.Open(postgres.Open(viper.GetString("postgres_dsn")), &gorm.Config{Logger: newLogger})
 	if err != nil {
 		return
 	}
@@ -52,7 +52,7 @@ func NewTestPostgresClient(_logger *log.Logger, testDockerClient dockertest.Pool
 	)
 	var gdb *gorm.DB
 	if err = testDockerClient.Retry(func() error {
-		gdb, err = gorm.Open(postgres.Open(viper.GetString("postgres.postgresDsn")), &gorm.Config{Logger: newLogger})
+		gdb, err = gorm.Open(postgres.Open(viper.GetString("POSTGRES_DSN")), &gorm.Config{Logger: newLogger})
 		if err != nil {
 			log.Println("Test database not ready yet (it is booting up, wait for a few tries)...")
 			return err

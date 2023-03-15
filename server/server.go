@@ -25,27 +25,14 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 				router.POST("/query", graphqlHandler(graphQLModule))
 
 				server := &http.Server{
-					Addr: viper.GetString("server.address"),
+					Addr: viper.GetString("http_server_address"),
 					Handler: cors.New(
 						// TODO make config
 						cors.Options{
-							AllowedOrigins: []string{
-								"http://0.0.0.0:3030",
-								"http://0.0.0.0:3000",
-								"http://0.0.0.0:8601",
-								"http://localhost:3030",
-								"http://localhost:3000",
-							},
-							AllowCredentials: true,
-							AllowedMethods: []string{
-								http.MethodGet,
-								http.MethodPost,
-								http.MethodPut,
-								http.MethodDelete,
-								http.MethodOptions,
-								http.MethodOptions,
-							},
-							AllowedHeaders: []string{"*"},
+							AllowedOrigins:   viper.GetStringSlice("cors.allowed_origins"),
+							AllowCredentials: viper.GetBool("cors.allow_credentials"),
+							AllowedMethods:   viper.GetStringSlice("cors.allowed_methods"),
+							AllowedHeaders:   viper.GetStringSlice("cors.allowed_headers"),
 						},
 					).Handler(router),
 					ReadTimeout:    10 * time.Second,
@@ -53,7 +40,7 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 					MaxHeaderBytes: 1 << 20,
 				}
 
-				log.Printf("connect to http://localhost:%s/ for GraphQL playground", viper.GetString("graphqlServer.port"))
+				log.Printf("connect to http://localhost:%s/ for GraphQL playground", viper.GetString("graphql_server_port"))
 				go func() {
 					if err = server.ListenAndServe(); err != nil {
 						log.Fatalf("Failed to listen and serve: %s", err)
