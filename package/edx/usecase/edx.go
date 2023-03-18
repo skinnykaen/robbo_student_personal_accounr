@@ -23,7 +23,7 @@ func (p *EdxApiUseCaseImpl) GetWithAuth(url string) (respBody []byte, err error)
 		log.Println("Token not refresh.\n[ERROR] -", err)
 		return nil, edx.ErrTknNotRefresh
 	}
-	var bearer = "Bearer " + viper.GetString("api.token")
+	var bearer = "Bearer " + viper.GetString("api_token")
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -67,7 +67,7 @@ func (p *EdxApiUseCaseImpl) PostWithAuth(url string, params map[string]interface
 		return nil, edx.ErrJsonMarshal
 	}
 
-	var bearer = "Bearer " + viper.GetString("api.token")
+	var bearer = "Bearer " + viper.GetString("api_token")
 
 	request, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
@@ -98,12 +98,12 @@ func (p *EdxApiUseCaseImpl) PostWithAuth(url string, params map[string]interface
 }
 
 func (p *EdxApiUseCaseImpl) RefreshToken() (err error) {
-	if viper.GetInt64("api.token_expiration_time") < time.Now().Unix() {
+	if viper.GetInt64("api_token_expiration_time") < time.Now().Unix() {
 		urlAddr := viper.GetString("api_urls.refreshToken")
 		response, err := http.PostForm(urlAddr, url.Values{
 			"grant_type":    {"client_credentials"},
-			"client_id":     {viper.GetString("api.client_id")},
-			"client_secret": {viper.GetString("api.client_secret")},
+			"client_id":     {viper.GetString("api_client_id")},
+			"client_secret": {viper.GetString("api_client_secret")},
 		})
 		if err != nil {
 			log.Println(err)
@@ -128,8 +128,8 @@ func (p *EdxApiUseCaseImpl) RefreshToken() (err error) {
 		}
 
 		expirationTime := time.Now().Unix() + int64(newtkn.ExpiresIn)
-		viper.Set("api.token_expiration_time", expirationTime)
-		viper.Set("api.token", newtkn.AccessToken)
+		viper.Set("api_token_expiration_time", expirationTime)
+		viper.Set("api_token", newtkn.AccessToken)
 		return nil
 	} else {
 		return nil
@@ -149,7 +149,7 @@ func (p *EdxApiUseCaseImpl) AddStudent(username, courseId string, cohortId int) 
 
 	}
 
-	var bearer = "Bearer " + viper.GetString("api.token")
+	var bearer = "Bearer " + viper.GetString("api_token")
 	urlAddr := viper.GetString("api_urls.postCohort") + courseId + "/cohorts/" + strconv.Itoa(cohortId) + "/users/" + username
 	request, err := http.NewRequest("POST", urlAddr, nil)
 	if err != nil {
