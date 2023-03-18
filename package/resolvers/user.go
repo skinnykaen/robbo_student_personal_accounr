@@ -5,524 +5,129 @@ package resolvers
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"strconv"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-// CreateStudent is the resolver for the createStudent field.
-func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewStudent) (*models.StudentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-
-	studentInput := models.StudentHTTP{
-		UserHTTP: &models.UserHTTP{
-			Email:      input.Email,
-			Password:   input.Password,
-			Firstname:  input.Firstname,
-			Lastname:   input.Lastname,
-			Middlename: input.Middlename,
-			Nickname:   input.Nickname,
-			Role:       0,
-		},
-	}
-
-	studentId, err := r.usersDelegate.CreateStudent(&studentInput, input.ParentID)
-	studentInput.UserHTTP.ID = studentId
-	return &studentInput, err
-}
-
-// UpdateStudent is the resolver for the updateStudent field.
-func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.UpdateStudentInput) (*models.StudentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-
-	updateStudentInput := &models.StudentHTTP{
-		UserHTTP: &models.UserHTTP{
-			ID:         input.StudentHTTP.UserHTTP.ID,
-			Email:      input.StudentHTTP.UserHTTP.Email,
-			Firstname:  input.StudentHTTP.UserHTTP.Firstname,
-			Lastname:   input.StudentHTTP.UserHTTP.Lastname,
-			Middlename: input.StudentHTTP.UserHTTP.Middlename,
-			Nickname:   input.StudentHTTP.UserHTTP.Nickname,
-		},
-	}
-	err = r.usersDelegate.UpdateStudent(updateStudentInput)
-	return updateStudentInput, err
-}
-
-// DeleteStudent is the resolver for the deleteStudent field.
-func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) (string, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return "", identityErr
-	}
-
-	id, _ := strconv.ParseUint(studentID, 10, 64)
-	err = r.usersDelegate.DeleteStudent(uint(id))
-	return studentID, err
-}
-
-// SetRobboGroupIDForStudent is the resolver for the setRobboGroupIdForStudent field.
-func (r *mutationResolver) SetRobboGroupIDForStudent(ctx context.Context, studentID string, robboGroupID string, robboUnitID string) (string, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return "", err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return "", identityErr
-	}
-
-	err = r.usersDelegate.AddStudentToRobboGroup(studentID, robboGroupID, robboUnitID)
-	return "", err
-}
-
-// CreateTeacher is the resolver for the createTeacher field.
-func (r *mutationResolver) CreateTeacher(ctx context.Context, input models.NewTeacher) (*models.TeacherHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-
-	teacherInput := models.TeacherHTTP{
-		UserHTTP: &models.UserHTTP{
-			Email:      input.Email,
-			Password:   input.Password,
-			Firstname:  input.Firstname,
-			Lastname:   input.Lastname,
-			Middlename: input.Middlename,
-			Nickname:   input.Nickname,
-			Role:       1,
-		},
-	}
-
-	teacherId, err := r.usersDelegate.CreateTeacher(&teacherInput)
-	teacherInput.UserHTTP.ID = teacherId
-	return &teacherInput, err
-}
-
-// UpdateTeacher is the resolver for the updateTeacher field.
-func (r *mutationResolver) UpdateTeacher(ctx context.Context, input models.UpdateTeacherInput) (*models.TeacherHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-
-	updateTeacherInput := &models.TeacherHTTP{
-		UserHTTP: &models.UserHTTP{
-			ID:         input.TeacherHTTP.UserHTTP.ID,
-			Email:      input.TeacherHTTP.UserHTTP.Email,
-			Firstname:  input.TeacherHTTP.UserHTTP.Firstname,
-			Lastname:   input.TeacherHTTP.UserHTTP.Lastname,
-			Middlename: input.TeacherHTTP.UserHTTP.Middlename,
-			Nickname:   input.TeacherHTTP.UserHTTP.Nickname,
-		},
-	}
-	err = r.usersDelegate.UpdateTeacher(updateTeacherInput)
-	return updateTeacherInput, err
-}
-
-// DeleteTeacher is the resolver for the deleteTeacher field.
-func (r *mutationResolver) DeleteTeacher(ctx context.Context, teacherID string) (string, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return "", identityErr
-	}
-	id, _ := strconv.ParseUint(teacherID, 10, 64)
-	err = r.usersDelegate.DeleteTeacher(uint(id))
-	return teacherID, err
-}
-
-// CreateParent is the resolver for the createParent field.
-func (r *mutationResolver) CreateParent(ctx context.Context, input models.NewParent) (*models.ParentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	parentInput := models.ParentHTTP{
-		UserHTTP: &models.UserHTTP{
-			Email:      input.Email,
-			Password:   input.Password,
-			Firstname:  input.Firstname,
-			Lastname:   input.Lastname,
-			Middlename: input.Middlename,
-			Nickname:   input.Nickname,
-			Role:       2,
-		},
-		Children: nil,
-	}
-	parentId, err := r.usersDelegate.CreateParent(&parentInput)
-	parentInput.UserHTTP.ID = parentId
-	return &parentInput, err
-}
-
-// AddChildToParent is the resolver for the addChildToParent field.
-func (r *mutationResolver) AddChildToParent(ctx context.Context, parentID string, childID string) (string, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return "", err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return "", identityErr
-	}
-	err = r.usersDelegate.CreateRelation(parentID, childID)
-	return "", err
-}
-
-// UpdateParent is the resolver for the updateParent field.
-func (r *mutationResolver) UpdateParent(ctx context.Context, input models.UpdateParentInput) (*models.ParentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	updateParentInput := &models.ParentHTTP{
-		UserHTTP: &models.UserHTTP{
-			ID:         input.ParentHTTP.UserHTTP.ID,
-			Email:      input.ParentHTTP.UserHTTP.Email,
-			Firstname:  input.ParentHTTP.UserHTTP.Firstname,
-			Lastname:   input.ParentHTTP.UserHTTP.Lastname,
-			Middlename: input.ParentHTTP.UserHTTP.Middlename,
-			Nickname:   input.ParentHTTP.UserHTTP.Nickname,
-		},
-	}
-	err = r.usersDelegate.UpdateParent(updateParentInput)
-	return updateParentInput, err
-}
-
-// DeleteParent is the resolver for the deleteParent field.
-func (r *mutationResolver) DeleteParent(ctx context.Context, parentID string) (string, error) {
-	id, _ := strconv.ParseUint(parentID, 10, 64)
-	err := r.usersDelegate.DeleteParent(uint(id))
-	return parentID, err
-}
-
-// CreateUnitAdmin is the resolver for the createUnitAdmin field.
-func (r *mutationResolver) CreateUnitAdmin(ctx context.Context, input models.NewUnitAdmin) (*models.UnitAdminHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	unitAdminInput := models.UnitAdminHTTP{
-		UserHTTP: &models.UserHTTP{
-			Email:      input.Email,
-			Password:   input.Password,
-			Firstname:  input.Firstname,
-			Lastname:   input.Lastname,
-			Middlename: input.Middlename,
-			Nickname:   input.Nickname,
-			Role:       4,
-		},
-	}
-	unitAdminId, err := r.usersDelegate.CreateUnitAdmin(&unitAdminInput)
-	unitAdminInput.UserHTTP.ID = unitAdminId
-	return &unitAdminInput, err
-}
-
-// UpdateUnitAdmin is the resolver for the updateUnitAdmin field.
-func (r *mutationResolver) UpdateUnitAdmin(ctx context.Context, input models.UpdateUnitAdminInput) (*models.UnitAdminHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(err)
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	updateUnitAdminInput := &models.UnitAdminHTTP{
-		UserHTTP: &models.UserHTTP{
-			ID:         input.UnitAdminHTTP.UserHTTP.ID,
-			Email:      input.UnitAdminHTTP.UserHTTP.Email,
-			Firstname:  input.UnitAdminHTTP.UserHTTP.Firstname,
-			Lastname:   input.UnitAdminHTTP.UserHTTP.Lastname,
-			Middlename: input.UnitAdminHTTP.UserHTTP.Middlename,
-			Nickname:   input.UnitAdminHTTP.UserHTTP.Nickname,
-		},
-	}
-	err = r.usersDelegate.UpdateUnitAdmin(updateUnitAdminInput)
-	return updateUnitAdminInput, err
-}
-
-// DeleteUnitAdmin is the resolver for the deleteUnitAdmin field.
-func (r *mutationResolver) DeleteUnitAdmin(ctx context.Context, unitAdminID string) (string, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return "", err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return "", identityErr
-	}
-	id, _ := strconv.ParseUint(unitAdminID, 10, 64)
-	err = r.usersDelegate.DeleteUnitAdmin(uint(id))
-	return unitAdminID, err
-}
-
-// SetNewUnitAdminForRobboUnit is the resolver for the setNewUnitAdminForRobboUnit field.
-func (r *mutationResolver) SetNewUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return "", err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return "", identityErr
-	}
-	err = r.usersDelegate.SetNewUnitAdminForRobboUnit(unitAdminID, robboUnitID)
-	return "", err
-}
-
-// DeleteUnitAdminForRobboUnit is the resolver for the DeleteUnitAdminForRobboUnit field.
-func (r *mutationResolver) DeleteUnitAdminForRobboUnit(ctx context.Context, unitAdminID string, robboUnitID string) (string, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return "", err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return "", identityErr
-	}
-	err = r.usersDelegate.DeleteUnitAdminForRobboUnit(unitAdminID, robboUnitID)
-	return "", err
-}
-
 // UpdateSuperAdmin is the resolver for the updateSuperAdmin field.
-func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.UpdateSuperAdminInput) (*models.SuperAdminHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
+func (r *mutationResolver) UpdateSuperAdmin(ctx context.Context, input models.UpdateProfileInput) (models.SuperAdminResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
 	}
 	updateSuperAdminInput := &models.SuperAdminHTTP{
 		UserHTTP: &models.UserHTTP{
-			ID:         input.SuperAdminHTTP.UserHTTP.ID,
-			Email:      input.SuperAdminHTTP.UserHTTP.Email,
-			Firstname:  input.SuperAdminHTTP.UserHTTP.Firstname,
-			Lastname:   input.SuperAdminHTTP.UserHTTP.Lastname,
-			Middlename: input.SuperAdminHTTP.UserHTTP.Middlename,
-			Nickname:   input.SuperAdminHTTP.UserHTTP.Nickname,
+			ID:         input.ID,
+			Email:      input.Email,
+			Firstname:  input.Firstname,
+			Lastname:   input.Lastname,
+			Middlename: input.Middlename,
+			Nickname:   input.Nickname,
+			Role:       5,
 		},
 	}
-	err = r.usersDelegate.UpdateSuperAdmin(updateSuperAdminInput)
-	return updateSuperAdminInput, err
-}
-
-// GetStudentsByParentID is the resolver for the GetStudentsByParentId field.
-func (r *queryResolver) GetStudentsByParentID(ctx context.Context, parentID string) ([]*models.StudentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
+	superAdminUpdated, updateSuperAdminErr := r.usersDelegate.UpdateSuperAdmin(updateSuperAdminInput)
+	if updateSuperAdminErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: updateSuperAdminErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	return r.usersDelegate.GetStudentByParentId(parentID)
-}
-
-// GetStudentByID is the resolver for the GetStudentById field.
-func (r *queryResolver) GetStudentByID(ctx context.Context, studentID string) (*models.StudentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	student, err := r.usersDelegate.GetStudentById(studentID)
-	return student, err
-}
-
-// SearchStudentsByEmail is the resolver for the SearchStudentsByEmail field.
-func (r *queryResolver) SearchStudentsByEmail(ctx context.Context, email string) ([]*models.StudentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	return r.usersDelegate.SearchStudentByEmail(email)
-}
-
-// GetAllTeachers is the resolver for the GetAllTeachers field.
-func (r *queryResolver) GetAllTeachers(ctx context.Context) ([]*models.TeacherHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	return r.usersDelegate.GetAllTeachers()
-}
-
-// GetTeacherByID is the resolver for the GetTeacherById field.
-func (r *queryResolver) GetTeacherByID(ctx context.Context, teacherID string) (*models.TeacherHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	teacher, err := r.usersDelegate.GetTeacherById(teacherID)
-	return teacher, err
-}
-
-// GetAllParents is the resolver for the GetAllParents field.
-func (r *queryResolver) GetAllParents(ctx context.Context) ([]*models.ParentHTTP, error) {
-	ginContext, getGinContextErr := GinContextFromContext(ctx)
-	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
-	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
-	}
-	parents, err := r.usersDelegate.GetAllParent()
-	return parents, err
-}
-
-// GetParentByID is the resolver for the GetParentById field.
-func (r *queryResolver) GetParentByID(ctx context.Context, parentID string) (*models.ParentHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-
-	parent, err := r.usersDelegate.GetParentById(parentID)
-	return parent, err
-}
-
-// GetAllUnitAdmins is the resolver for the GetAllUnitAdmins field.
-func (r *queryResolver) GetAllUnitAdmins(ctx context.Context) ([]*models.UnitAdminHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(err)
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	return r.usersDelegate.GetAllUnitAdmins()
-}
-
-// GetUnitAdminsByRobboUnitID is the resolver for the GetUnitAdminsByRobboUnitId field.
-func (r *queryResolver) GetUnitAdminsByRobboUnitID(ctx context.Context, robboUnitID string) ([]*models.UnitAdminHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	return r.usersDelegate.GetUnitAdminByRobboUnitId(robboUnitID)
-}
-
-// GetUnitAdminByID is the resolver for the GetUnitAdminById field.
-func (r *queryResolver) GetUnitAdminByID(ctx context.Context, unitAdminID string) (*models.UnitAdminHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	unitAdmin, err := r.usersDelegate.GetUnitAdminById(unitAdminID)
-	return &unitAdmin, err
-}
-
-// SearchUnitAdminsByEmail is the resolver for the SearchUnitAdminsByEmail field.
-func (r *queryResolver) SearchUnitAdminsByEmail(ctx context.Context, email string) ([]*models.UnitAdminHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
-	}
-	return r.usersDelegate.SearchUnitAdminByEmail(email)
+	return superAdminUpdated, nil
 }
 
 // GetSuperAdminByID is the resolver for the GetSuperAdminById field.
-func (r *queryResolver) GetSuperAdminByID(ctx context.Context, superAdminID string) (*models.SuperAdminHTTP, error) {
-	ginContext, err := GinContextFromContext(ctx)
-	if err != nil {
-		return nil, err
+func (r *queryResolver) GetSuperAdminByID(ctx context.Context, superAdminID string) (models.SuperAdminResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
 	}
-	_, _, identityErr := r.authDelegate.UserIdentity(ginContext)
-	if identityErr != nil {
-		return nil, identityErr
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
 	}
-	superAdmin, err := r.usersDelegate.GetSuperAdminById(superAdminID)
-	return &superAdmin, err
+
+	superAdmin, getSuperAdminByIdErr := r.usersDelegate.GetSuperAdminById(superAdminID)
+	return nil, &gqlerror.Error{
+		Path:    graphql.GetPath(ctx),
+		Message: getSuperAdminByIdErr.Error(),
+		Extensions: map[string]interface{}{
+			"code": "500",
+		},
+	}
+	return &superAdmin, nil
+}
+
+// GetUser is the resolver for the GetUser field.
+func (r *queryResolver) GetUser(ctx context.Context, peekUserID *string, peekUserRole *int) (models.GetUserResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
+	}
+	var userId string
+	var userRole models.Role
+	if utils.UseString(peekUserID) == "" || peekUserID == nil {
+		userId = ginContext.Value("user_id").(string)
+		userRole = ginContext.Value("user_role").(models.Role)
+	} else {
+		userId = *peekUserID
+		userRole = models.Role(*peekUserRole)
+	}
+	switch userRole {
+	case models.Student:
+		student, getStudentErr := r.usersDelegate.GetStudentById(userId)
+		if getStudentErr != nil {
+			return nil, getStudentErr
+		}
+		return student, nil
+	case models.Teacher:
+		teacher, getTeacherErr := r.usersDelegate.GetTeacherById(userId)
+		if getTeacherErr != nil {
+			return nil, getTeacherErr
+		}
+		return teacher, nil
+	case models.Parent:
+		parent, getParentErr := r.usersDelegate.GetParentById(userId)
+		if getParentErr != nil {
+			return nil, getParentErr
+		}
+		return parent, nil
+	case models.UnitAdmin:
+		unitAdmin, getUnitAdminErr := r.usersDelegate.GetUnitAdminById(userId)
+		if getUnitAdminErr != nil {
+			return nil, getUnitAdminErr
+		}
+		return unitAdmin, nil
+	case models.SuperAdmin:
+		superAdmin, getSuperAdminErr := r.usersDelegate.GetSuperAdminById(userId)
+		if getSuperAdminErr != nil {
+			return nil, getSuperAdminErr
+		}
+		return superAdmin, nil
+	default:
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: "internal server error",
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
 }
 
 // Mutation returns generated.MutationResolver implementation.

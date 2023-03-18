@@ -1,15 +1,44 @@
 type ProjectPageHttp {
-    LastModified: String!
-    ProjectID: String!
-    Instruction: String!
-    Notes: String!
-    Preview: String!
-    LinkScratch: String!
-    Title: String!
-    IsShared: Boolean!
+	projectPageId: String!
+	lastModified: String!
+	projectId: String!
+	instruction: String!
+	notes: String!
+	preview: String!
+	linkScratch: String!
+	title: String!
+	isShared: Boolean!
+}
+
+type ProjectPageHttpList {
+	projectPages: [ProjectPageHttp!]!
+	countRows: Int!
+}
+
+type DeletedProjectPage {
+	projectPageId: String!
+}
+
+input UpdateProjectPage {
+	projectId: String!
+	projectPageId: String!
+	instruction: String!
+	notes: String!
+	title: String!
+	isShared: Boolean!
+}
+
+union ProjectPageResult = ProjectPageHttp | Error
+union ProjectPagesResult = ProjectPageHttpList | Error
+
+extend type Mutation {
+	CreateProjectPage: ProjectPageResult!
+	UpdateProjectPage(input: UpdateProjectPage!): ProjectPageResult!
+	DeleteProjectPage(projectID: String!): DeletedProjectPage!
 }
 
 extend type Query {
-    GetProjectPageById(projectPageID: String!): ProjectPageHttp!
-    GetAllProjectPageByUserID(userID: String!): [ProjectPageHttp!]!
+	GetProjectPageById(projectPageID: String!): ProjectPageResult!
+	GetAllProjectPagesByUserID(userID: String!, page: String!, pageSize: String!): ProjectPagesResult!
+	GetAllProjectPagesByAccessToken(page: String!, pageSize: String!): ProjectPagesResult!
 }

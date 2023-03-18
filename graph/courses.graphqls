@@ -1,80 +1,146 @@
 type CourseHttp {
-    ID: String!
-    Blocks_URL: String!
-    Effort: String!
-    Enrollment_Start: Timestamp!
-    Enrollment_End: Timestamp!
-    End: Timestamp!
-    Name: String!
-    Number: String!
-    Org: String!
-    Short_Description: String!
-    Start: Timestamp!
-    Start_Display: String!
-    Start_Type: String!
-    Pacing: String!
-    Mobile_Available: Boolean!
-    Hidden: Boolean!
-    Invitation_Only: Boolean!
-    Overview: String
-    Course_ID: String!
-    Media: CourseAPIMediaCollectionHttp!
+    id: String!
+    blocks_url: String!
+    effort: String!
+    enrollment_start: Timestamp!
+    enrollment_end: Timestamp!
+    end: Timestamp!
+    name: String!
+    number: String!
+    org: String!
+    short_description: String!
+    start: Timestamp!
+    start_display: String!
+    start_type: String!
+    pacing: String!
+    mobile_available: Boolean!
+    hidden: Boolean!
+    invitation_only: Boolean!
+    overview: String
+    course_id: String!
+    media: CourseAPIMediaCollectionHttp!
 }
 
 type CourseAPIMediaCollectionHttp {
-    ID: String!
-    Banner_Image: AbsoluteMediaHttp
-    Course_Image: MediaHttp
-    Course_Video: MediaHttp
-    Image: ImageHttp
+    id: String!
+    banner_image: AbsoluteMediaHttp
+    course_image: MediaHttp
+    course_video: MediaHttp
+    image: ImageHttp
 }
 
 type AbsoluteMediaHttp {
-    ID: String!
-    URI: String!
-    URI_Absolute: String!
+    id: String!
+    uri: String!
+    uri_absolute: String!
 }
 
 type ImageHttp {
-    ID: String!
-    Raw: String!
-    Small: String!
-    Large: String!
+    id: String!
+    raw: String!
+    small: String!
+    large: String!
 }
 
 type MediaHttp {
-    ID: String!
-    URI: String!
+    id: String!
+    uri: String!
 }
 
 type EnrollmentHttp {
-    Created: Timestamp!
-    Mode: String!
-    IsActive: Boolean!
-    User: String!
-    Course_ID: String!
+    created: Timestamp!
+    mode: String!
+    isActive: Boolean!
+    user: String!
+    course_id: String!
 }
 
 type EnrollmentsListHttp {
-    Next: String!
-    Previous: String!
-    Results:  [EnrollmentHttp!]
+    next: String!
+    previous: String!
+    results:  [EnrollmentHttp!]
 }
 
 type Pagination {
-    Next: String!
-    Previous: String!
-    Count: Int!
-    Num_Pages: Int!
+    next: String!
+    previous: String!
+    count: Int!
+    num_pages: Int!
 }
 type CoursesListHttp {
-    Results:    [CourseHttp!]!
-    Pagination: Pagination!
+    results:    [CourseHttp!]!
+    pagination: Pagination!
+    countRows: Int!
+}
+
+input NewAccessCourseRelationRobboGroup {
+    courseId: String!
+    robboGroupId: String!
+}
+
+input NewAccessCourseRelationRobboUnit {
+    courseId: String!
+    robboUnitId: String!
+}
+
+input NewAccessCourseRelationStudent {
+    courseId: String!
+    studentId: String!
+}
+
+input NewAccessCourseRelationTeacher {
+    courseId: String!
+    teacherId: String!
+}
+
+input NewAccessCourseRelationUnitAdmin {
+    courseId: String!
+    unitAdminId: String!
+}
+
+type DeletedCourseRelation {
+    courseRelationId: String!
+}
+
+type CourseRelationHttp {
+    id: String!
+    lastModified: String!
+    parameter: String!
+    courseId: String!
+    objectId: String!
+}
+
+type CourseRelationHttpList {
+    courseRelations: [CourseRelationHttp!]!
+}
+
+union CourseRelationResult = CourseRelationHttp | Error
+union CourseRelationsResult = CourseRelationHttpList | Error
+union CourseResult = CourseHttp | Error
+union CoursesResult = CoursesListHttp | Error
+union EnrollmentsResult = EnrollmentsListHttp | Error
+
+extend type Mutation {
+    CreateAccessCourseRelationRobboGroup(input: NewAccessCourseRelationRobboGroup!): CourseRelationResult!
+    CreateAccessCourseRelationRobboUnit(input: NewAccessCourseRelationRobboUnit!): CourseRelationResult!
+    CreateAccessCourseRelationStudent(input: NewAccessCourseRelationStudent!): CourseRelationResult!
+    CreateAccessCourseRelationTeacher(input: NewAccessCourseRelationTeacher!): CourseRelationResult!
+    CreateAccessCourseRelationUnitAdmin(input: NewAccessCourseRelationUnitAdmin!): CourseRelationResult!
+    DeleteAccessCourseRelationById(courseRelationId: String!): DeletedCourseRelation!
 }
 
 extend type Query {
-    GetCourseContent(courseId: String!): CourseHttp!
-    GetCoursesByUser: CoursesListHttp!
-    GetAllPublicCourses(pageNumber: String!): CoursesListHttp!
-    GetEnrollments(username: String!): EnrollmentsListHttp!
+    GetStudentsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): StudentsResult!
+    GetUnitAdminsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): UnitAdminsResult!
+    GetTeachersAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): TeachersResult!
+    GetRobboGroupsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboGroupsResult!
+    GetRobboUnitsAdmittedToTheCourse(courseId: String!, page: String, pageSize: String): RobboUnitsResult!
+
+    GetCourseContent(courseId: String!): CourseResult!
+    GetCoursesByUser(page: String, pageSize: String): CoursesResult!
+    GetCoursesByRobboUnitId(robboUnitId: String!, page: String, pageSize: String): CoursesResult!
+    GetCoursesByRobboGroupId(robboGroupId: String!, page: String, pageSize: String): CoursesResult!
+
+    GetAllPublicCourses(pageNumber: String!): CoursesResult!
+    GetEnrollments(username: String!): EnrollmentsResult!
 }

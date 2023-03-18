@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -37,45 +36,67 @@ func (h *Handler) InitRobboUnitsRoutes(router *gin.Engine) {
 	}
 }
 
+type createRobboUnitResponse struct {
+	RobboUnit *models.RobboUnitHTTP
+}
+
 func (h *Handler) CreateRobboUnit(c *gin.Context) {
-	fmt.Println("Create Robbo Unit")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	log.Println("Create Robbo Unit")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
 	}
 
 	robboUnitHttp := models.RobboUnitHTTP{}
 	if err := c.BindJSON(&robboUnitHttp); err != nil {
+		err = robboUnits.ErrBadRequestBody
 		log.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
+		ErrorHandling(err, c)
 		return
 	}
 
-	robboUnitId, err := h.robboUnitsDelegate.CreateRobboUnit(&robboUnitHttp)
+	robboUnit, err := h.robboUnitsDelegate.CreateRobboUnit(&robboUnitHttp)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"robboUnitId": robboUnitId,
+	c.JSON(http.StatusOK, createRobboUnitResponse{
+		&robboUnit,
 	})
 }
 
 func (h *Handler) GetRobboUnitById(c *gin.Context) {
-	fmt.Println("Get RobboUnit By Id")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	log.Println("Get RobboUnit By Id")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.Teacher, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
 	}
 	robboUnitId := c.Param("robboUnitId")
-
 	robboUnit, err := h.robboUnitsDelegate.GetRobboUnitById(robboUnitId)
 
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -83,14 +104,24 @@ func (h *Handler) GetRobboUnitById(c *gin.Context) {
 }
 
 func (h *Handler) GetAllRobboUnits(c *gin.Context) {
-	fmt.Println("Get all robboUnits")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	log.Println("Get All RobboUnits")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
 	}
-	robboUnits, err := h.robboUnitsDelegate.GetAllRobboUnit()
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+	robboUnits, _, err := h.robboUnitsDelegate.GetAllRobboUnits("0", "0")
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -98,18 +129,26 @@ func (h *Handler) GetAllRobboUnits(c *gin.Context) {
 }
 
 func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
-	fmt.Println("GetRobboUnitsByUnitAdminId")
+	log.Println("Get RobboUnits By UnitAdminId")
 
 	id, role, identityErr := h.authDelegate.UserIdentity(c)
-
-	if identityErr != nil || role != models.UnitAdmin {
-		c.AbortWithStatus(http.StatusUnauthorized)
+	if identityErr != nil {
+		log.Println(identityErr)
+		ErrorHandling(identityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.UnitAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 
-	robboUnits, err := h.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(id)
+	robboUnits, _, err := h.robboUnitsDelegate.GetRobboUnitsByUnitAdminId(id, "0", "0")
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		log.Println(err)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -117,23 +156,34 @@ func (h *Handler) GetRobboUnitsByUnitAdminId(c *gin.Context) {
 }
 
 func (h *Handler) UpdateRobboUnit(c *gin.Context) {
-	fmt.Println("Update RobboUnit")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	log.Println("Update RobboUnit")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
 	}
-	robboUnitHttp := models.RobboUnitHTTP{}
-
-	if err := c.BindJSON(&robboUnitHttp); err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 
-	err := h.robboUnitsDelegate.UpdateRobboUnit(&robboUnitHttp)
+	robboUnitHttp := models.RobboUnitHTTP{}
+
+	if err := c.BindJSON(&robboUnitHttp); err != nil {
+		err = robboUnits.ErrBadRequestBody
+		log.Println(err)
+		ErrorHandling(err, c)
+		return
+	}
+
+	_, err := h.robboUnitsDelegate.UpdateRobboUnit(&robboUnitHttp)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 
@@ -141,17 +191,47 @@ func (h *Handler) UpdateRobboUnit(c *gin.Context) {
 }
 
 func (h *Handler) DeleteRobboUnit(c *gin.Context) {
-	fmt.Println("Delete RobboUnit")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	log.Println("Delete RobboUnit")
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
 	}
 	robboUnitId := c.Param("robboUnitId")
 	err := h.robboUnitsDelegate.DeleteRobboUnit(robboUnitId)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		ErrorHandling(err, c)
 		return
 	}
 	c.Status(http.StatusOK)
+}
+
+func ErrorHandling(err error, c *gin.Context) {
+	switch err {
+	case robboUnits.ErrBadRequest:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case robboUnits.ErrInternalServerLevel:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	case robboUnits.ErrBadRequestBody:
+		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case robboUnits.ErrRobboUnitNotFound:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	case auth.ErrInvalidAccessToken:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrTokenNotFound:
+		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrNotAccess:
+		c.AbortWithStatusJSON(http.StatusForbidden, err.Error())
+	default:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+	}
 }

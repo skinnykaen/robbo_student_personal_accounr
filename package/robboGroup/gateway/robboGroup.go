@@ -1,56 +1,96 @@
 package gateway
 
 import (
+	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/robboGroup"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
-	"log"
-	"strconv"
 )
 
 type RobboGroupGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
-func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {
-	var robboGroupsDB []*models.RobboGroupDB
+func (r *RobboGroupGatewayImpl) UpdateRobboGroup(robboGroupCore *models.RobboGroupCore) (robboGroupUpdated *models.RobboGroupCore, err error) {
+	robboGroupDb := models.RobboGroupDB{}
+	robboGroupDb.FromCore(robboGroupCore)
+
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Limit(10).Where("name LIKE ?", title).Find(&robboGroupsDB).Error; err != nil {
+		if err = tx.Model(&robboGroupDb).Where("id = ?", robboGroupDb.ID).First(&models.RobboGroupDB{}).Updates(robboGroupDb).Error; err != nil {
+			err = robboGroup.ErrRobboGroupNotFound
 			return
 		}
 		return
 	})
+	robboGroupUpdated = robboGroupDb.ToCore()
+	return
+}
+
+func (r *RobboGroupGatewayImpl) SearchRobboGroupsByTitle(title string, page, pageSize int) (
+	robboGroupsCore []*models.RobboGroupCore,
+	countRows int64,
+	err error,
+) {
+	var robboGroupsDB []*models.RobboGroupDB
+	offset := (page - 1) * pageSize
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(pageSize).Offset(offset).Where("name LIKE ?", title).Find(&robboGroupsDB).Error; err != nil {
+			return
+		}
+		tx.Model(&models.RobboGroupDB{}).Count(&countRows)
+		return
+	})
+
 	for _, robboGroupDB := range robboGroupsDB {
-		robboGroups = append(robboGroups, robboGroupDB.ToCore())
+		robboGroupsCore = append(robboGroupsCore, robboGroupDB.ToCore())
 	}
 	return
 }
 
-func (r *RobboGroupGatewayImpl) CreateRobboGroup(robboGroup *models.RobboGroupCore) (robboGroupId string, err error) {
+func (r *RobboGroupGatewayImpl) CreateRobboGroup(robboGroupCore *models.RobboGroupCore) (newRobboGroup *models.RobboGroupCore, err error) {
 	robboGroupDb := models.RobboGroupDB{}
-	robboGroupDb.FromCore(robboGroup)
+	robboGroupDb.FromCore(robboGroupCore)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&robboGroupDb).Error
 		return
 	})
 
-	robboGroupId = strconv.FormatUint(uint64(robboGroupDb.ID), 10)
+	newRobboGroup = robboGroupDb.ToCore()
+	return
+}
 
+func (r *RobboGroupGatewayImpl) GetAllRobboGroups(page, pageSize int) (robboGroupsCore []*models.RobboGroupCore, countRows int64, err error) {
+	var robboGroupsDB []*models.RobboGroupDB
+	offset := (page - 1) * pageSize
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&robboGroupsDB).Error; err != nil {
+			return
+		}
+		tx.Model(&models.RobboGroupDB{}).Count(&countRows)
+		return
+	})
+
+	for _, robboGroupDb := range robboGroupsDB {
+		robboGroupsCore = append(robboGroupsCore, robboGroupDb.ToCore())
+	}
 	return
 }
 
 func (r *RobboGroupGatewayImpl) DeleteRobboGroup(robboGroupId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Delete(&models.RobboGroupDB{}, robboGroupId).Error
+		if err = tx.Model(&models.RobboGroupDB{}).Where("id = ?", robboGroupId).First(&models.RobboGroupDB{}).Delete(&models.RobboGroupDB{}).Error; err != nil {
+			err = robboGroup.ErrRobboGroupNotFound
+			return
+		}
 		return
 	})
 	return
 }
 
-func (r *RobboGroupGatewayImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupCore, err error) {
+func (r *RobboGroupGatewayImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroupsCore []*models.RobboGroupCore, err error) {
 	var robboGroupsDB []*models.RobboGroupDB
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -61,23 +101,51 @@ func (r *RobboGroupGatewayImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) 
 	})
 
 	for _, robboGroupDb := range robboGroupsDB {
-		robboGroups = append(robboGroups, robboGroupDb.ToCore())
+		robboGroupsCore = append(robboGroupsCore, robboGroupDb.ToCore())
 	}
 	return
 }
 
-func (r *RobboGroupGatewayImpl) GetRobboGroupById(robboGroupId string) (robboGroup *models.RobboGroupCore, err error) {
+func (r *RobboGroupGatewayImpl) GetRobboGroupsByRobboUnitsIds(robboUnitsIds []string, page, pageSize int) (
+	robboGroupsCore []*models.RobboGroupCore,
+	countRows int64,
+	err error,
+) {
+	var robboGroupsDB []*models.RobboGroupDB
+	var queryString string
+	for i, robboUnitId := range robboUnitsIds {
+		if i != len(robboUnitsIds)-1 {
+			queryString += fmt.Sprintf("robbo_unit_id = '%s' OR ", robboUnitId)
+		} else {
+			queryString += fmt.Sprintf("robbo_unit_id = '%s'", robboUnitId)
+		}
+	}
+	offset := (page - 1) * pageSize
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(pageSize).Offset(offset).Where(queryString).Find(&robboGroupsDB).Error; err != nil {
+			return
+		}
+		tx.Model(&models.RobboGroupDB{}).Where(queryString).Count(&countRows)
+		return
+	})
+
+	for _, robboGroupDb := range robboGroupsDB {
+		robboGroupsCore = append(robboGroupsCore, robboGroupDb.ToCore())
+	}
+	return
+}
+
+func (r *RobboGroupGatewayImpl) GetRobboGroupById(robboGroupId string) (robboGroupCore *models.RobboGroupCore, err error) {
 	var robboGroupDB models.RobboGroupDB
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("id = ?", robboGroupId).First(&robboGroupDB).Error; err != nil {
-			// TODO init err robboGroup not found
-			log.Println(err)
+			err = robboGroup.ErrRobboGroupNotFound
 			return
 		}
 		return
 	})
-	robboGroup = robboGroupDB.ToCore()
+	robboGroupCore = robboGroupDB.ToCore()
 	return
 }
 
@@ -131,12 +199,18 @@ func (r *RobboGroupGatewayImpl) GetRelationByRobboGroupId(robboGroupId string) (
 	return
 }
 
-func (r *RobboGroupGatewayImpl) GetRelationByTeacherId(teacherId string) (relations []*models.TeachersRobboGroupsCore, err error) {
+func (r *RobboGroupGatewayImpl) GetRelationByTeacherId(teacherId string, page, pageSize int) (
+	relations []*models.TeachersRobboGroupsCore,
+	countRows int64,
+	err error,
+) {
 	var relationsDB []*models.TeachersRobboGroupsDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("teacher_id = ?", teacherId).Find(&relationsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("teacher_id = ?", teacherId).Find(&relationsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.TeachersRobboGroupsDB{}).Where("teacher_id = ?", teacherId).Count(&countRows)
 		return
 	})
 

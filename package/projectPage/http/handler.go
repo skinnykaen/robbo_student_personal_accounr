@@ -40,18 +40,26 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 }
 
 type createProjectPageResponse struct {
-	ProjectId string `json:"projectId"`
+	ProjectPage *models.ProjectPageHTTP `json:"projectPage"`
 }
 
 func (h *Handler) CreateProjectPage(c *gin.Context) {
 	log.Println("Create Project Page")
-	userId, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
-	projectId, err := h.projectPageDelegate.CreateProjectPage(userId)
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
+
+	projectPage, err := h.projectPageDelegate.CreateProjectPage(userId)
 
 	if err != nil {
 		log.Println(err)
@@ -60,7 +68,7 @@ func (h *Handler) CreateProjectPage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, createProjectPageResponse{
-		projectId,
+		&projectPage,
 	})
 }
 
@@ -70,9 +78,18 @@ type getProjectPageResponse struct {
 
 func (h *Handler) GetProjectPageById(c *gin.Context) {
 	log.Println("Get Project Page By ID")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		log.Println(userIdentityErr)
+		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
 	}
 	projectPageId := c.Param("projectPageId")
 	projectPage, err := h.projectPageDelegate.GetProjectPageById(projectPageId)
@@ -93,14 +110,21 @@ type getAllProjectPageResponse struct {
 
 func (h *Handler) GetAllProjectPageByUserId(c *gin.Context) {
 	log.Println("Get All Project Page By User ID")
-	userId, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
 		return
 	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
+		return
+	}
 
-	projectPages, err := h.projectPageDelegate.GetAllProjectPagesByUserId(userId)
+	projectPages, _, err := h.projectPageDelegate.GetAllProjectPagesByUserId(userId, "1", "10")
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -117,10 +141,17 @@ type updateProjectPageInput struct {
 
 func (h *Handler) UpdateProjectPage(c *gin.Context) {
 	log.Println("Update Project Page")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 
@@ -132,7 +163,7 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 		return
 	}
 	log.Println(inp)
-	err := h.projectPageDelegate.UpdateProjectPage(inp.ProjectPage)
+	_, err := h.projectPageDelegate.UpdateProjectPage(inp.ProjectPage)
 	if err != nil {
 		log.Println(err)
 		ErrorHandling(err, c)
@@ -143,10 +174,17 @@ func (h *Handler) UpdateProjectPage(c *gin.Context) {
 
 func (h *Handler) DeleteProjectPage(c *gin.Context) {
 	log.Println("Delete Project Page")
-	_, _, userIdentityErr := h.authDelegate.UserIdentity(c)
+	_, role, userIdentityErr := h.authDelegate.UserIdentity(c)
 	if userIdentityErr != nil {
 		log.Println(userIdentityErr)
 		ErrorHandling(userIdentityErr, c)
+		return
+	}
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
+	if accessErr != nil {
+		log.Println(accessErr)
+		ErrorHandling(accessErr, c)
 		return
 	}
 	projectId := c.Param("projectId")
@@ -167,13 +205,17 @@ func ErrorHandling(err error, c *gin.Context) {
 	case projectPage.ErrInternalServerLevel:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case projectPage.ErrPageNotFound:
-		c.AbortWithStatusJSON(http.StatusNotFound, err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case projectPage.ErrBadRequestBody:
 		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+	case projects.ErrProjectNotFound:
+		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	case auth.ErrInvalidAccessToken:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
 	case auth.ErrTokenNotFound:
 		c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+	case auth.ErrNotAccess:
+		c.AbortWithStatusJSON(http.StatusForbidden, err.Error())
 	default:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 	}

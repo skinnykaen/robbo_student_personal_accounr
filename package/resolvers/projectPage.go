@@ -5,47 +5,183 @@ package resolvers
 
 import (
 	"context"
-	"errors"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-// GetProjectPageByID is the resolver for the GetProjectPageById field.
-func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID string) (*models.ProjectPageHTTP, error) {
+// CreateProjectPage is the resolver for the CreateProjectPage field.
+func (r *mutationResolver) CreateProjectPage(ctx context.Context) (models.ProjectPageResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
+		return nil, getGinContextErr
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
 	}
-	projectPageHttp, getProjectPageByIDErr := r.projectPageDelegate.GetProjectPageById(projectPageID)
-	if getProjectPageByIDErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+
+	newProjectPage, createProjectPageErr := r.projectPageDelegate.CreateProjectPage(userId)
+	if createProjectPageErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: createProjectPageErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &newProjectPage, nil
+}
+
+// UpdateProjectPage is the resolver for the UpdateProjectPage field.
+func (r *mutationResolver) UpdateProjectPage(ctx context.Context, input models.UpdateProjectPage) (models.ProjectPageResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
+	}
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+
+	updateProjectPageInput := &models.ProjectPageHTTP{
+		ProjectID:     input.ProjectID,
+		ProjectPageID: input.ProjectPageID,
+		Instruction:   input.Instruction,
+		Notes:         input.Notes,
+		Title:         input.Title,
+		IsShared:      input.IsShared,
+	}
+
+	updateProjectPage, updateProjectPageErr := r.projectPageDelegate.UpdateProjectPage(updateProjectPageInput)
+	if updateProjectPageErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: updateProjectPageErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return updateProjectPage, nil
+}
+
+// DeleteProjectPage is the resolver for the DeleteProjectPage field.
+func (r *mutationResolver) DeleteProjectPage(ctx context.Context, projectID string) (*models.DeletedProjectPage, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
+	}
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+
+	deleteProjectPageErr := r.projectPageDelegate.DeleteProjectPage(projectID)
+	if deleteProjectPageErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: deleteProjectPageErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &models.DeletedProjectPage{ProjectPageID: projectID}, nil
+}
+
+// GetProjectPageByID is the resolver for the GetProjectPageById field.
+func (r *queryResolver) GetProjectPageByID(ctx context.Context, projectPageID string) (models.ProjectPageResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
+	}
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+
+	projectPageHttp, getProjectPageByIdErr := r.projectPageDelegate.GetProjectPageById(projectPageID)
+	if getProjectPageByIdErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getProjectPageByIdErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
 	return &projectPageHttp, nil
 }
 
-// GetAllProjectPageByUserID is the resolver for the GetAllProjectPageByUserID field.
-func (r *queryResolver) GetAllProjectPageByUserID(ctx context.Context, userID string) ([]*models.ProjectPageHTTP, error) {
+// GetAllProjectPagesByUserID is the resolver for the GetAllProjectPagesByUserID field.
+func (r *queryResolver) GetAllProjectPagesByUserID(ctx context.Context, userID string, page string, pageSize string) (models.ProjectPagesResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
-		err := errors.New("internal server error")
-		return nil, err
+		return nil, getGinContextErr
 	}
-	_, _, userIdentityErr := r.authDelegate.UserIdentity(ginContext)
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		return nil, err
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.Student, models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
 	}
-	projectPageListHttp, getAllProjectPagesErr := r.projectPageDelegate.GetAllProjectPagesByUserId(userID)
+
+	projectPages, countRows, getAllProjectPagesErr := r.projectPageDelegate.
+		GetAllProjectPagesByUserId(userID, page, pageSize)
 	if getAllProjectPagesErr != nil {
-		err := errors.New("baq request")
-		return nil, err
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getAllProjectPagesErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
 	}
-	return projectPageListHttp, nil
+	return &models.ProjectPageHTTPList{
+		ProjectPages: projectPages,
+		CountRows:    countRows,
+	}, nil
+}
+
+// GetAllProjectPagesByAccessToken is the resolver for the GetAllProjectPagesByAccessToken field.
+func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context, page string, pageSize string) (models.ProjectPagesResult, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
+	}
+	userId := ginContext.Value("user_id").(string)
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.Student, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+
+	projectPages, countRows, getAllProjectPagesErr := r.projectPageDelegate.
+		GetAllProjectPagesByUserId(userId, page, pageSize)
+	if getAllProjectPagesErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getAllProjectPagesErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &models.ProjectPageHTTPList{
+		ProjectPages: projectPages,
+		CountRows:    countRows,
+	}, nil
 }

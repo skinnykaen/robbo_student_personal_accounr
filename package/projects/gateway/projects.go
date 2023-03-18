@@ -1,6 +1,8 @@
 package gateway
 
 import (
+	"errors"
+	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
@@ -37,7 +39,7 @@ func (r *ProjectsGatewayImpl) CreateProject(project *models.ProjectCore) (id str
 	return
 }
 
-func (r *ProjectsGatewayImpl) GetProjectById(projectId string) (project *models.ProjectCore, err error) {
+func (r *ProjectsGatewayImpl) GetProjectById(projectId, userId string) (project *models.ProjectCore, err error) {
 	var projectDb models.ProjectDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("id = ?", projectId).First(&projectDb).Error; err != nil {
@@ -47,23 +49,33 @@ func (r *ProjectsGatewayImpl) GetProjectById(projectId string) (project *models.
 	})
 
 	project = projectDb.ToCore()
-
-	return
+	if project.AuthorId == userId {
+		return
+	} else {
+		return nil, errors.New("NO access")
+	}
 }
 
-func (r *ProjectsGatewayImpl) GetProjectsByAuthorId(authorId string) (projects []*models.ProjectCore, err error) {
+func (r *ProjectsGatewayImpl) GetProjectsByAuthorId(authorId string, page, pageSize int) (
+	projects []*models.ProjectCore,
+	countRows int64,
+	err error,
+) {
 	var projectsDb []*models.ProjectDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("author_id = ?", authorId).Find(&projectsDb).Error; err != nil {
+		fmt.Println(authorId)
+		if err = tx.Limit(pageSize).Offset(offset).Where("author_id = ?", authorId).
+			Find(&projectsDb).Error; err != nil {
 			return
 		}
+		tx.Model(&models.ProjectDB{}).Where("author_id = ?", authorId).Count(&countRows)
 		return
 	})
 
 	for _, projectDb := range projectsDb {
 		projects = append(projects, projectDb.ToCore())
 	}
-
 	return
 }
 

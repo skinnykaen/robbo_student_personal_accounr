@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
@@ -30,7 +31,7 @@ func (h *Handler) InitProjectRoutes(router *gin.Engine) {
 	{
 		project.POST("/", h.CreateProject)
 		project.GET("/:projectId", h.GetProject)
-		project.PUT("/:projectId", h.UpdateProject)
+		project.POST(":projectId", h.UpdateProject)
 		project.DELETE("/", h.DeleteProject)
 	}
 }
@@ -67,21 +68,32 @@ func (h *Handler) CreateProject(c *gin.Context) {
 }
 
 func (h *Handler) GetProject(c *gin.Context) {
+	userId, userRole, userIdentityErr := h.authDelegate.UserIdentity(c)
+	fmt.Println(userId)
+	fmt.Println(userRole)
+	if userIdentityErr != nil {
+		c.AbortWithError(http.StatusUnauthorized, userIdentityErr)
+	}
+	allowedRoles := []models.Role{models.Student}
+	accessErr := h.authDelegate.UserAccess(userRole, allowedRoles, c)
+	if accessErr != nil {
+		c.AbortWithError(http.StatusUnauthorized, accessErr)
+	}
 	projectId := c.Param("projectId")
 	if projectId == "" {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	project, err := h.projectsDelegate.GetProjectById(projectId)
+	project, err := h.projectsDelegate.GetProjectById(projectId, userId)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	//var jsonMap map[string]interface{}
-	//json.Unmarshal([]byte(project.Json), &jsonMap)
+	var jsonMap map[string]interface{}
+	json.Unmarshal([]byte(project.Json), &jsonMap)
 
-	c.JSON(http.StatusOK, project.Json)
+	c.JSON(http.StatusOK, jsonMap)
 }
 
 func (h *Handler) UpdateProject(c *gin.Context) {

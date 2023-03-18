@@ -4,6 +4,8 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage"
 	"go.uber.org/fx"
+	"log"
+	"strconv"
 )
 
 type ProjectPageDelegateImpl struct {
@@ -23,17 +25,29 @@ func SetupProjectPageDelegate(usecase projectPage.UseCase) ProjectPageDelegateMo
 	}
 }
 
-func (p *ProjectPageDelegateImpl) CreateProjectPage(authorId string) (projectId string, err error) {
-	return p.UseCase.CreateProjectPage(authorId)
+func (p *ProjectPageDelegateImpl) CreateProjectPage(authorId string) (newProjectPage models.ProjectPageHTTP, err error) {
+	newProjectPageCore, err := p.UseCase.CreateProjectPage(authorId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	newProjectPage.FromCore(newProjectPageCore)
+	return
 }
 
 func (p *ProjectPageDelegateImpl) DeleteProjectPage(projectId string) (err error) {
 	return p.UseCase.DeleteProjectPage(projectId)
 }
 
-func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectPageHTTP) (err error) {
+func (p *ProjectPageDelegateImpl) UpdateProjectPage(projectPage *models.ProjectPageHTTP) (projectPageUpdated models.ProjectPageHTTP, err error) {
 	projectPageCore := projectPage.ToCore()
-	return p.UseCase.UpdateProjectPage(projectPageCore)
+	projectPageUpdatedCore, err := p.UseCase.UpdateProjectPage(projectPageCore)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	projectPageUpdated.FromCore(projectPageUpdatedCore)
+	return
 }
 
 func (p *ProjectPageDelegateImpl) GetProjectPageById(projectPageId string) (projectPage models.ProjectPageHTTP, err error) {
@@ -45,11 +59,22 @@ func (p *ProjectPageDelegateImpl) GetProjectPageById(projectPageId string) (proj
 	return
 }
 
-func (p *ProjectPageDelegateImpl) GetAllProjectPagesByUserId(authorId string) (projectPages []*models.ProjectPageHTTP, err error) {
-	projectPagesCore, err := p.UseCase.GetAllProjectPageByUserId(authorId)
+func (p *ProjectPageDelegateImpl) GetAllProjectPagesByUserId(authorId, page, pageSize string) (
+	projectPages []*models.ProjectPageHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	projectPagesCore, countRowsInt64, err := p.UseCase.GetAllProjectPageByUserId(
+		authorId,
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
 	if err != nil {
 		return
 	}
+	countRows = int(countRowsInt64)
 	for _, projectPageCore := range projectPagesCore {
 		var projectPageHttp models.ProjectPageHTTP
 		projectPageHttp.FromCore(projectPageCore)

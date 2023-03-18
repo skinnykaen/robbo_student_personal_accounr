@@ -7,11 +7,31 @@ import (
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 	"log"
-	"strconv"
 )
 
 type RobboUnitsGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
+}
+
+func (r *RobboUnitsGatewayImpl) SearchRobboUnitByName(name string, page, pageSize int) (
+	robboUnitsCore []*models.RobboUnitCore,
+	countRows int64,
+	err error,
+) {
+	var robboUnitsDb []*models.RobboUnitDB
+	offset := (page - 1) * pageSize
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(pageSize).Offset(offset).Where("name LIKE ?", name).Find(&robboUnitsDb).Error; err != nil {
+			log.Println(err)
+			return
+		}
+		tx.Model(&models.RobboUnitDB{}).Count(&countRows)
+		return
+	})
+	for _, robboUnitDb := range robboUnitsDb {
+		robboUnitsCore = append(robboUnitsCore, robboUnitDb.ToCore())
+	}
+	return
 }
 
 type RobboUnitsGatewayModule struct {
@@ -25,64 +45,75 @@ func SetupRobboUnitsGateway(postgresClient db_client.PostgresClient) RobboUnitsG
 	}
 }
 
-func (r *RobboUnitsGatewayImpl) CreateRobboUnit(robboUnit *models.RobboUnitCore) (robboUnitId string, err error) {
+func (r *RobboUnitsGatewayImpl) CreateRobboUnit(robboUnitCore *models.RobboUnitCore) (newRobboUnit *models.RobboUnitCore, err error) {
 	robboUnitDb := models.RobboUnitDB{}
-	robboUnitDb.FromCore(robboUnit)
+	robboUnitDb.FromCore(robboUnitCore)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&robboUnitDb).Error
 		return
 	})
-
-	robboUnitId = strconv.FormatUint(uint64(robboUnitDb.ID), 10)
-
+	newRobboUnit = robboUnitDb.ToCore()
 	return
 }
 func (r *RobboUnitsGatewayImpl) DeleteRobboUnit(robboUnitId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Delete(&models.RobboUnitDB{}, robboUnitId).Error
-		return
-	})
-	return
-}
-
-func (r *RobboUnitsGatewayImpl) GetAllRobboUnit() (robboUnits []*models.RobboUnitCore, err error) {
-	var robboUnitsDB []*models.RobboUnitDB
-	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Find(&robboUnitsDB).Error; err != nil {
+		if err = tx.Model(&models.RobboUnitDB{}).Where("id = ?", robboUnitId).First(&models.RobboUnitDB{}).Delete(&models.RobboUnitDB{}).Error; err != nil {
+			err = robboUnits.ErrRobboUnitNotFound
 			return
 		}
 		return
 	})
+	return
+}
+
+func (r *RobboUnitsGatewayImpl) GetAllRobboUnits(page, pageSize int) (
+	robboUnitsCore []*models.RobboUnitCore,
+	countRows int64,
+	err error,
+) {
+	var robboUnitsDB []*models.RobboUnitDB
+	offset := (page - 1) * pageSize
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&robboUnitsDB).Error; err != nil {
+			return
+		}
+		tx.Model(&models.RobboUnitDB{}).Count(&countRows)
+		return
+	})
 
 	for _, robboUnitDb := range robboUnitsDB {
-		robboUnits = append(robboUnits, robboUnitDb.ToCore())
+		robboUnitsCore = append(robboUnitsCore, robboUnitDb.ToCore())
 	}
 	return
 }
 
-func (r *RobboUnitsGatewayImpl) GetRobboUnitById(robboUnitId string) (robboUnit *models.RobboUnitCore, err error) {
+func (r *RobboUnitsGatewayImpl) GetRobboUnitById(robboUnitId string) (robboUnitCore *models.RobboUnitCore, err error) {
 	var robboUnitDb models.RobboUnitDB
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Where("id = ?", robboUnitId).First(&robboUnitDb).Error; err != nil {
-			// TODO init err robboUnit not found
+			err = robboUnits.ErrRobboUnitNotFound
 			log.Println(err)
 			return
 		}
 		return
 	})
-	robboUnit = robboUnitDb.ToCore()
+	robboUnitCore = robboUnitDb.ToCore()
 	return
 }
 
-func (r *RobboUnitsGatewayImpl) UpdateRobboUnit(robboUnit *models.RobboUnitCore) (err error) {
+func (r *RobboUnitsGatewayImpl) UpdateRobboUnit(robboUnitCore *models.RobboUnitCore) (robboUnitUpdated *models.RobboUnitCore, err error) {
 	robboUnitDb := models.RobboUnitDB{}
-	robboUnitDb.FromCore(robboUnit)
+	robboUnitDb.FromCore(robboUnitCore)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&robboUnitDb).Where("id = ?", robboUnitDb.ID).Updates(robboUnitDb).Error
+		if err = tx.Model(&robboUnitDb).Where("id = ?", robboUnitDb.ID).First(&models.RobboUnitDB{}).Updates(robboUnitDb).Error; err != nil {
+			err = robboUnits.ErrRobboUnitNotFound
+			return
+		}
 		return
 	})
+	robboUnitUpdated = robboUnitDb.ToCore()
 	return
 }

@@ -7,17 +7,69 @@ import (
 	"go.uber.org/fx"
 )
 
-func (r *RobboGroupUseCaseImpl) CreateRobboGroup(robboGroup *models.RobboGroupCore) (robboGroupId string, err error) {
+func (r *RobboGroupUseCaseImpl) CreateRobboGroup(robboGroup *models.RobboGroupCore) (newRobboGroup *models.RobboGroupCore, err error) {
 	return r.robboGroupGateway.CreateRobboGroup(robboGroup)
 }
 
 func (r *RobboGroupUseCaseImpl) DeleteRobboGroup(robboGroupId string) (err error) {
-	// TODO set robboGroupId = null for student
-	return r.robboGroupGateway.DeleteRobboGroup(robboGroupId)
+	if err = r.robboGroupGateway.DeleteRobboGroup(robboGroupId); err != nil {
+		return
+	}
+	relations, err := r.robboGroupGateway.GetRelationByRobboGroupId(robboGroupId)
+	if err != nil {
+		return err
+	}
+	students, getStudentErr := r.usersGateway.GetStudentsByRobboGroupId(robboGroupId)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	for _, student := range students {
+		for _, relation := range relations {
+			relationCore := &models.StudentsOfTeacherCore{
+				StudentId: student.Id,
+				TeacherId: relation.TeacherId,
+			}
+			if err = r.usersGateway.DeleteStudentTeacherRelation(relationCore); err != nil {
+				return
+			}
+		}
+		student.RobboGroupId = ""
+		if _, err = r.usersGateway.UpdateStudent(student); err != nil {
+			return
+		}
+	}
+	return
 }
 
 func (r *RobboGroupUseCaseImpl) GetRobboGroupsByRobboUnitId(robboUnitId string) (robboGroups []*models.RobboGroupCore, err error) {
 	return r.robboGroupGateway.GetRobboGroupsByRobboUnitId(robboUnitId)
+}
+
+func (r *RobboGroupUseCaseImpl) GetRobboGroupsByUnitAdminId(unitAdminId string, page, pageSize int) (robboGroups []*models.RobboGroupCore, countRows int64, err error) {
+	relations, _, getRelationErr := r.usersGateway.GetRelationByUnitAdminId(unitAdminId, 0, 0)
+	if getRelationErr != nil {
+		err = getRelationErr
+		return
+	}
+	if relations == nil {
+		return
+	}
+	var robboUnitsIds []string
+	for _, relation := range relations {
+		robboUnitsIds = append(robboUnitsIds, relation.RobboUnitId)
+	}
+	unitRobboGroups, countRows, getRobboGroupErr := r.robboGroupGateway.GetRobboGroupsByRobboUnitsIds(robboUnitsIds, page, pageSize)
+	if getRobboGroupErr != nil {
+		err = getRelationErr
+		return
+	}
+	robboGroups = append(robboGroups, unitRobboGroups...)
+	return
+}
+
+func (r *RobboGroupUseCaseImpl) GetAllRobboGroups(page, pageSize int) (robboGroups []*models.RobboGroupCore, countRows int64, err error) {
+	return r.robboGroupGateway.GetAllRobboGroups(page, pageSize)
 }
 
 func (r *RobboGroupUseCaseImpl) GetRobboGroupById(robboGroupId string) (robboGroup *models.RobboGroupCore, err error) {
@@ -39,9 +91,13 @@ type RobboGroupUseCaseImpl struct {
 	usersGateway      users.Gateway
 }
 
-func (r *RobboGroupUseCaseImpl) SearchRobboGroupsByTitle(title string) (robboGroups []*models.RobboGroupCore, err error) {
+func (r *RobboGroupUseCaseImpl) UpdateRobboGroup(robboGroup *models.RobboGroupCore) (robboGroupUpdated *models.RobboGroupCore, err error) {
+	return r.robboGroupGateway.UpdateRobboGroup(robboGroup)
+}
+
+func (r *RobboGroupUseCaseImpl) SearchRobboGroupsByTitle(title string, page, pageSize int) (robboGroups []*models.RobboGroupCore, countRows int64, err error) {
 	titleCondition := "%" + title + "%"
-	return r.robboGroupGateway.SearchRobboGroupsByTitle(titleCondition)
+	return r.robboGroupGateway.SearchRobboGroupsByTitle(titleCondition, page, pageSize)
 }
 
 func (r *RobboGroupUseCaseImpl) SetTeacherForRobboGroup(teacherId, robboGroupId string) (err error) {
@@ -49,7 +105,24 @@ func (r *RobboGroupUseCaseImpl) SetTeacherForRobboGroup(teacherId, robboGroupId 
 		TeacherId:    teacherId,
 		RobboGroupId: robboGroupId,
 	}
-	return r.robboGroupGateway.SetTeacherForRobboGroup(relationCore)
+	if err = r.robboGroupGateway.SetTeacherForRobboGroup(relationCore); err != nil {
+		return
+	}
+	students, getStudentErr := r.usersGateway.GetStudentsByRobboGroupId(robboGroupId)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	for _, student := range students {
+		relationCore := &models.StudentsOfTeacherCore{
+			StudentId: student.Id,
+			TeacherId: teacherId,
+		}
+		if err = r.usersGateway.CreateStudentTeacherRelation(relationCore); err != nil {
+			return
+		}
+	}
+	return
 }
 
 func (r *RobboGroupUseCaseImpl) DeleteTeacherForRobboGroup(teacherId, robboGroupId string) (err error) {
@@ -57,11 +130,32 @@ func (r *RobboGroupUseCaseImpl) DeleteTeacherForRobboGroup(teacherId, robboGroup
 		TeacherId:    teacherId,
 		RobboGroupId: robboGroupId,
 	}
-	return r.robboGroupGateway.DeleteTeacherForRobboGroup(relationCore)
+	if err = r.robboGroupGateway.DeleteTeacherForRobboGroup(relationCore); err != nil {
+		return
+	}
+	students, getStudentErr := r.usersGateway.GetStudentsByRobboGroupId(robboGroupId)
+	if getStudentErr != nil {
+		err = getStudentErr
+		return
+	}
+	for _, student := range students {
+		relationCore := &models.StudentsOfTeacherCore{
+			StudentId: student.Id,
+			TeacherId: teacherId,
+		}
+		if err = r.usersGateway.DeleteStudentTeacherRelation(relationCore); err != nil {
+			return
+		}
+	}
+	return
 }
 
-func (r *RobboGroupUseCaseImpl) GetRobboGroupsByTeacherId(teacherId string) (robboGroups []*models.RobboGroupCore, err error) {
-	relations, getRelationsErr := r.robboGroupGateway.GetRelationByTeacherId(teacherId)
+func (r *RobboGroupUseCaseImpl) GetRobboGroupsByTeacherId(teacherId string, page, pageSize int) (
+	robboGroups []*models.RobboGroupCore,
+	countRows int64,
+	err error,
+) {
+	relations, countRows, getRelationsErr := r.robboGroupGateway.GetRelationByTeacherId(teacherId, page, pageSize)
 	if getRelationsErr != nil {
 		err = getRelationsErr
 		return

@@ -6,7 +6,6 @@ import (
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projectPage"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 type ProjectPageGatewayImpl struct {
@@ -24,7 +23,7 @@ func SetupProjectPageGateway(postgresClient db_client.PostgresClient) ProjectPag
 	}
 }
 
-func (r *ProjectPageGatewayImpl) CreateProjectPage(projectPage *models.ProjectPageCore) (projectPageId string, err error) {
+func (r *ProjectPageGatewayImpl) CreateProjectPage(projectPage *models.ProjectPageCore) (newProjectPage *models.ProjectPageCore, err error) {
 	projectPageDb := models.ProjectPageDB{}
 	projectPageDb.FromCore(projectPage)
 
@@ -33,7 +32,7 @@ func (r *ProjectPageGatewayImpl) CreateProjectPage(projectPage *models.ProjectPa
 		return
 	})
 
-	projectPageId = strconv.FormatUint(uint64(projectPageDb.ID), 10)
+	newProjectPage = projectPageDb.ToCore()
 	return
 }
 
@@ -73,7 +72,7 @@ func (r *ProjectPageGatewayImpl) DeleteProjectPage(projectId string) (err error)
 	return
 }
 
-func (r *ProjectPageGatewayImpl) UpdateProjectPage(projectPage *models.ProjectPageCore) (err error) {
+func (r *ProjectPageGatewayImpl) UpdateProjectPage(projectPage *models.ProjectPageCore) (projectPageUpdated *models.ProjectPageCore, err error) {
 	projectPageDb := models.ProjectPageDB{}
 	projectPageDb.FromCore(projectPage)
 
@@ -81,5 +80,6 @@ func (r *ProjectPageGatewayImpl) UpdateProjectPage(projectPage *models.ProjectPa
 		err = tx.Model(&projectPageDb).Where("project_id = ?", projectPageDb.ProjectId).Updates(projectPageDb).Error
 		return
 	})
+	projectPageUpdated = projectPageDb.ToCore()
 	return
 }

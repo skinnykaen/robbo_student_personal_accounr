@@ -1,5 +1,5 @@
 type UserHttp {
-    id: ID!
+    id: String!
     email: String!
     password: String!
     role: Int!
@@ -10,8 +10,8 @@ type UserHttp {
     createdAt: Timestamp!
 }
 
-input UpdateUserHttp {
-    id: ID!
+input UpdateProfileInput {
+    id: String!
     email: String!
     nickname: String!
     firstname: String!
@@ -19,139 +19,22 @@ input UpdateUserHttp {
     middlename: String!
 }
 
-type StudentHttp {
-    userHttp: UserHttp!
-    robboGroupId: String!
-    robboUnitId: String!
-}
-
-input UpdateStudentHttp {
-    userHttp: UpdateUserHttp!
-}
-
-type ParentHttp {
-    userHttp: UserHttp!
-    children: [StudentHttp!]!
-}
-
-input UpdateParentHttp {
-    userHttp: UpdateUserHttp!
-}
-
-type TeacherHttp {
+type SuperAdminHttp {
     userHttp: UserHttp!
 }
 
-input UpdateTeacherHttp {
-    userHttp: UpdateUserHttp!
-}
+union SuperAdminResult = SuperAdminHttp | Error
 
-type UnitAdminHttp{
-    userHttp: UserHttp!
-}
 
-input UpdateUnitAdminHttp {
-    userHttp: UpdateUserHttp!
-}
-
-type SuperAdminHttp{
-    userHttp: UserHttp!
-}
-
-input UpdateSuperAdminHttp {
-    userHttp: UpdateUserHttp!
-}
-
-input NewParent {
-    email: String!
-    password: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-}
-
-input NewStudent {
-    email: String!
-    password: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-    parentId: String!
-}
-
-input NewTeacher {
-    email: String!
-    password: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-}
-
-input NewUnitAdmin {
-    email: String!
-    password: String!
-    nickname: String!
-    firstname: String!
-    lastname: String!
-    middlename: String!
-}
-
-input UpdateStudentInput {
-    studentHttp: UpdateStudentHttp!
-}
-
-input UpdateParentInput {
-    parentHttp: UpdateParentHttp!
-}
-
-input UpdateTeacherInput {
-    teacherHttp: UpdateTeacherHttp!
-}
-
-input UpdateUnitAdminInput {
-    unitAdminHttp: UpdateUnitAdminHttp!
-}
-
-input UpdateSuperAdminInput {
-    superAdminHttp: UpdateSuperAdminHttp!
-}
+union GetUserResult = StudentHttp | ParentHttp | TeacherHttp | UnitAdminHttp | SuperAdminHttp
 
 type Mutation {
-    createStudent(input: NewStudent!): StudentHttp!
-    updateStudent(input: UpdateStudentInput!): StudentHttp!
-    deleteStudent(studentId: String!): String!
-    setRobboGroupIdForStudent(studentId: String!, robboGroupId: String!, robboUnitId: String!): String!
-    createTeacher(input: NewTeacher!): TeacherHttp!
-    updateTeacher(input: UpdateTeacherInput!): TeacherHttp!
-    deleteTeacher(teacherId: String!): String!
-    createParent(input: NewParent!): ParentHttp!
-    addChildToParent(parentId: String!, childId: String!): String!
-    updateParent(input: UpdateParentInput!): ParentHttp!
-    deleteParent(parentId: String!): String!
-    createUnitAdmin(input: NewUnitAdmin!): UnitAdminHttp!
-    updateUnitAdmin(input: UpdateUnitAdminInput!): UnitAdminHttp!
-    deleteUnitAdmin(UnitAdminId: String!): String!
-    setNewUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
-    DeleteUnitAdminForRobboUnit(unitAdminId: String!, robboUnitId: String!): String!
-    updateSuperAdmin(input: UpdateSuperAdminInput!): SuperAdminHttp!
+    UpdateSuperAdmin(input: UpdateProfileInput!): SuperAdminResult!
 }
 
 type Query {
-    GetStudentsByParentId(parentId: String!): [StudentHttp!]!
-    GetStudentById(studentId: String!): StudentHttp!
-    SearchStudentsByEmail(email: String!): [StudentHttp!]!
-    GetAllTeachers: [TeacherHttp!]!
-    GetTeacherById(teacherId: String!): TeacherHttp!
-    GetAllParents: [ParentHttp!]!
-    GetParentById(parentId: String!): ParentHttp!
-    GetAllUnitAdmins: [UnitAdminHttp!]!
-    GetUnitAdminsByRobboUnitId(robboUnitId: String!): [UnitAdminHttp!]!
-    GetUnitAdminById(unitAdminId: String!): UnitAdminHttp!
-    SearchUnitAdminsByEmail(email: String!): [UnitAdminHttp!]!
-    GetSuperAdminById(superAdminId: String!): SuperAdminHttp!
+     GetSuperAdminById(superAdminId: String!): SuperAdminResult!
+     GetUser(peekUserId: String, peekUserRole: Int): GetUserResult!
 }
 
 scalar Timestamp

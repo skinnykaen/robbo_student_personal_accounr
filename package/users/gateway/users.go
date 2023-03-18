@@ -1,15 +1,17 @@
 package gateway
 
 import (
+	"errors"
 	"fmt"
+	"github.com/jackc/pgconn"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/db_client"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"log"
-	"strconv"
 )
 
 type UsersGatewayImpl struct {
@@ -25,6 +27,22 @@ func SetupUsersGateway(postgresClient db_client.PostgresClient) UsersGatewayModu
 	return UsersGatewayModule{
 		Gateway: &UsersGatewayImpl{PostgresClient: &postgresClient},
 	}
+}
+
+func (r *UsersGatewayImpl) GetStudentsByRobboUnitId(robboUnitId string) (students []*models.StudentCore, err error) {
+	var studentsDb []*models.StudentDB
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("robbo_unit_id = ?", robboUnitId).Find(&studentsDb).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, studentDb := range studentsDb {
+		students = append(students, studentDb.ToCore())
+	}
+	return
 }
 
 func (r *UsersGatewayImpl) AddStudentToRobboGroup(studentId, robboGroupId, robboUnitId string) (err error) {
@@ -51,39 +69,52 @@ func (r *UsersGatewayImpl) GetStudent(email, password string) (student *models.S
 	return
 }
 
-func (r *UsersGatewayImpl) SearchStudentByEmail(email string) (students []*models.StudentCore, err error) {
+func (r *UsersGatewayImpl) SearchStudentsByEmail(email string, page, pageSize int) (
+	students []*models.StudentCore,
+	countRows int64,
+	err error,
+) {
 	var studentsDb []*models.StudentDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Limit(10).Where("email LIKE ?", email).Find(&studentsDb).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("email LIKE ?", email).Find(&studentsDb).Error; err != nil {
 			err = auth.ErrUserNotFound
 			log.Println(err)
 			return
 		}
+		tx.Model(&models.StudentDB{}).Count(&countRows)
 		return
 	})
-	//student = studentsDb.ToCore()
+
 	for _, studentDb := range studentsDb {
 		students = append(students, studentDb.ToCore())
 	}
 	return
 }
 
-func (r *UsersGatewayImpl) CreateStudent(student *models.StudentCore) (id string, err error) {
+func (r *UsersGatewayImpl) CreateStudent(student *models.StudentCore) (newStudent *models.StudentCore, err error) {
 	studentDb := models.StudentDB{}
 	studentDb.FromCore(student)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&studentDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return users.ErrAlreadyUsedEmail
+		}
 		return
 	})
 
-	id = strconv.FormatUint(uint64(studentDb.ID), 10)
+	newStudent = studentDb.ToCore()
 	return
 }
 
-func (r *UsersGatewayImpl) DeleteStudent(studentId uint) (err error) {
+func (r *UsersGatewayImpl) DeleteStudent(studentId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Delete(&models.StudentDB{}, studentId).Error
+		if err = tx.Model(&models.StudentDB{}).Where("id = ?", studentId).First(&models.StudentDB{}).Delete(&models.StudentDB{}).Error; err != nil {
+			err = auth.ErrUserNotFound
+			return
+		}
 		return
 	})
 	return
@@ -121,14 +152,24 @@ func (r *UsersGatewayImpl) GetStudentsByRobboGroupId(robboGroupId string) (stude
 	return
 }
 
-func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (err error) {
+func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (studentUpdated *models.StudentCore, err error) {
 	studentDb := models.StudentDB{}
 	studentDb.FromCore(student)
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Model(&studentDb).Where("id = ?", studentDb.ID).Updates(studentDb).Error
+		if err = tx.Model(&studentDb).Clauses(clause.Returning{}).
+			Where("id = ?", studentDb.ID).First(&models.StudentDB{}).Updates(studentDb).Error; err != nil {
+			var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+			if errors.As(err, &duplicateEntryError) {
+				return users.ErrAlreadyUsedEmail
+			}
+			err = auth.ErrUserNotFound
+			return
+		}
 		return
 	})
+	fmt.Println(studentDb)
+	studentUpdated = studentDb.ToCore()
 	return
 }
 
@@ -147,12 +188,14 @@ func (r *UsersGatewayImpl) GetTeacher(email, password string) (teacher models.Te
 	return teacher, err
 }
 
-func (r *UsersGatewayImpl) GetAllTeachers() (teachers []models.TeacherCore, err error) {
+func (r *UsersGatewayImpl) GetAllTeachers(page, pageSize int) (teachers []models.TeacherCore, countRows int64, err error) {
 	var teachersDB []*models.TeacherDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Find(&teachersDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&teachersDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.TeacherDB{}).Count(&countRows)
 		return
 	})
 
@@ -177,36 +220,72 @@ func (r *UsersGatewayImpl) GetTeacherById(userId string) (teacher models.Teacher
 	return teacher, err
 }
 
-func (r *UsersGatewayImpl) CreateTeacher(teacher *models.TeacherCore) (id string, err error) {
+func (r *UsersGatewayImpl) CreateTeacher(teacher *models.TeacherCore) (newTeacher models.TeacherCore, err error) {
 	teacherDb := models.TeacherDB{}
 	teacherDb.FromCore(teacher)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&teacherDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return users.ErrAlreadyUsedEmail
+		}
 		return
 	})
-	id = strconv.FormatUint(uint64(teacherDb.ID), 10)
+	newTeacher = teacherDb.ToCore()
 	return
 }
 
-func (r *UsersGatewayImpl) DeleteTeacher(teacherId uint) (err error) {
+func (r *UsersGatewayImpl) DeleteTeacher(teacherId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Delete(&models.TeacherDB{}, teacherId).Error
+		if err = tx.Model(&models.TeacherDB{}).Where("id = ?", teacherId).First(&models.TeacherDB{}).Delete(&models.TeacherDB{}).Error; err != nil {
+			err = auth.ErrUserNotFound
+			return
+		}
 		return
 	})
 	return
 }
 
-func (r *UsersGatewayImpl) UpdateTeacher(teacher *models.TeacherCore) (err error) {
+func (r *UsersGatewayImpl) UpdateTeacher(teacher *models.TeacherCore) (teacherUpdated models.TeacherCore, err error) {
 	teacherDb := models.TeacherDB{}
 	teacherDb.FromCore(teacher)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-			err = tx.Model(&teacherDb).Where("id = ?", teacherDb.ID).Updates(teacherDb).Error
+			if err = tx.Model(&teacherDb).Where("id = ?", teacherDb.ID).First(&models.TeacherDB{}).Updates(teacherDb).Error; err != nil {
+				var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+				if errors.As(err, &duplicateEntryError) {
+					return users.ErrAlreadyUsedEmail
+				}
+				err = auth.ErrUserNotFound
+				return
+			}
 			return
 		})
 		return
 	})
+	teacherUpdated = teacherDb.ToCore()
+	return
+}
 
+func (r *UsersGatewayImpl) SearchTeacherByEmail(email string, page, pageSize int) (
+	teachers []models.TeacherCore,
+	countRows int64,
+	err error,
+) {
+	var teachersDb []*models.TeacherDB
+	offset := (page - 1) * pageSize
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(pageSize).Offset(offset).Where("email LIKE ?", email).Find(&teachersDb).Error; err != nil {
+			err = auth.ErrUserNotFound
+			log.Println(err)
+			return
+		}
+		tx.Model(&models.TeacherDB{}).Count(&countRows)
+		return
+	})
+	for _, teacherDb := range teachersDb {
+		teachers = append(teachers, teacherDb.ToCore())
+	}
 	return
 }
 
@@ -224,12 +303,14 @@ func (r *UsersGatewayImpl) GetParent(email, password string) (parent *models.Par
 	return parent, err
 }
 
-func (r *UsersGatewayImpl) GetAllParent() (parents []*models.ParentCore, err error) {
+func (r *UsersGatewayImpl) GetAllParent(page, pageSize int) (parents []*models.ParentCore, countRows int64, err error) {
 	var parentsDB []*models.ParentDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Find(&parentsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&parentsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.ParentDB{}).Count(&countRows)
 		return
 	})
 	fmt.Println(parentsDB)
@@ -254,36 +335,49 @@ func (r *UsersGatewayImpl) GetParentById(parentId string) (parent *models.Parent
 	return
 }
 
-func (r *UsersGatewayImpl) CreateParent(parent *models.ParentCore) (id string, err error) {
+func (r *UsersGatewayImpl) CreateParent(parent *models.ParentCore) (newParent *models.ParentCore, err error) {
 	parentDb := models.ParentDB{}
 	parentDb.FromCore(parent)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&parentDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return users.ErrAlreadyUsedEmail
+		}
 		return
 	})
-	id = strconv.FormatUint(uint64(parentDb.ID), 10)
+	newParent = parentDb.ToCore()
 	return
 }
 
-func (r *UsersGatewayImpl) DeleteParent(parentId uint) (err error) {
+func (r *UsersGatewayImpl) DeleteParent(parentId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Delete(&models.ParentDB{}, parentId).Error
+		if err = tx.Model(&models.ParentDB{}).Where("id = ?", parentId).First(&models.ParentDB{}).Delete(&models.ParentDB{}).Error; err != nil {
+			err = auth.ErrUserNotFound
+			return
+		}
 		return
 	})
 	return
 }
 
-func (r *UsersGatewayImpl) UpdateParent(parent *models.ParentCore) (err error) {
+func (r *UsersGatewayImpl) UpdateParent(parent *models.ParentCore) (parentUpdated *models.ParentCore, err error) {
 	parentDb := models.ParentDB{}
 	parentDb.FromCore(parent)
+
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-			err = tx.Model(&parentDb).Where("id = ?", parentDb.ID).Updates(parentDb).Error
+		if err = tx.Model(&parentDb).Clauses(clause.Returning{}).
+			Where("id = ?", parentDb.ID).First(&models.ParentDB{}).Updates(parentDb).Error; err != nil {
+			var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+			if errors.As(err, &duplicateEntryError) {
+				return users.ErrAlreadyUsedEmail
+			}
+			err = auth.ErrUserNotFound
 			return
-		})
+		}
 		return
 	})
-
+	parentUpdated = parentDb.ToCore()
 	return
 }
 
@@ -315,36 +409,53 @@ func (r *UsersGatewayImpl) GetFreeListenerById(freeListenerId string) (freeListe
 	return
 }
 
-func (r *UsersGatewayImpl) CreateFreeListener(freeListener *models.FreeListenerCore) (id string, err error) {
+func (r *UsersGatewayImpl) CreateFreeListener(freeListener *models.FreeListenerCore) (newFreeListener *models.FreeListenerCore, err error) {
 	freeListenerDb := models.FreeListenerDB{}
 	freeListenerDb.FromCore(freeListener)
+
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&freeListenerDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return users.ErrAlreadyUsedEmail
+		}
 		return
 	})
 
-	id = strconv.FormatUint(uint64(freeListenerDb.ID), 10)
-	return id, nil
+	newFreeListener = freeListenerDb.ToCore()
+	return
 }
 
-func (r *UsersGatewayImpl) DeleteFreeListener(freeListenerId uint) (err error) {
+func (r *UsersGatewayImpl) DeleteFreeListener(freeListenerId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Delete(&models.FreeListenerDB{}, freeListenerId).Error
+		if err = tx.Model(&models.FreeListenerDB{}).Where("id = ?", freeListenerId).First(&models.FreeListenerDB{}).Delete(&models.FreeListenerDB{}).Error; err != nil {
+			err = auth.ErrUserNotFound
+			return
+		}
 		return
 	})
 	return
 }
 
-func (r *UsersGatewayImpl) UpdateFreeListener(freeListener *models.FreeListenerCore) (err error) {
+func (r *UsersGatewayImpl) UpdateFreeListener(freeListener *models.FreeListenerCore) (freeListenerUpdated *models.FreeListenerCore, err error) {
 	freeListenerDb := models.FreeListenerDB{}
 	freeListenerDb.FromCore(freeListener)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-			err = tx.Model(&freeListenerDb).Where("id = ?", freeListenerDb.ID).Updates(freeListenerDb).Error
+			if err = tx.Model(&freeListenerDb).Where("id = ?", freeListenerDb.ID).
+				First(&models.FreeListenerDB{}).Updates(freeListenerDb).Error; err != nil {
+				var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+				if errors.As(err, &duplicateEntryError) {
+					return users.ErrAlreadyUsedEmail
+				}
+				err = auth.ErrUserNotFound
+				return
+			}
 			return
 		})
 		return
 	})
+	freeListenerUpdated = freeListenerDb.ToCore()
 	return
 }
 
@@ -376,12 +487,14 @@ func (r *UsersGatewayImpl) GetUnitAdminById(unitAdminId string) (unitAdmin *mode
 	return
 }
 
-func (r *UsersGatewayImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCore, err error) {
+func (r *UsersGatewayImpl) GetAllUnitAdmins(page, pageSize int) (unitAdmins []*models.UnitAdminCore, countRows int64, err error) {
 	var unitAdminsDB []*models.UnitAdminDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Find(&unitAdminsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&unitAdminsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.UnitAdminDB{}).Count(&countRows)
 		return
 	})
 
@@ -391,47 +504,67 @@ func (r *UsersGatewayImpl) GetAllUnitAdmins() (unitAdmins []*models.UnitAdminCor
 	return
 }
 
-func (r *UsersGatewayImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (id string, err error) {
+func (r *UsersGatewayImpl) CreateUnitAdmin(unitAdmin *models.UnitAdminCore) (newUnitAdmin *models.UnitAdminCore, err error) {
 	unitAdminDb := models.UnitAdminDB{}
 	unitAdminDb.FromCore(unitAdmin)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		err = tx.Create(&unitAdminDb).Error
+		var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+		if errors.As(err, &duplicateEntryError) {
+			return users.ErrAlreadyUsedEmail
+		}
 		return
 	})
 
-	id = strconv.FormatUint(uint64(unitAdminDb.ID), 10)
-	return id, nil
+	newUnitAdmin = unitAdminDb.ToCore()
+	return
 }
 
-func (r *UsersGatewayImpl) DeleteUnitAdmin(unitAdminId uint) (err error) {
+func (r *UsersGatewayImpl) DeleteUnitAdmin(unitAdminId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Delete(&models.UnitAdminDB{}, unitAdminId).Error
+		if err = tx.Model(&models.UnitAdminDB{}).Where("id = ?", unitAdminId).First(&models.UnitAdminDB{}).Delete(&models.UnitAdminDB{}).Error; err != nil {
+			err = auth.ErrUserNotFound
+			return
+		}
 		return
 	})
 	return
 }
 
-func (r *UsersGatewayImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (err error) {
+func (r *UsersGatewayImpl) UpdateUnitAdmin(unitAdmin *models.UnitAdminCore) (unitAdminUpdated *models.UnitAdminCore, err error) {
 	unitAdminDb := models.UnitAdminDB{}
 	unitAdminDb.FromCore(unitAdmin)
+
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-			err = tx.Model(&unitAdminDb).Where("id = ?", unitAdminDb.ID).Updates(unitAdminDb).Error
+		if err = tx.Model(&unitAdminDb).Clauses(clause.Returning{}).
+			Where("id = ?", unitAdminDb.ID).First(&models.UnitAdminDB{}).Updates(unitAdminDb).Error; err != nil {
+			var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+			if errors.As(err, &duplicateEntryError) {
+				return users.ErrAlreadyUsedEmail
+			}
+			err = auth.ErrUserNotFound
 			return
-		})
+		}
 		return
 	})
+	unitAdminUpdated = unitAdminDb.ToCore()
 	return
 }
 
-func (r *UsersGatewayImpl) SearchUnitAdminByEmail(email string) (unitAdmins []*models.UnitAdminCore, err error) {
+func (r *UsersGatewayImpl) SearchUnitAdminByEmail(email string, page, pageSize int) (
+	unitAdmins []*models.UnitAdminCore,
+	countRows int64,
+	err error,
+) {
 	var unitAdminsDb []*models.UnitAdminDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Limit(10).Where("email LIKE ?", email).Find(&unitAdminsDb).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("email LIKE ?", email).Find(&unitAdminsDb).Error; err != nil {
 			err = auth.ErrUserNotFound
 			log.Println(err)
 			return
 		}
+		tx.Model(&models.UnitAdminDB{}).Count(&countRows)
 		return
 	})
 	for _, unitAdminDb := range unitAdminsDb {
@@ -467,30 +600,35 @@ func (r *UsersGatewayImpl) GetSuperAdmin(email, password string) (superAdmin *mo
 	return
 }
 
-func (r *UsersGatewayImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (err error) {
+func (r *UsersGatewayImpl) UpdateSuperAdmin(superAdmin *models.SuperAdminCore) (superAdminUpdated *models.SuperAdminCore, err error) {
 	superAdminDb := models.SuperAdminDB{}
-	fmt.Println(superAdmin)
 	superAdminDb.FromCore(superAdmin)
-	fmt.Println(superAdminDb)
+
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-			err = tx.Model(&superAdminDb).Where("id = ?", superAdminDb.ID).Updates(superAdminDb).Error
+		if err = tx.Model(&superAdminDb).Clauses(clause.Returning{}).Where("id = ?", superAdminDb.ID).
+			First(&models.SuperAdminDB{}).Updates(superAdminDb).Error; err != nil {
+			err = auth.ErrUserNotFound
 			return
-		})
+		}
 		return
 	})
+
+	superAdminUpdated = superAdminDb.ToCore()
 	return
 }
 
-func (r *UsersGatewayImpl) DeleteSuperAdmin(superAdminId uint) (err error) {
+func (r *UsersGatewayImpl) DeleteSuperAdmin(superAdminId string) (err error) {
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		err = tx.Delete(&models.SuperAdminDB{}, superAdminId).Error
+		if err = tx.Model(&models.SuperAdminDB{}).Where("id = ?", superAdminId).First(&models.SuperAdminDB{}).Delete(&models.SuperAdminDB{}).Error; err != nil {
+			err = auth.ErrUserNotFound
+			return
+		}
 		return
 	})
 	return
 }
 
-func (r *UsersGatewayImpl) CreateRelation(relation *models.ChildrenOfParentCore) (err error) {
+func (r *UsersGatewayImpl) CreateStudentParentRelation(relation *models.ChildrenOfParentCore) (err error) {
 	relationDb := models.ChildrenOfParentDB{}
 	relationDb.FromCore(relation)
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
@@ -543,7 +681,7 @@ func (r *UsersGatewayImpl) GetRelationByParentId(parentId string) (relations []*
 func (r *UsersGatewayImpl) GetRelationByChildrenId(childrenId string) (relations []*models.ChildrenOfParentCore, err error) {
 	var relationsDB []*models.ChildrenOfParentDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("children_id = ?", childrenId).Find(&relationsDB).Error; err != nil {
+		if err = tx.Where("child_id = ?", childrenId).Find(&relationsDB).Error; err != nil {
 			return
 		}
 		return
@@ -597,12 +735,18 @@ func (r *UsersGatewayImpl) GetRelationByRobboUnitId(robboUnitId string) (relatio
 	return
 }
 
-func (r *UsersGatewayImpl) GetRelationByUnitAdminId(unitAdminId string) (relations []*models.UnitAdminsRobboUnitsCore, err error) {
+func (r *UsersGatewayImpl) GetRelationByUnitAdminId(unitAdminId string, page, pageSize int) (
+	relations []*models.UnitAdminsRobboUnitsCore,
+	countRows int64,
+	err error,
+) {
 	var relationsDB []*models.UnitAdminsRobboUnitsDB
+	offset := (page - 1) * pageSize
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("unit_admin_id = ?", unitAdminId).Find(&relationsDB).Error; err != nil {
+		if err = tx.Limit(pageSize).Offset(offset).Where("unit_admin_id = ?", unitAdminId).Find(&relationsDB).Error; err != nil {
 			return
 		}
+		tx.Model(&models.UnitAdminsRobboUnitsDB{}).Where("unit_admin_id = ?", unitAdminId).Count(&countRows)
 		return
 	})
 
@@ -617,5 +761,69 @@ func (r *UsersGatewayImpl) DeleteUnitAdminForRobboUnit(relation *models.UnitAdmi
 		err = tx.Delete(&models.UnitAdminsRobboUnitsDB{}, relation).Error
 		return
 	})
+	return
+}
+
+func (r *UsersGatewayImpl) CreateStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error) {
+	relationDb := models.StudentsOfTeacherDB{}
+	relationDb.FromCore(relation)
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Create(&relationDb).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteStudentTeacherRelation(relation *models.StudentsOfTeacherCore) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Delete(&models.StudentsOfTeacherDB{}, relation).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteStudentTeacherRelationByTeacherId(teacherId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("teacher_id = ?", teacherId).Delete(&models.StudentsOfTeacherDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) DeleteStudentTeacherRelationByStudentId(studentId string) (err error) {
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Where("student_id = ?", studentId).Delete(&models.StudentsOfTeacherDB{}).Error
+		return
+	})
+	return
+}
+
+func (r *UsersGatewayImpl) GetStudentTeacherRelationsByTeacherId(teacherId string) (relations []*models.StudentsOfTeacherCore, err error) {
+	var relationsDB []*models.StudentsOfTeacherDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("teacher_id = ?", teacherId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
+	return
+}
+
+func (r *UsersGatewayImpl) GetStudentTeacherRelationsByStudentId(studentId string) (relations []*models.StudentsOfTeacherCore, err error) {
+	var relationsDB []*models.StudentsOfTeacherDB
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("student_id = ?", studentId).Find(&relationsDB).Error; err != nil {
+			return
+		}
+		return
+	})
+
+	for _, relationDB := range relationsDB {
+		relations = append(relations, relationDB.ToCore())
+	}
 	return
 }
