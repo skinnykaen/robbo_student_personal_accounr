@@ -8,6 +8,7 @@ import (
 	"github.com/rs/cors"
 	"github.com/skinnykaen/robbo_student_personal_account.git/app/modules"
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/middleware"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"log"
@@ -20,32 +21,28 @@ func NewServer(lifecycle fx.Lifecycle, graphQLModule modules.GraphQLModule, hand
 		fx.Hook{
 			OnStart: func(ctx context.Context) (err error) {
 				router := SetupGinRouter(handlers)
+				router.Use(middleware.TokenAuthMiddleware())
 				router.GET("/", playgroundHandler())
 				router.POST("/query", graphqlHandler(graphQLModule))
-
 				server := &http.Server{
 					Addr: viper.GetString("http_server_address"),
 					Handler: cors.New(
-						// TODO make config
 						cors.Options{
 							AllowedOrigins:   viper.GetStringSlice("cors.allowed_origins"),
 							AllowCredentials: viper.GetBool("cors.allow_credentials"),
 							AllowedMethods:   viper.GetStringSlice("cors.allowed_methods"),
 							AllowedHeaders:   viper.GetStringSlice("cors.allowed_headers"),
-							//AllowedHeaders: []string{
-							//	"Origin", "X-Requested-With", "Content-Type", "Accept", "Set-Cookie", "Authorization",
-							//},
 						},
 					).Handler(router),
 					ReadTimeout:    10 * time.Second,
 					WriteTimeout:   10 * time.Second,
 					MaxHeaderBytes: 1 << 20,
 				}
-
-				log.Printf("connect to http://localhost:%s/ for GraphQL playground", viper.GetString("graphql_server_port"))
+				log.Printf("connect to http://localhost:%s/ for GraphQL playground",
+					viper.GetString("graphql_server_port"))
 				go func() {
 					if err = server.ListenAndServe(); err != nil {
-						log.Fatalf("Failed to listen adn serve")
+						log.Fatalf("Failed to listen and serve: %v", err)
 					}
 				}()
 				return

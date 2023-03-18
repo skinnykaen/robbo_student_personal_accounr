@@ -1,5 +1,5 @@
 private_config:
-  path: "./"
+  path: "./package/config"
 
 projectPage:
   scratchLink: "0.0.0.0:8601/"
@@ -18,8 +18,13 @@ api_urls:
   getLogin: "https://edx-test.ru/login"
   getRegistration: "https://edx-test.ru/register?next=%2F"
 
-  cors:
-    allowed_origins: [ "http://0.0.0.0:3030","http://0.0.0.0:3000", "http://0.0.0.0:8601","http://localhost:3030","http://localhost:3000" ]
-    allow_credentials: true
-    allowed_methods: [ "GET","POST","DELETE","PUT","PATCH","OPTIONS" ]
-    allowed_headers: [ "*" ]
+cors:
+  allowed_origins: [ "http://0.0.0.0:3030",
+                      "http://0.0.0.0:3000",
+                      "http://0.0.0.0:8601",
+                      "http://localhost:3030",
+                      "http://localhost:3000",
+  ]
+  allow_credentials: true
+  allowed_methods: [ "GET","POST","DELETE","PUT","PATCH","OPTIONS" ]
+  allowed_headers: [ "*" ]
