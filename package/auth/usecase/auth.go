@@ -59,7 +59,8 @@ func (a *AuthUseCaseImpl) SignIn(email, password string, role uint) (accessToken
 			return "", "", getStudentErr
 		}
 		user.Id = student.Id
-		user.Role = models.Student
+		fmt.Println(student.Role)
+		user.Role = student.Role
 	case models.Teacher:
 
 	case models.Parent:

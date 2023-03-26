@@ -12,6 +12,27 @@ type ProjectPageGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
+func (r *ProjectPageGatewayImpl) GetAllProjectPages(page, pageSize int) (
+	projectPages []*models.ProjectPageCore,
+	countRows int64,
+	err error,
+) {
+	var projectPagesDB []*models.ProjectPageDB
+	offset := (page - 1) * pageSize
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(pageSize).Offset(offset).Find(&projectPagesDB).Error; err != nil {
+			return
+		}
+		tx.Model(&models.ProjectPageDB{}).Count(&countRows)
+		return
+	})
+
+	for _, projectPageDB := range projectPagesDB {
+		projectPages = append(projectPages, projectPageDB.ToCore())
+	}
+	return
+}
+
 type ProjectPageGatewayModule struct {
 	fx.Out
 	projectPage.Gateway

@@ -129,13 +129,15 @@ type MediaHTTP struct {
 }
 
 type NewStudent struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	Nickname   string `json:"nickname"`
-	Firstname  string `json:"firstname"`
-	Lastname   string `json:"lastname"`
-	Middlename string `json:"middlename"`
-	ParentID   string `json:"parentId"`
+	Email        string  `json:"email"`
+	Password     string  `json:"password"`
+	Nickname     string  `json:"nickname"`
+	Firstname    string  `json:"firstname"`
+	Lastname     string  `json:"lastname"`
+	Middlename   string  `json:"middlename"`
+	ParentID     *string `json:"parentId"`
+	RobboUnitID  *string `json:"robboUnitId"`
+	RobboGroupID *string `json:"robboGroupId"`
 }
 
 type Pagination struct {
@@ -172,11 +174,20 @@ type SignInInput struct {
 	UserRole int    `json:"userRole"`
 }
 
-type SingInResponse struct {
+type SignInResponse struct {
 	AccessToken string `json:"accessToken"`
 }
 
-func (SingInResponse) IsSignInResult() {}
+func (SignInResponse) IsSignInResult() {}
+
+type SignUpRequest struct {
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	Nickname   string `json:"nickname"`
+	Firstname  string `json:"firstname"`
+	Lastname   string `json:"lastname"`
+	Middlename string `json:"middlename"`
+}
 
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`
@@ -188,6 +199,15 @@ func (StudentHTTP) IsStudentResult() {}
 
 func (StudentHTTP) IsGetUserResult() {}
 
+type StudentHTTPList struct {
+	Students  []*StudentHTTP `json:"students"`
+	CountRows int            `json:"countRows"`
+}
+
+type SuperAdminHTTP struct {
+	UserHTTP *UserHTTP `json:"userHttp"`
+}
+
 type UpdateProfileInput struct {
 	ID         string `json:"id"`
 	Email      string `json:"email"`
@@ -195,6 +215,7 @@ type UpdateProfileInput struct {
 	Firstname  string `json:"firstname"`
 	Lastname   string `json:"lastname"`
 	Middlename string `json:"middlename"`
+	Active     bool   `json:"active"`
 }
 
 type UpdateProjectPage struct {
@@ -216,4 +237,5 @@ type UserHTTP struct {
 	Lastname   string `json:"lastname"`
 	Middlename string `json:"middlename"`
 	CreatedAt  string `json:"createdAt"`
+	Active     bool   `json:"active"`
 }

@@ -169,19 +169,45 @@ func (r *queryResolver) GetAllProjectPagesByAccessToken(ctx context.Context, pag
 		return nil, accessErr
 	}
 
-	projectPages, countRows, getAllProjectPagesErr := r.projectPageDelegate.
-		GetAllProjectPagesByUserId(userId, page, pageSize)
-	if getAllProjectPagesErr != nil {
-		return nil, &gqlerror.Error{
-			Path:    graphql.GetPath(ctx),
-			Message: getAllProjectPagesErr.Error(),
-			Extensions: map[string]interface{}{
-				"code": "500",
-			},
+	switch userRole {
+	case models.Student:
+		projectPages, countRows, getAllProjectPagesErr := r.projectPageDelegate.
+			GetAllProjectPagesByUserId(userId, page, pageSize)
+		if getAllProjectPagesErr != nil {
+			return nil, &gqlerror.Error{
+				Path:    graphql.GetPath(ctx),
+				Message: getAllProjectPagesErr.Error(),
+				Extensions: map[string]interface{}{
+					"code": "500",
+				},
+			}
 		}
+		return &models.ProjectPageHTTPList{
+			ProjectPages: projectPages,
+			CountRows:    countRows,
+		}, nil
+	case models.SuperAdmin:
+		projectPages, countRows, getAllProjectPagesErr := r.projectPageDelegate.
+			GetAllProjectPages(page, pageSize)
+		if getAllProjectPagesErr != nil {
+			return nil, &gqlerror.Error{
+				Path:    graphql.GetPath(ctx),
+				Message: getAllProjectPagesErr.Error(),
+				Extensions: map[string]interface{}{
+					"code": "500",
+				},
+			}
+		}
+		return &models.ProjectPageHTTPList{
+			ProjectPages: projectPages,
+			CountRows:    countRows,
+		}, nil
 	}
-	return &models.ProjectPageHTTPList{
-		ProjectPages: projectPages,
-		CountRows:    countRows,
-	}, nil
+	return nil, &gqlerror.Error{
+		Path:    graphql.GetPath(ctx),
+		Message: "no access",
+		Extensions: map[string]interface{}{
+			"code": "500",
+		},
+	}
 }

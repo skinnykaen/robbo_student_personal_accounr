@@ -2,6 +2,7 @@ package delegate
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/courses"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/edx"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
@@ -69,10 +70,24 @@ func (p *CourseDelegateImpl) GetCoursesByUser(userId string, role models.Role, p
 ) {
 	var courseAccessRelations []*models.CourseRelationCore
 	var errGetRelations error
+	fmt.Println(role)
 	switch role {
 	case models.Student:
 		courseAccessRelations, errGetRelations = p.CoursesUseCase.GetAccessCourseRelationsByStudentId(userId)
+		break
+	case models.SuperAdmin:
+		body, err := p.EdxUseCase.GetCoursesByUser()
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		err = json.Unmarshal(body, &coursesListHTTP)
+		if err != nil {
+			return nil, courses.ErrInternalServerLevel
+		}
+		return coursesListHTTP, nil
 	}
+
 	if errGetRelations != nil {
 		return nil, errGetRelations
 	}

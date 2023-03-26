@@ -33,6 +33,7 @@ type UserDB struct {
 	Firstname  string `gorm:"not null;size:256"`
 	Middlename string `gorm:"not null;size:256"`
 	Lastname   string `gorm:"not null;size:256"`
+	Active     bool   `gorm:"not null;default:false"`
 }
 
 type UserCore struct {
@@ -45,6 +46,7 @@ type UserCore struct {
 	Middlename string
 	Lastname   string
 	CreatedAt  string
+	Active     bool
 }
 
 func (em *UserHTTP) ToCore() UserCore {
@@ -58,6 +60,7 @@ func (em *UserHTTP) ToCore() UserCore {
 		Lastname:   em.Lastname,
 		Middlename: em.Middlename,
 		CreatedAt:  em.CreatedAt,
+		Active:     em.Active,
 	}
 }
 
@@ -71,6 +74,7 @@ func (em *UserHTTP) FromCore(user *UserCore) {
 	em.Lastname = user.Lastname
 	em.Middlename = user.Middlename
 	em.CreatedAt = user.CreatedAt
+	em.Active = user.Active
 }
 
 func (em *UserDB) ToCore() UserCore {
@@ -84,6 +88,7 @@ func (em *UserDB) ToCore() UserCore {
 		Lastname:   em.Lastname,
 		Middlename: em.Middlename,
 		CreatedAt:  em.CreatedAt.String(),
+		Active:     em.Active,
 	}
 }
 
@@ -97,4 +102,5 @@ func (em *UserDB) FromCore(user *UserCore) {
 	em.Firstname = user.Firstname
 	em.Lastname = user.Lastname
 	em.Middlename = user.Middlename
+	em.Active = user.Active
 }

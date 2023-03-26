@@ -12,6 +12,29 @@ type ProjectPageDelegateImpl struct {
 	projectPage.UseCase
 }
 
+func (p *ProjectPageDelegateImpl) GetAllProjectPages(page, pageSize string) (
+	projectPages []*models.ProjectPageHTTP,
+	countRows int,
+	err error,
+) {
+	pageInt32, _ := strconv.ParseInt(page, 10, 32)
+	pageSizeInt32, _ := strconv.ParseInt(pageSize, 10, 32)
+	projectPagesCore, countRowsInt64, err := p.UseCase.GetAllProjectPages(
+		int(pageInt32),
+		int(pageSizeInt32),
+	)
+	if err != nil {
+		return
+	}
+	countRows = int(countRowsInt64)
+	for _, projectPageCore := range projectPagesCore {
+		var projectPageHttp models.ProjectPageHTTP
+		projectPageHttp.FromCore(projectPageCore)
+		projectPages = append(projectPages, &projectPageHttp)
+	}
+	return
+}
+
 type ProjectPageDelegateModule struct {
 	fx.Out
 	projectPage.Delegate

@@ -8,6 +8,7 @@ type UserHttp {
     lastname: String!
     middlename: String!
     createdAt: Timestamp!
+    active: Boolean!
 }
 
 input UpdateProfileInput {
@@ -17,10 +18,19 @@ input UpdateProfileInput {
     firstname: String!
     lastname: String!
     middlename: String!
+    active: Boolean!
+}
+
+type SuperAdminHttp {
+    userHttp: UserHttp!
 }
 
 union GetUserResult = StudentHttp
 
 extend type Query {
     GetUser(peekUserId: String, peekUserRole: Int): GetUserResult!
+}
+
+extend type Mutation {
+    UpdateSuperAdmin(input: UpdateProfileInput!): StudentResult!
 }

@@ -10,6 +10,7 @@ type UseCase interface {
 		countRows int64,
 		err error,
 	)
+	GetAllProjectPages(page, pageSize int) (projectPages []*models.ProjectPageCore, countRows int64, err error)
 	GetProjectPageById(projectPageId string) (projectPage *models.ProjectPageCore, err error)
 	UpdateProjectPage(projectPage *models.ProjectPageCore) (projectPageUpdated *models.ProjectPageCore, err error)
 }

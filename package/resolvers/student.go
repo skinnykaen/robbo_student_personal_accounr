@@ -10,6 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/graph/generated"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
@@ -35,10 +36,13 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input models.NewSt
 			Middlename: input.Middlename,
 			Nickname:   input.Nickname,
 			Role:       0,
+			Active:     true,
 		},
+		RobboUnitID:  utils.UseString(input.RobboUnitID),
+		RobboGroupID: utils.UseString(input.RobboGroupID),
 	}
 
-	newStudent, createStudentErr := r.usersDelegate.CreateStudent(&studentInput, input.ParentID)
+	newStudent, createStudentErr := r.usersDelegate.CreateStudent(&studentInput, utils.UseString(input.ParentID))
 	if createStudentErr != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -73,6 +77,7 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, input models.Updat
 			Middlename: input.Middlename,
 			Nickname:   input.Nickname,
 			Role:       0,
+			Active:     input.Active,
 		},
 	}
 
@@ -115,6 +120,33 @@ func (r *mutationResolver) DeleteStudent(ctx context.Context, studentID string) 
 	return &models.DeletedStudent{StudentID: studentID}, nil
 }
 
+// SetActiveForStudent is the resolver for the SetActiveForStudent field.
+func (r *mutationResolver) SetActiveForStudent(ctx context.Context, studentID string, active bool) (*models.Error, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
+	}
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.UnitAdmin, models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+
+	setErr := r.usersDelegate.SetActiveForStudent(studentID, active)
+
+	if setErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: setErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &models.Error{}, nil
+}
+
 // GetStudentByAccessToken is the resolver for the GetStudentByAccessToken field.
 func (r *queryResolver) GetStudentByAccessToken(ctx context.Context) (models.StudentResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
@@ -147,6 +179,34 @@ func (r *queryResolver) GetStudentByID(ctx context.Context, studentID string) (m
 	}
 	student, err := r.usersDelegate.GetStudentById(studentID)
 	return student, err
+}
+
+// GetAllStudents is the resolver for the GetAllStudents field.
+func (r *queryResolver) GetAllStudents(ctx context.Context, page string, pageSize string, active bool) (*models.StudentHTTPList, error) {
+	ginContext, getGinContextErr := GinContextFromContext(ctx)
+	if getGinContextErr != nil {
+		return nil, getGinContextErr
+	}
+	userRole := ginContext.Value("user_role").(models.Role)
+	allowedRoles := []models.Role{models.SuperAdmin}
+	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
+	if accessErr != nil {
+		return nil, accessErr
+	}
+	students, countRows, getAllStudentsErr := r.usersDelegate.GetAllStudents(page, pageSize, active)
+	if getAllStudentsErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: getAllStudentsErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &models.StudentHTTPList{
+		Students:  students,
+		CountRows: countRows,
+	}, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

@@ -7,4 +7,6 @@ type UseCase interface {
 	CreateStudent(student *models.StudentCore, parentId string) (newStudent *models.StudentCore, err error)
 	DeleteStudent(studentId string) (err error)
 	UpdateStudent(student *models.StudentCore) (updatedStudent *models.StudentCore, err error)
+	GetAllStudents(page, pageSize int, active bool) (students []*models.StudentCore, countRows int64, err error)
+	SetActiveForStudent(studentId string, active bool) (err error)
 }

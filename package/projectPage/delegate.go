@@ -11,5 +11,6 @@ type Delegate interface {
 		countRows int,
 		err error,
 	)
+	GetAllProjectPages(page, pageSize string) (projectPages []*models.ProjectPageHTTP, countRows int, err error)
 	UpdateProjectPage(projectPage *models.ProjectPageHTTP) (projectPageUpdated models.ProjectPageHTTP, err error)
 }

@@ -11,7 +11,9 @@ input NewStudent {
 	firstname: String!
 	lastname: String!
 	middlename: String!
-	parentId: String!
+	parentId: String
+	robboUnitId: String
+	robboGroupId: String
 }
 
 type DeletedStudent {
@@ -20,15 +22,22 @@ type DeletedStudent {
 
 union StudentResult = StudentHttp | Error
 
+type StudentHttpList {
+	students: [StudentHttp!]!
+	countRows: Int!
+}
+
 type Mutation {
 	CreateStudent(input: NewStudent!): StudentResult!
 	UpdateStudent(input: UpdateProfileInput!): StudentResult!
 	DeleteStudent(studentId: String!): DeletedStudent!
+	SetActiveForStudent(studentId: String!, active: Boolean!): Error!
 }
 
 type Query {
 	GetStudentByAccessToken: StudentResult!
 	GetStudentById(studentId: String!): StudentResult!
+	GetAllStudents(page: String!, pageSize: String!, active: Boolean!): StudentHttpList
 }
 
 scalar Timestamp

@@ -4,14 +4,24 @@ input SignInInput {
 	userRole: Int!
 }
 
-type SingInResponse {
+input SignUpRequest {
+	email: String!
+	password: String!
+	nickname: String!
+	firstname: String!
+	lastname: String!
+	middlename: String!
+}
+
+type SignInResponse {
 	accessToken: String!
 }
 
-union SignInResult = Error | SingInResponse
+union SignInResult = Error | SignInResponse
 
 extend type Mutation {
-	SingIn(input: SignInInput!): SignInResult!
-	SingOut: Error
+	SignIn(input: SignInInput!): SignInResult!
+	SignUpRequest(input: NewStudent!): Error!
+	SignOut: Error
 	Refresh: SignInResult
 }

@@ -8,4 +8,5 @@ type Gateway interface {
 	DeleteStudent(studentId string) (err error)
 	GetStudentById(studentId string) (student *models.StudentCore, err error)
 	UpdateStudent(student *models.StudentCore) (studentUpdated *models.StudentCore, err error)
+	GetAllStudents(page, pageSize int, active bool) (students []*models.StudentCore, countRows int64, err error)
 }

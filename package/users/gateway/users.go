@@ -17,6 +17,28 @@ type UsersGatewayImpl struct {
 	PostgresClient *db_client.PostgresClient
 }
 
+func (r *UsersGatewayImpl) GetAllStudents(page, pageSize int, active bool) (
+	students []*models.StudentCore,
+	countRows int64,
+	err error,
+) {
+	var studentsDB []*models.StudentDB
+	offset := (page - 1) * pageSize
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Limit(pageSize).Offset(offset).Where("role = ? AND active = ?", 0, active).
+			Find(&studentsDB).Error; err != nil {
+			return
+		}
+		tx.Model(&models.StudentDB{}).Where("active = ?", active).Count(&countRows)
+		return
+	})
+
+	for _, studentDB := range studentsDB {
+		students = append(students, studentDB.ToCore())
+	}
+	return
+}
+
 type UsersGatewayModule struct {
 	fx.Out
 	users.Gateway
@@ -41,7 +63,8 @@ func (r *UsersGatewayImpl) AddStudentToRobboGroup(studentId, robboGroupId, robbo
 func (r *UsersGatewayImpl) GetStudent(email, password string) (student *models.StudentCore, err error) {
 	var studentDb models.StudentDB
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
-		if err = tx.Where("email = ? AND  password = ?", email, password).First(&studentDb).Error; err != nil {
+		if err = tx.Where("email = ? AND  password = ? AND active = true", email, password).
+			First(&studentDb).Error; err != nil {
 			err = auth.ErrUserNotFound
 			log.Println(err)
 			return
@@ -99,7 +122,15 @@ func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (studentUp
 
 	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
 		if err = tx.Model(&studentDb).Clauses(clause.Returning{}).
-			Where("id = ?", studentDb.ID).First(&models.StudentDB{}).Updates(studentDb).Error; err != nil {
+			Where("id = ?", studentDb.ID).First(&models.StudentDB{}).Updates(
+			map[string]interface{}{
+				"email":      studentDb.Email,
+				"nickname":   studentDb.Nickname,
+				"lastname":   studentDb.Lastname,
+				"firstname":  studentDb.Firstname,
+				"active":     studentDb.Active,
+				"middlename": studentDb.Middlename,
+			}).Error; err != nil {
 			var duplicateEntryError = &pgconn.PgError{Code: "23505"}
 			if errors.As(err, &duplicateEntryError) {
 				return users.ErrAlreadyUsedEmail

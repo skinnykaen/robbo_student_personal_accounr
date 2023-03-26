@@ -13,6 +13,10 @@ type ProjectPageUseCaseImpl struct {
 	projectGateway     projects.Gateway
 }
 
+func (p *ProjectPageUseCaseImpl) GetAllProjectPages(page, pageSize int) (projectPages []*models.ProjectPageCore, countRows int64, err error) {
+	return p.projectPageGateway.GetAllProjectPages(page, pageSize)
+}
+
 type ProjectPageUseCaseModule struct {
 	fx.Out
 	projectPage.UseCase

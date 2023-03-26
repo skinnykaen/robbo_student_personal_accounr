@@ -49,6 +49,7 @@ func (r *queryResolver) GetCoursesByUser(ctx context.Context) (*models.CoursesLi
 	userRole := ginContext.Value("user_role").(models.Role)
 	allowedRoles := []models.Role{
 		models.Student,
+		models.SuperAdmin,
 	}
 	accessErr := r.authDelegate.UserAccess(userRole, allowedRoles, ctx)
 	if accessErr != nil {

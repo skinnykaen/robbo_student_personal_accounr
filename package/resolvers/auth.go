@@ -5,16 +5,15 @@ package resolvers
 
 import (
 	"context"
-	"errors"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/gin-gonic/gin"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-// SingIn is the resolver for the SingIn field.
-func (r *mutationResolver) SingIn(ctx context.Context, input models.SignInInput) (models.SignInResult, error) {
+// SignIn is the resolver for the SignIn field.
+func (r *mutationResolver) SignIn(ctx context.Context, input models.SignInInput) (models.SignInResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
@@ -29,19 +28,46 @@ func (r *mutationResolver) SingIn(ctx context.Context, input models.SignInInput)
 			},
 		}
 	}
-	setRefreshToken(refreshToken, ginContext)
-	return &models.SingInResponse{
+	utils.SetRefreshToken(refreshToken, ginContext)
+	return &models.SignInResponse{
 		AccessToken: accessToken,
 	}, nil
 }
 
-// SingOut is the resolver for the SingOut field.
-func (r *mutationResolver) SingOut(ctx context.Context) (*models.Error, error) {
+// SignUpRequest is the resolver for the SignUpRequest field.
+func (r *mutationResolver) SignUpRequest(ctx context.Context, input models.NewStudent) (*models.Error, error) {
+	studentInput := models.StudentHTTP{
+		UserHTTP: &models.UserHTTP{
+			Email:      input.Email,
+			Password:   input.Password,
+			Firstname:  input.Firstname,
+			Lastname:   input.Lastname,
+			Middlename: input.Middlename,
+			Nickname:   input.Nickname,
+			Active:     false,
+			Role:       0,
+		},
+	}
+	_, createStudentErr := r.usersDelegate.CreateStudent(&studentInput, "")
+	if createStudentErr != nil {
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: createStudentErr.Error(),
+			Extensions: map[string]interface{}{
+				"code": "500",
+			},
+		}
+	}
+	return &models.Error{}, nil
+}
+
+// SignOut is the resolver for the SignOut field.
+func (r *mutationResolver) SignOut(ctx context.Context) (*models.Error, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
 	}
-	setRefreshToken("", ginContext)
+	utils.SetRefreshToken("", ginContext)
 	return &models.Error{}, nil
 }
 
@@ -51,7 +77,7 @@ func (r *mutationResolver) Refresh(ctx context.Context) (models.SignInResult, er
 	if getGinContextErr != nil {
 		return nil, getGinContextErr
 	}
-	refreshToken, err := getRefreshToken(ginContext)
+	refreshToken, err := utils.GetRefreshToken(ginContext)
 	if err != nil {
 		return nil, &gqlerror.Error{
 			Path:    graphql.GetPath(ctx),
@@ -72,32 +98,7 @@ func (r *mutationResolver) Refresh(ctx context.Context) (models.SignInResult, er
 			},
 		}
 	}
-	return &models.SingInResponse{
+	return &models.SignInResponse{
 		AccessToken: newAccessToken,
 	}, nil
-}
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-func getRefreshToken(c *gin.Context) (refreshToken string, err error) {
-	refreshToken = c.Value("refresh_token").(string)
-	if refreshToken == "" {
-		return "", errors.New("error finding cookie")
-	}
-	return
-}
-func setRefreshToken(value string, c *gin.Context) {
-	c.SetCookie(
-		"refresh_token",
-		value,
-		60*60*24*7,
-		"/",
-		"0.0.0.0",
-		false,
-		false,
-	)
 }
