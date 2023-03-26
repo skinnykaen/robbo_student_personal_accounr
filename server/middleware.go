@@ -46,7 +46,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		}
 		data, err := jwt.ParseWithClaims(headerParts[1], &models.UserClaims{},
 			func(token *jwt.Token) (interface{}, error) {
-				return []byte(viper.GetString("auth.access_signing_key")), nil
+				return []byte(viper.GetString("auth_access_signing_key")), nil
 			})
 
 		if err != nil {

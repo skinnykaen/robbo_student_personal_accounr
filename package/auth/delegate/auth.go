@@ -67,7 +67,7 @@ func (s *AuthDelegateImpl) UserIdentity(c *gin.Context) (id string, role models.
 		}
 	}
 
-	claims, parseTokenErr := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth.access_signing_key")))
+	claims, parseTokenErr := s.UseCase.ParseToken(headerParts[1], []byte(viper.GetString("auth_access_signing_key")))
 	if err != nil {
 		return "", models.Anonymous, &gqlerror.Error{
 			Path:    graphql.GetPath(c),
@@ -92,6 +92,21 @@ func (s *AuthDelegateImpl) UserAccess(currentRole models.Role, roles []models.Ro
 		Extensions: map[string]interface{}{
 			"code": "403",
 		},
+	}
+	return
+}
+
+func (s *AuthDelegateImpl) RequestResetPassword(email string) (err error) {
+	err = s.UseCase.RequestResetPassword(email)
+	if err != nil {
+		return
+	}
+	return
+}
+func (s *AuthDelegateImpl) ConfirmResetPassword(email, verifyCode string) (err error) {
+	err = s.UseCase.ConfirmResetPassword(email, verifyCode)
+	if err != nil {
+		return
 	}
 	return
 }

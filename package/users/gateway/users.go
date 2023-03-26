@@ -173,6 +173,43 @@ func (r *UsersGatewayImpl) UpdateStudent(student *models.StudentCore) (studentUp
 	return
 }
 
+func (r *UsersGatewayImpl) GetStudentByEmail(email string) (student *models.StudentCore, err error) {
+	var studentDb models.StudentDB
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Where("email = ?", email).First(&studentDb).Error; err != nil {
+			err = auth.ErrUserNotFound
+			log.Println(err)
+			return
+		}
+		return
+	})
+	student = studentDb.ToCore()
+
+	return
+}
+
+func (r *UsersGatewayImpl) UpdateStudentByEmail(student *models.StudentCore) (studentUpdated *models.StudentCore, err error) {
+	studentDb := models.StudentDB{}
+	studentDb.FromCore(student)
+
+	err = r.PostgresClient.Db.Transaction(func(tx *gorm.DB) (err error) {
+		if err = tx.Model(&studentDb).Clauses(clause.Returning{}).
+			Where("email = ?", studentDb.Email).First(&models.StudentDB{}).Updates(studentDb).Error; err != nil {
+			var duplicateEntryError = &pgconn.PgError{Code: "23505"}
+			if errors.As(err, &duplicateEntryError) {
+				return users.ErrAlreadyUsedEmail
+			}
+			err = auth.ErrUserNotFound
+			return
+		}
+		return
+	})
+	fmt.Println(studentDb)
+	studentUpdated = studentDb.ToCore()
+	return
+}
+
 func (r *UsersGatewayImpl) GetTeacher(email, password string) (teacher models.TeacherCore, err error) {
 	var teacherDb models.TeacherDB
 

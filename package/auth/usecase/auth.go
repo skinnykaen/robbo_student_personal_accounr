@@ -2,13 +2,18 @@ package usecase
 
 import (
 	"crypto/sha1"
+	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
+	"github.com/jordan-wright/email"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
+	"log"
+	"net/smtp"
 	"time"
 )
 
@@ -27,11 +32,11 @@ type AuthUseCaseModule struct {
 }
 
 func SetupAuthUseCase(gateway users.Gateway) AuthUseCaseModule {
-	hashSalt := viper.GetString("auth.hash_salt")
-	accessSigningKey := []byte(viper.GetString("auth.access_signing_key"))
-	refreshSigningKey := []byte(viper.GetString("auth.refresh_signing_key"))
-	accessTokenTTLTime := viper.GetDuration("auth.access_token_ttl")
-	refreshTokenTTLTime := viper.GetDuration("auth.refresh_token_ttl")
+	hashSalt := viper.GetString("auth_hash_salt")
+	accessSigningKey := []byte(viper.GetString("auth_access_signing_key"))
+	refreshSigningKey := []byte(viper.GetString("auth_refresh_signing_key"))
+	accessTokenTTLTime := viper.GetDuration("auth_access_token_ttl")
+	refreshTokenTTLTime := viper.GetDuration("auth_refresh_token_ttl")
 
 	return AuthUseCaseModule{
 		UseCase: &AuthUseCaseImpl{
@@ -224,6 +229,91 @@ func (a *AuthUseCaseImpl) GenerateToken(user *models.UserCore, duration time.Dur
 	token, err = ss.SignedString(signingKey)
 	if err != nil {
 		fmt.Println(err)
+	}
+	return
+}
+
+func (a *AuthUseCaseImpl) RequestResetPassword(email string) (err error) {
+	verifyCode := utils.GenerateRandomString(6)
+	subject := "Код для подтверждения сброса пароля"
+	body := "<h1> Ваш код: " + verifyCode + "<h1>"
+
+	studentCore := &models.StudentCore{
+		UserCore: models.UserCore{
+			Email:     email,
+			Code:      verifyCode,
+			ExpiresAt: time.Now().Add(time.Second * viper.GetDuration("auth_pass_reset_code_expiration")),
+		},
+	}
+	_, err = a.Gateway.UpdateStudentByEmail(studentCore)
+
+	if err != nil {
+		return
+	}
+
+	err = a.SendEmail(subject, email, body)
+	if err != nil {
+		return
+	}
+
+	return
+}
+func (a *AuthUseCaseImpl) ConfirmResetPassword(email, verifyCode string) (err error) {
+	user, err := a.Gateway.GetStudentByEmail(email)
+	if err != nil {
+		return
+	}
+
+	if user.ExpiresAt.Before(time.Now()) {
+		err = errors.New("The verification code has expired")
+		return
+	}
+
+	if verifyCode != user.Code {
+		err = errors.New("Verification code provided is invalid")
+		return
+	}
+
+	newPassword := utils.GenerateRandomString(8)
+
+	pwd := sha1.New()
+	pwd.Write([]byte(newPassword))
+	pwd.Write([]byte(a.hashSalt))
+	user.Password = fmt.Sprintf("%x", pwd.Sum(nil))
+	user.Code = ""
+	user.ExpiresAt = time.Time{}
+
+	_, err = a.Gateway.UpdateStudent(user)
+	if err != nil {
+		return
+	}
+
+	subject := "Новый пароль"
+	body := "<h1> Ваш новый пароль: " + newPassword + "<h1>"
+
+	err = a.SendEmail(subject, email, body)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (a *AuthUseCaseImpl) SendEmail(subject, to, body string) (err error) {
+	from := viper.GetString("mail_username")
+	pass := viper.GetString("mail_password")
+
+	e := email.NewEmail()
+	e.From = "Robbo <" + from + ">"
+	e.To = []string{to}
+	e.Subject = subject
+	e.HTML = []byte(body)
+
+	auth := smtp.PlainAuth("", from, pass, viper.GetString("smtp_server_host"))
+	err = e.Send(viper.GetString("smtp_server_address"), auth)
+	if err != nil {
+		log.Println(err)
+		return
 	}
 	return
 }

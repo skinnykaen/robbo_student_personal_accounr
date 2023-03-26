@@ -45,6 +45,24 @@ func (r *mutationResolver) SingOut(ctx context.Context) (*models.Error, error) {
 	return &models.Error{}, nil
 }
 
+// RequestResetPassword is the resolver for the RequestResetPassword field.
+func (r *mutationResolver) RequestResetPassword(ctx context.Context, email string) (*models.Error, error) {
+	err := r.authDelegate.RequestResetPassword(email)
+	if err != nil {
+		return nil, err
+	}
+	return nil, err
+}
+
+// ConfirmResetPassword is the resolver for the ConfirmResetPassword field.
+func (r *mutationResolver) ConfirmResetPassword(ctx context.Context, email string, verifyCode string) (*models.Error, error) {
+	err := r.authDelegate.ConfirmResetPassword(email, verifyCode)
+	if err != nil {
+		return nil, err
+	}
+	return nil, err
+}
+
 // Refresh is the resolver for the Refresh field.
 func (r *mutationResolver) Refresh(ctx context.Context) (models.SignInResult, error) {
 	ginContext, getGinContextErr := GinContextFromContext(ctx)
@@ -80,9 +98,9 @@ func (r *mutationResolver) Refresh(ctx context.Context) (models.SignInResult, er
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
 // one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
 func getRefreshToken(c *gin.Context) (refreshToken string, err error) {
 	refreshToken = c.Value("refresh_token").(string)
 	if refreshToken == "" {
