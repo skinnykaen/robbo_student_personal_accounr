@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/projects"
 	"go.uber.org/fx"
@@ -36,5 +37,10 @@ func (p *ProjectUseCaseImpl) DeleteProject() {
 }
 
 func (p *ProjectUseCaseImpl) GetProjectById(projectId, userId string) (project *models.ProjectCore, err error) {
-	return p.Gateway.GetProjectById(projectId, userId)
+	project, err = p.Gateway.GetProjectById(projectId)
+	if project.AuthorId == userId {
+		return
+	} else {
+		return nil, errors.New("no access")
+	}
 }

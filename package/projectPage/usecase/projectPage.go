@@ -130,8 +130,17 @@ func (p *ProjectPageUseCaseImpl) GetAllProjectPageByUserId(authorId string, page
 }
 
 func (p *ProjectPageUseCaseImpl) GetProjectPageById(projectPageId string) (
-	projectPage *models.ProjectPageCore,
-	err error,
+	*models.ProjectPageCore,
+	error,
 ) {
-	return p.projectPageGateway.GetProjectPageById(projectPageId)
+	project, getProjectErr := p.projectGateway.GetProjectById(projectPageId)
+	if getProjectErr != nil {
+		return nil, getProjectErr
+	}
+	projectPage, getProjectPage := p.projectPageGateway.GetProjectPageById(projectPageId)
+	if getProjectPage != nil {
+		return nil, getProjectPage
+	}
+	projectPage.ProjectLastModified = project.LastModified
+	return projectPage, nil
 }

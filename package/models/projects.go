@@ -6,10 +6,11 @@ import (
 )
 
 type ProjectCore struct {
-	ID       string
-	Name     string
-	AuthorId string
-	Json     string
+	ID           string
+	LastModified string
+	Name         string
+	AuthorId     string
+	Json         string
 }
 
 type ProjectDB struct {
@@ -29,10 +30,11 @@ type ProjectHTTP struct {
 
 func (em *ProjectDB) ToCore() *ProjectCore {
 	return &ProjectCore{
-		ID:       strconv.FormatUint(uint64(em.ID), 10),
-		Name:     em.Name,
-		AuthorId: em.AuthorId,
-		Json:     em.Json,
+		ID:           strconv.FormatUint(uint64(em.ID), 10),
+		LastModified: em.UpdatedAt.String(),
+		Name:         em.Name,
+		AuthorId:     em.AuthorId,
+		Json:         em.Json,
 	}
 }
 

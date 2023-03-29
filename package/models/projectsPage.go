@@ -6,15 +6,16 @@ import (
 )
 
 type ProjectPageCore struct {
-	ProjectPageId string
-	LastModified  string
-	Title         string
-	ProjectId     string
-	Instruction   string
-	Notes         string
-	Preview       string
-	LinkScratch   string
-	IsShared      bool
+	ProjectPageId       string
+	LastModified        string
+	ProjectLastModified string
+	Title               string
+	ProjectId           string
+	Instruction         string
+	Notes               string
+	Preview             string
+	LinkScratch         string
+	IsShared            bool
 }
 
 type ProjectPageDB struct {
@@ -58,21 +59,23 @@ func (em *ProjectPageDB) FromCore(projectPage *ProjectPageCore) {
 
 func (ht *ProjectPageHTTP) ToCore() *ProjectPageCore {
 	return &ProjectPageCore{
-		ProjectPageId: ht.ProjectPageID,
-		LastModified:  ht.LastModified,
-		Title:         ht.Title,
-		ProjectId:     ht.ProjectID,
-		Instruction:   ht.Instruction,
-		Notes:         ht.Notes,
-		Preview:       ht.Preview,
-		LinkScratch:   ht.LinkScratch,
-		IsShared:      ht.IsShared,
+		ProjectPageId:       ht.ProjectPageID,
+		LastModified:        ht.LastModified,
+		ProjectLastModified: ht.ProjectLastModified,
+		Title:               ht.Title,
+		ProjectId:           ht.ProjectID,
+		Instruction:         ht.Instruction,
+		Notes:               ht.Notes,
+		Preview:             ht.Preview,
+		LinkScratch:         ht.LinkScratch,
+		IsShared:            ht.IsShared,
 	}
 }
 
 func (ht *ProjectPageHTTP) FromCore(projectPage *ProjectPageCore) {
 	ht.ProjectPageID = projectPage.ProjectPageId
 	ht.LastModified = projectPage.LastModified
+	ht.ProjectLastModified = projectPage.ProjectLastModified
 	ht.ProjectID = projectPage.ProjectId
 	ht.Instruction = projectPage.Instruction
 	ht.Notes = projectPage.Notes

@@ -165,15 +165,16 @@ type ComplexityRoot struct {
 	}
 
 	ProjectPageHttp struct {
-		Instruction   func(childComplexity int) int
-		IsShared      func(childComplexity int) int
-		LastModified  func(childComplexity int) int
-		LinkScratch   func(childComplexity int) int
-		Notes         func(childComplexity int) int
-		Preview       func(childComplexity int) int
-		ProjectID     func(childComplexity int) int
-		ProjectPageID func(childComplexity int) int
-		Title         func(childComplexity int) int
+		Instruction         func(childComplexity int) int
+		IsShared            func(childComplexity int) int
+		LastModified        func(childComplexity int) int
+		LinkScratch         func(childComplexity int) int
+		Notes               func(childComplexity int) int
+		Preview             func(childComplexity int) int
+		ProjectID           func(childComplexity int) int
+		ProjectLastModified func(childComplexity int) int
+		ProjectPageID       func(childComplexity int) int
+		Title               func(childComplexity int) int
 	}
 
 	ProjectPageHttpList struct {
@@ -869,6 +870,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProjectPageHttp.ProjectID(childComplexity), true
 
+	case "ProjectPageHttp.projectLastModified":
+		if e.complexity.ProjectPageHttp.ProjectLastModified == nil {
+			break
+		}
+
+		return e.complexity.ProjectPageHttp.ProjectLastModified(childComplexity), true
+
 	case "ProjectPageHttp.projectPageId":
 		if e.complexity.ProjectPageHttp.ProjectPageID == nil {
 			break
@@ -1340,6 +1348,7 @@ extend type Query {
     projectPageId: String!
     lastModified: String!
     projectId: String!
+    projectLastModified: String!
     instruction: String!
     notes: String!
     preview: String!
@@ -5377,6 +5386,50 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_projectId(ctx context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _ProjectPageHttp_projectLastModified(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_projectLastModified(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectLastModified, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectPageHttp_projectLastModified(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectPageHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProjectPageHttp_instruction(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
 	if err != nil {
@@ -5686,6 +5739,8 @@ func (ec *executionContext) fieldContext_ProjectPageHttpList_projectPages(ctx co
 				return ec.fieldContext_ProjectPageHttp_lastModified(ctx, field)
 			case "projectId":
 				return ec.fieldContext_ProjectPageHttp_projectId(ctx, field)
+			case "projectLastModified":
+				return ec.fieldContext_ProjectPageHttp_projectLastModified(ctx, field)
 			case "instruction":
 				return ec.fieldContext_ProjectPageHttp_instruction(ctx, field)
 			case "notes":
@@ -10443,6 +10498,13 @@ func (ec *executionContext) _ProjectPageHttp(ctx context.Context, sel ast.Select
 		case "projectId":
 
 			out.Values[i] = ec._ProjectPageHttp_projectId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "projectLastModified":
+
+			out.Values[i] = ec._ProjectPageHttp_projectLastModified(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

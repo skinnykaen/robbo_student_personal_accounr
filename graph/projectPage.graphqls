@@ -2,6 +2,7 @@ type ProjectPageHttp {
     projectPageId: String!
     lastModified: String!
     projectId: String!
+    projectLastModified: String!
     instruction: String!
     notes: String!
     preview: String!

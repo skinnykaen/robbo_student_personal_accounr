@@ -148,15 +148,16 @@ type Pagination struct {
 }
 
 type ProjectPageHTTP struct {
-	ProjectPageID string `json:"projectPageId"`
-	LastModified  string `json:"lastModified"`
-	ProjectID     string `json:"projectId"`
-	Instruction   string `json:"instruction"`
-	Notes         string `json:"notes"`
-	Preview       string `json:"preview"`
-	LinkScratch   string `json:"linkScratch"`
-	Title         string `json:"title"`
-	IsShared      bool   `json:"isShared"`
+	ProjectPageID       string `json:"projectPageId"`
+	LastModified        string `json:"lastModified"`
+	ProjectID           string `json:"projectId"`
+	ProjectLastModified string `json:"projectLastModified"`
+	Instruction         string `json:"instruction"`
+	Notes               string `json:"notes"`
+	Preview             string `json:"preview"`
+	LinkScratch         string `json:"linkScratch"`
+	Title               string `json:"title"`
+	IsShared            bool   `json:"isShared"`
 }
 
 func (ProjectPageHTTP) IsProjectPageResult() {}
