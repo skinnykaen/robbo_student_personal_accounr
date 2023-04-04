@@ -1,4 +1,4 @@
-package server
+package middleware
 
 import (
 	"github.com/99designs/gqlgen/graphql"
@@ -20,10 +20,6 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 			c.Set("refresh_token", "")
 		}
 		if header == "" {
-			//c.JSON(http.StatusUnauthorized, gin.H{
-			//	"error": "token not found",
-			//})
-			//c.Abort()
 			c.Set("user_id", "0")
 			c.Set("user_role", models.Anonymous)
 			c.Next()
@@ -31,9 +27,6 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		}
 		headerParts := strings.Split(header, " ")
 		if len(headerParts) != 2 {
-			//c.JSON(http.StatusUnauthorized, gin.H{
-			//	"error": "invalid authorization header format",
-			//})
 			graphql.AddError(c, &gqlerror.Error{
 				Path:    graphql.GetPath(c),
 				Message: "invalid authorization header format",
@@ -46,7 +39,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		}
 		data, err := jwt.ParseWithClaims(headerParts[1], &models.UserClaims{},
 			func(token *jwt.Token) (interface{}, error) {
-				return []byte(viper.GetString("auth.access_signing_key")), nil
+				return []byte(viper.GetString("auth_access_signing_key")), nil
 			})
 
 		if err != nil {
@@ -56,9 +49,6 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 
 		claims, ok := data.Claims.(*models.UserClaims)
 		if !ok {
-			//c.JSON(http.StatusUnauthorized, gin.H{
-			//	"error": "token claims are not of type *StandardClaims",
-			//})
 			graphql.AddError(c, &gqlerror.Error{
 				Path:    graphql.GetPath(c),
 				Message: "token claims are not of type *StandardClaims",

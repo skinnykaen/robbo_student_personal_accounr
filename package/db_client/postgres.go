@@ -28,7 +28,7 @@ func NewPostgresClient(_logger *log.Logger) (postgresClient PostgresClient, err 
 			Colorful:                  true,        // Disable color
 		},
 	)
-	db, err := gorm.Open(postgres.Open(viper.GetString("postgres.postgresDsn")), &gorm.Config{Logger: newLogger})
+	db, err := gorm.Open(postgres.Open(viper.GetString("postgres_dsn")), &gorm.Config{Logger: newLogger})
 	if err != nil {
 		return
 	}
