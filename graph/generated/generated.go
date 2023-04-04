@@ -192,8 +192,8 @@ type ComplexityRoot struct {
 		SetNewUnitAdminForRobboUnit          func(childComplexity int, unitAdminID string, robboUnitID string) int
 		SetRobboGroupIDForStudent            func(childComplexity int, studentID string, robboGroupID string, robboUnitID string) int
 		SetTeacherForRobboGroup              func(childComplexity int, teacherID string, robboGroupID string) int
-		SingIn                               func(childComplexity int, input models.SignInInput) int
-		SingOut                              func(childComplexity int) int
+		SignIn                               func(childComplexity int, input models.SignInInput) int
+		SignOut                              func(childComplexity int) int
 		UpdateParent                         func(childComplexity int, input models.UpdateProfileInput) int
 		UpdateProjectPage                    func(childComplexity int, input models.UpdateProjectPage) int
 		UpdateRobboGroup                     func(childComplexity int, input models.UpdateRobboGroup) int
@@ -314,7 +314,7 @@ type ComplexityRoot struct {
 		RobboUnits func(childComplexity int) int
 	}
 
-	SingInResponse struct {
+	SignInResponse struct {
 		AccessToken func(childComplexity int) int
 	}
 
@@ -375,8 +375,8 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	UpdateSuperAdmin(ctx context.Context, input models.UpdateProfileInput) (models.SuperAdminResult, error)
-	SingIn(ctx context.Context, input models.SignInInput) (models.SignInResult, error)
-	SingOut(ctx context.Context) (*models.Error, error)
+	SignIn(ctx context.Context, input models.SignInInput) (models.SignInResult, error)
+	SignOut(ctx context.Context) (*models.Error, error)
 	Refresh(ctx context.Context) (models.SignInResult, error)
 	CreateAccessCourseRelationRobboGroup(ctx context.Context, input models.NewAccessCourseRelationRobboGroup) (models.CourseRelationResult, error)
 	CreateAccessCourseRelationRobboUnit(ctx context.Context, input models.NewAccessCourseRelationRobboUnit) (models.CourseRelationResult, error)
@@ -1245,24 +1245,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SetTeacherForRobboGroup(childComplexity, args["teacherId"].(string), args["robboGroupId"].(string)), true
 
-	case "Mutation.SingIn":
-		if e.complexity.Mutation.SingIn == nil {
+	case "Mutation.SignIn":
+		if e.complexity.Mutation.SignIn == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_SingIn_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_SignIn_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SingIn(childComplexity, args["input"].(models.SignInInput)), true
+		return e.complexity.Mutation.SignIn(childComplexity, args["input"].(models.SignInInput)), true
 
-	case "Mutation.SingOut":
-		if e.complexity.Mutation.SingOut == nil {
+	case "Mutation.SignOut":
+		if e.complexity.Mutation.SignOut == nil {
 			break
 		}
 
-		return e.complexity.Mutation.SingOut(childComplexity), true
+		return e.complexity.Mutation.SignOut(childComplexity), true
 
 	case "Mutation.UpdateParent":
 		if e.complexity.Mutation.UpdateParent == nil {
@@ -2155,12 +2155,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RobboUnitHttpList.RobboUnits(childComplexity), true
 
-	case "SingInResponse.accessToken":
-		if e.complexity.SingInResponse.AccessToken == nil {
+	case "SignInResponse.accessToken":
+		if e.complexity.SignInResponse.AccessToken == nil {
 			break
 		}
 
-		return e.complexity.SingInResponse.AccessToken(childComplexity), true
+		return e.complexity.SignInResponse.AccessToken(childComplexity), true
 
 	case "StudentHttp.robboGroupId":
 		if e.complexity.StudentHttp.RobboGroupID == nil {
@@ -2420,15 +2420,15 @@ var sources = []*ast.Source{
 	userRole: Int!
 }
 
-type SingInResponse {
+type SignInResponse {
 	accessToken: String!
 }
 
-union SignInResult = Error | SingInResponse
+union SignInResult = Error | SignInResponse
 
 extend type Mutation {
-	SingIn(input: SignInInput!): SignInResult!
-	SingOut: Error
+	SignIn(input: SignInInput!): SignInResult!
+	SignOut: Error
 	Refresh: SignInResult
 }`, BuiltIn: false},
 	{Name: "../courses.graphqls", Input: `type CourseHttp {
@@ -3444,7 +3444,7 @@ func (ec *executionContext) field_Mutation_SetTeacherForRobboGroup_args(ctx cont
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_SingIn_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_SignIn_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 models.SignInInput
@@ -7545,8 +7545,8 @@ func (ec *executionContext) fieldContext_Mutation_UpdateSuperAdmin(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_SingIn(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_SingIn(ctx, field)
+func (ec *executionContext) _Mutation_SignIn(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SignIn(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7559,7 +7559,7 @@ func (ec *executionContext) _Mutation_SingIn(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SingIn(rctx, fc.Args["input"].(models.SignInInput))
+		return ec.resolvers.Mutation().SignIn(rctx, fc.Args["input"].(models.SignInInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7576,7 +7576,7 @@ func (ec *executionContext) _Mutation_SingIn(ctx context.Context, field graphql.
 	return ec.marshalNSignInResult2githubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐSignInResult(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_SingIn(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_SignIn(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -7593,15 +7593,15 @@ func (ec *executionContext) fieldContext_Mutation_SingIn(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_SingIn_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_SignIn_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_SingOut(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_SingOut(ctx, field)
+func (ec *executionContext) _Mutation_SignOut(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SignOut(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7614,7 +7614,7 @@ func (ec *executionContext) _Mutation_SingOut(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SingOut(rctx)
+		return ec.resolvers.Mutation().SignOut(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7628,7 +7628,7 @@ func (ec *executionContext) _Mutation_SingOut(ctx context.Context, field graphql
 	return ec.marshalOError2ᚖgithubᚗcomᚋskinnykaenᚋrobbo_student_personal_accountᚗgitᚋpackageᚋmodelsᚐError(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_SingOut(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_SignOut(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -13896,8 +13896,8 @@ func (ec *executionContext) fieldContext_RobboUnitHttpList_countRows(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _SingInResponse_accessToken(ctx context.Context, field graphql.CollectedField, obj *models.SingInResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SingInResponse_accessToken(ctx, field)
+func (ec *executionContext) _SignInResponse_accessToken(ctx context.Context, field graphql.CollectedField, obj *models.SignInResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SignInResponse_accessToken(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -13927,9 +13927,9 @@ func (ec *executionContext) _SingInResponse_accessToken(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SingInResponse_accessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SignInResponse_accessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "SingInResponse",
+		Object:     "SignInResponse",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -18154,13 +18154,13 @@ func (ec *executionContext) _SignInResult(ctx context.Context, sel ast.Selection
 			return graphql.Null
 		}
 		return ec._Error(ctx, sel, obj)
-	case models.SingInResponse:
-		return ec._SingInResponse(ctx, sel, &obj)
-	case *models.SingInResponse:
+	case models.SignInResponse:
+		return ec._SignInResponse(ctx, sel, &obj)
+	case *models.SignInResponse:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SingInResponse(ctx, sel, obj)
+		return ec._SignInResponse(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -19167,19 +19167,19 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "SingIn":
+		case "SignIn":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_SingIn(ctx, field)
+				return ec._Mutation_SignIn(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "SingOut":
+		case "SignOut":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_SingOut(ctx, field)
+				return ec._Mutation_SignOut(ctx, field)
 			})
 
 		case "Refresh":
@@ -21067,19 +21067,19 @@ func (ec *executionContext) _RobboUnitHttpList(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var singInResponseImplementors = []string{"SingInResponse", "SignInResult"}
+var signInResponseImplementors = []string{"SignInResponse", "SignInResult"}
 
-func (ec *executionContext) _SingInResponse(ctx context.Context, sel ast.SelectionSet, obj *models.SingInResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, singInResponseImplementors)
+func (ec *executionContext) _SignInResponse(ctx context.Context, sel ast.SelectionSet, obj *models.SignInResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, signInResponseImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("SingInResponse")
+			out.Values[i] = graphql.MarshalString("SignInResponse")
 		case "accessToken":
 
-			out.Values[i] = ec._SingInResponse_accessToken(ctx, field, obj)
+			out.Values[i] = ec._SignInResponse_accessToken(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

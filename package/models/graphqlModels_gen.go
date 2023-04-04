@@ -432,11 +432,11 @@ type SignInInput struct {
 	UserRole int    `json:"userRole"`
 }
 
-type SingInResponse struct {
+type SignInResponse struct {
 	AccessToken string `json:"accessToken"`
 }
 
-func (SingInResponse) IsSignInResult() {}
+func (SignInResponse) IsSignInResult() {}
 
 type StudentHTTP struct {
 	UserHTTP     *UserHTTP `json:"userHttp"`

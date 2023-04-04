@@ -4,14 +4,14 @@ input SignInInput {
 	userRole: Int!
 }
 
-type SingInResponse {
+type SignInResponse {
 	accessToken: String!
 }
 
-union SignInResult = Error | SingInResponse
+union SignInResult = Error | SignInResponse
 
 extend type Mutation {
-	SingIn(input: SignInInput!): SignInResult!
-	SingOut: Error
+	SignIn(input: SignInInput!): SignInResult!
+	SignOut: Error
 	Refresh: SignInResult
 }

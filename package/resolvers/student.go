@@ -5,10 +5,10 @@ package resolvers
 
 import (
 	"context"
-	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
