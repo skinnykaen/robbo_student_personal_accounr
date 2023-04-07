@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"crypto/sha1"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jordan-wright/email"
 	"github.com/spf13/viper"
@@ -53,5 +55,13 @@ func SendEmail(subject, to, body string) (err error) {
 		log.Println(err)
 		return
 	}
+	return
+}
+
+func Hash(s string) (hash string) {
+	pwd := sha1.New()
+	pwd.Write([]byte(s))
+	pwd.Write([]byte(viper.GetString("auth_hash_salt")))
+	hash = fmt.Sprintf("%x", pwd.Sum(nil))
 	return
 }

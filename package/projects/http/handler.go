@@ -53,8 +53,7 @@ func (h *Handler) CreateProject(c *gin.Context) {
 
 	projectHTTP := models.ProjectHTTP{}
 	projectHTTP.Json = string(jsonDataBytes)
-	projectId, err := h.projectsDelegate.CreateProject(&projectHTTP)
-	fmt.Println(projectId)
+	project, err := h.projectsDelegate.CreateProject(&projectHTTP)
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -62,19 +61,13 @@ func (h *Handler) CreateProject(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, testResponse{
-		Id: projectId,
+		Id: project.ID,
 	})
 }
 
 func (h *Handler) GetProject(c *gin.Context) {
-	userId, role, userIdentityErr := h.authDelegate.UserIdentity(c)
-
-	if userIdentityErr != nil {
-		err := errors.New("status unauthorized")
-		c.AbortWithError(http.StatusUnauthorized, err)
-		return
-	}
-	allowedRoles := []models.Role{models.Student}
+	userId, role, _ := h.authDelegate.UserIdentity(c)
+	allowedRoles := []models.Role{models.Student, models.SuperAdmin, models.Anonymous}
 	accessErr := h.authDelegate.UserAccess(role, allowedRoles, c)
 	if accessErr != nil {
 		err := errors.New("no access")
@@ -87,7 +80,7 @@ func (h *Handler) GetProject(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	project, err := h.projectsDelegate.GetProjectById(projectId, userId)
+	project, err := h.projectsDelegate.GetProjectById(projectId, userId, role)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

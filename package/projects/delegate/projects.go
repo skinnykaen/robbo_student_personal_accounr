@@ -21,7 +21,7 @@ func SetupProjectDelegate(usecase projects.UseCase) ProjectDelegateModule {
 	}
 }
 
-func (p *ProjectDelegateImpl) CreateProject(project *models.ProjectHTTP) (id string, err error) {
+func (p *ProjectDelegateImpl) CreateProject(project *models.ProjectHTTP) (newProject *models.ProjectCore, err error) {
 	projectCore := project.ToCore()
 	return p.UseCase.CreateProject(projectCore)
 }
@@ -35,8 +35,8 @@ func (p *ProjectDelegateImpl) UpdateProject(project *models.ProjectHTTP) (err er
 	return p.UseCase.UpdateProject(projectCore)
 }
 
-func (p *ProjectDelegateImpl) GetProjectById(projectId, userId string) (project models.ProjectHTTP, err error) {
-	projectCore, err := p.UseCase.GetProjectById(projectId, userId)
+func (p *ProjectDelegateImpl) GetProjectById(projectId, userId string, role models.Role) (project models.ProjectHTTP, err error) {
+	projectCore, err := p.UseCase.GetProjectById(projectId, userId, role)
 	if err != nil {
 		return
 	}

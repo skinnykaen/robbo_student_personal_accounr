@@ -65,7 +65,7 @@ func SetupUseCase(gateway GatewayModule) UseCaseModule {
 		CoursesUseCase:     crsusecase.SetupCourseUseCase(gateway.CoursesGateway),
 		EdxUseCase:         edxusecase.SetupEdxApiUseCase(),
 		ProjectPageUseCase: ppageusecase.SetupProjectPageUseCase(gateway.ProjectPageGateway, gateway.ProjectsGateway),
-		ProjectsUseCase:    prjusecase.SetupProjectUseCase(gateway.ProjectsGateway),
+		ProjectsUseCase:    prjusecase.SetupProjectUseCase(gateway.ProjectsGateway, gateway.ProjectPageGateway),
 		UsersUseCase:       usersusecase.SetupUsersUseCase(gateway.UsersGateway),
 	}
 }

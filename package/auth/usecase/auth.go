@@ -1,12 +1,12 @@
 package usecase
 
 import (
-	"crypto/sha1"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/auth"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/models"
 	"github.com/skinnykaen/robbo_student_personal_account.git/package/users"
+	"github.com/skinnykaen/robbo_student_personal_account.git/package/utils"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"time"
@@ -46,11 +46,7 @@ func SetupAuthUseCase(gateway users.Gateway) AuthUseCaseModule {
 }
 
 func (a *AuthUseCaseImpl) SignIn(email, password string, role uint) (accessToken, refreshToken string, err error) {
-	pwd := sha1.New()
-	pwd.Write([]byte(password))
-	pwd.Write([]byte(a.hashSalt))
-	passwordHash := fmt.Sprintf("%x", pwd.Sum(nil))
-
+	passwordHash := utils.Hash(password)
 	var user = new(models.UserCore)
 	switch models.Role(role) {
 	case models.Student:
@@ -92,11 +88,7 @@ func (a *AuthUseCaseImpl) SignIn(email, password string, role uint) (accessToken
 }
 
 func (a *AuthUseCaseImpl) SignUp(userCore *models.UserCore) (accessToken, refreshToken string, err error) {
-	pwd := sha1.New()
-	pwd.Write([]byte(userCore.Password))
-	pwd.Write([]byte(a.hashSalt))
-	userCore.Password = fmt.Sprintf("%x", pwd.Sum(nil))
-
+	userCore.Password = utils.Hash(userCore.Password)
 	switch userCore.Role {
 	case models.Student:
 		student := &models.StudentCore{

@@ -72,23 +72,23 @@ const emptyProjectJson = "{\"targets\":[{\"isStage\":true,\"name\":\"Stage\",\"v
 	" Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36\"}}"
 
 func (p *ProjectPageUseCaseImpl) CreateProjectPage(authorId string) (newProjectPage *models.ProjectPageCore, err error) {
-	project := models.ProjectCore{}
+	project := &models.ProjectCore{}
 	project.AuthorId = authorId
 	project.Json = emptyProjectJson2
 	project.Name = "Untitled"
 
-	projectId, createProjectErr := p.projectGateway.CreateProject(&project)
+	newProject, createProjectErr := p.projectGateway.CreateProject(project)
 	if createProjectErr != nil {
 		return nil, createProjectErr
 	}
 
 	projectPage := &models.ProjectPageCore{
 		Title:       "Untitled",
-		ProjectId:   projectId,
+		ProjectId:   newProject.ID,
 		Instruction: "",
 		Notes:       "",
 		Preview:     "",
-		LinkScratch: viper.GetString("projectPage.scratchLink") + "?#" + projectId,
+		LinkScratch: viper.GetString("projectPage.scratchLink") + "?#" + newProject.ID,
 		IsShared:    false,
 	}
 	newProjectPage, err = p.projectPageGateway.CreateProjectPage(projectPage)

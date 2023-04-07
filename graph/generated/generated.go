@@ -168,6 +168,7 @@ type ComplexityRoot struct {
 		Instruction         func(childComplexity int) int
 		IsShared            func(childComplexity int) int
 		LastModified        func(childComplexity int) int
+		Link                func(childComplexity int) int
 		LinkScratch         func(childComplexity int) int
 		Notes               func(childComplexity int) int
 		Preview             func(childComplexity int) int
@@ -842,6 +843,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProjectPageHttp.LastModified(childComplexity), true
 
+	case "ProjectPageHttp.link":
+		if e.complexity.ProjectPageHttp.Link == nil {
+			break
+		}
+
+		return e.complexity.ProjectPageHttp.Link(childComplexity), true
+
 	case "ProjectPageHttp.linkScratch":
 		if e.complexity.ProjectPageHttp.LinkScratch == nil {
 			break
@@ -1355,6 +1363,7 @@ extend type Query {
     linkScratch: String!
     title: String!
     isShared: Boolean!
+    link: String!
 }
 
 type ProjectPageHttpList {
@@ -5694,6 +5703,50 @@ func (ec *executionContext) fieldContext_ProjectPageHttp_isShared(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _ProjectPageHttp_link(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTP) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPageHttp_link(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Link, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectPageHttp_link(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectPageHttp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProjectPageHttpList_projectPages(ctx context.Context, field graphql.CollectedField, obj *models.ProjectPageHTTPList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProjectPageHttpList_projectPages(ctx, field)
 	if err != nil {
@@ -5753,6 +5806,8 @@ func (ec *executionContext) fieldContext_ProjectPageHttpList_projectPages(ctx co
 				return ec.fieldContext_ProjectPageHttp_title(ctx, field)
 			case "isShared":
 				return ec.fieldContext_ProjectPageHttp_isShared(ctx, field)
+			case "link":
+				return ec.fieldContext_ProjectPageHttp_link(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProjectPageHttp", field.Name)
 		},
@@ -10547,6 +10602,13 @@ func (ec *executionContext) _ProjectPageHttp(ctx context.Context, sel ast.Select
 		case "isShared":
 
 			out.Values[i] = ec._ProjectPageHttp_isShared(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "link":
+
+			out.Values[i] = ec._ProjectPageHttp_link(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
